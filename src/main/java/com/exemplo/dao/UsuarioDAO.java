@@ -14,8 +14,9 @@ public class UsuarioDAO {
     public boolean cadastrarUsuario(Usuario usuario) throws SQLException{
         String sql = "insert into usuario(nome_completo, genero, email, senha ,telefone,  dt_nascimento ,dt_cadastro) values (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection cnn= new ConexaoBanco().conectar();
+        try (Connection cnn= ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
+
             pstmt.setString(1,usuario.getNomeCompleto());
             pstmt.setString(2, usuario.getGenero());
             pstmt.setString(3, usuario.getEmail());
@@ -29,13 +30,11 @@ public class UsuarioDAO {
     }
 
 
-
-
     public ArrayList<Usuario> read() throws SQLException {
         String sql = "select * from usuario order by id_usuario";
         ArrayList<Usuario> usuario = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
             ResultSet rset = pstmt.executeQuery()) {
                 while (rset.next()) {
@@ -59,7 +58,7 @@ public class UsuarioDAO {
         String sql = "select * from usuario where id_usuario =?";
         Usuario usuario = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setInt(1,id);
@@ -89,7 +88,7 @@ public class UsuarioDAO {
         String sql = "select * from usuario where email =?";
         Usuario usuario = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1,email);
@@ -119,7 +118,7 @@ public class UsuarioDAO {
         String sql = "select * from usuario where nome_completo like ? ";
         Usuario usuario = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1, "%"+nomeCompleto+"%");
@@ -147,7 +146,7 @@ public class UsuarioDAO {
 
     public int update (Usuario usuario) throws SQLException {
         String sql = "update usuario set nome_completo = ?, genero = ?, email = ?, telefone = ?, dt_nascimento = ? where id_usuario = ? ";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setString(1, usuario.getNomeCompleto());
@@ -179,7 +178,7 @@ public class UsuarioDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from usuario where id_usuario = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -189,7 +188,7 @@ public class UsuarioDAO {
 
     public int deleteByEmail(String email) throws SQLException{
         String sql ="delete from usuario where email=?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
             pstmt.setString(1,email);
             return pstmt.executeUpdate();
@@ -197,7 +196,7 @@ public class UsuarioDAO {
     }
 
     public boolean existeEmail(String email) throws SQLException {
-        Connection conexao = new ConexaoBanco().conectar();
+        Connection conexao = ConexaoBanco.conectar();
 
         String sql = "select 1 FROM usuario WHERE email = ?";
         PreparedStatement comando = conexao.prepareStatement(sql);
