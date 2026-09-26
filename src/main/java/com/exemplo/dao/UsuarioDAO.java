@@ -161,20 +161,18 @@ public class UsuarioDAO {
         }
     }
 
-    public boolean trocarSenha(int idUsuario, String novaSenha) throws SQLException{
-        Connection cnn = ConexaoBanco.conectar();
+    public int trocarSenha(int idUsuario, String novaSenha) throws SQLException{
         String sql = "update usuario set senha = ? where id_usuario = ?";
 
-        try {
-            PreparedStatement pstmt = cnn.prepareStatement(sql);
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
             pstmt.setString(1, novaSenha);
             pstmt.setInt(2, idUsuario);
 
             int linhas = pstmt.executeUpdate();
-            return linhas>0;
-            //fica dentro do try porque é somente aqui dentro que linhas tem o valor que precisa devolver.
-        }finally {
-            ConexaoBanco.desconectar(cnn);
+            return linhas;
+            //como o executeUpdate por gerar sqlexception, se falhar o return nuna será 'alcançado'
         }
     }
 
