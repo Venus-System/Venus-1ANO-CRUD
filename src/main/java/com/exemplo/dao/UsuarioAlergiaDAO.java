@@ -46,7 +46,7 @@ public class UsuarioAlergiaDAO {
 
     public UsuarioAlergia readById(int id) throws SQLException{
         String sql= "select*from usuario_alergia where id_usuario_alergia = ?";
-        UsuarioAlergia usuarioAlergia= null;
+        UsuarioAlergia usuarioAlergia = null;
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
@@ -54,7 +54,7 @@ public class UsuarioAlergiaDAO {
 
             try (ResultSet rset = pstm.executeQuery()) {
                 if(rset.next()){
-                    UsuarioAlergia usAl1 = new UsuarioAlergia(
+                    usuarioAlergia  = new UsuarioAlergia(
                             rset.getInt("id_usuario_alergia"),
                             rset.getObject("dt_registro", LocalDate.class),
                             rset.getInt("grau"),
