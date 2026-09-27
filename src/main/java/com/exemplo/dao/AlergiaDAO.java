@@ -23,14 +23,16 @@ public class AlergiaDAO {
     }
 
     public ArrayList<Alergia> read() throws SQLException{
-            String sql= "select*from alergia order by id_alergia";
+            String sql= "select * from alergia order by id_alergia";
             ArrayList<Alergia> alergia = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()){
-                Alergia al1 = new Alergia(rset.getInt("id_alergia"), rset.getString("nome_alergia"));            }
+                Alergia al1 = new Alergia(rset.getInt("id_alergia"), rset.getString("nome_alergia"));
+            alergia.add(al1);
+            }
         } return alergia;
     }
 
@@ -51,22 +53,6 @@ public class AlergiaDAO {
 
     }
 
-    public Alergia readByName(String nome) throws SQLException{
-        String sql= "select*from alergia where nome_alergia like ?";
-        Alergia alergia = null;
-
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)){
-            pstm.setString(1,"%"+nome+"%");
-
-            try (ResultSet rset = pstm.executeQuery()) {
-                if(rset.next()){
-                    alergia = new Alergia(rset.getInt("id_alergia"), rset.getString("nome_alergia"));
-                }
-            }
-        }return alergia;
-
-    }
 
     public int update(Alergia alergia) throws SQLException{
         String sql = "update alergia set nome_alergia = ? where id_alergia = ?";
