@@ -66,22 +66,24 @@ public class UsuarioAlergiaDAO {
 
     }
 
-    public UsuarioAlergia readByIdUsuario(int id) throws SQLException{
+    public ArrayList<UsuarioAlergia> readByIdUsuario(int id) throws SQLException{
         String sql= "select*from usuario_alergia where id_usuario = ?";
-        UsuarioAlergia usuarioAlergia = null;
+        ArrayList<UsuarioAlergia> usuarioAlergia= new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
             pstm.setInt(1,id);
 
             try (ResultSet rset = pstm.executeQuery()) {
-                if(rset.next()){
+                while (rset.next()){
                     UsuarioAlergia usAl1 = new UsuarioAlergia(
                             rset.getInt("id_usuario_alergia"),
                             rset.getObject("dt_registro", LocalDate.class),
                             rset.getInt("grau"),
                             rset.getInt("id_usuario"),
                             rset.getInt("id_alergia"));
+
+                    usuarioAlergia.add(usAl1);
                 }
             }
         }return usuarioAlergia;
@@ -89,15 +91,13 @@ public class UsuarioAlergiaDAO {
     }
 
     public int update (UsuarioAlergia usuarioAlergia) throws SQLException{
-        String sql = "update usuario_alergia set dt_registro=?, grau =?, id_usuario=? , id_alergia =? where id_usuario_alergia=?";
+        String sql = "update usuario_alergia set dt_registro=?, grau =? where id_usuario_alergia=?";
         try (Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setObject(1, usuarioAlergia.getDtRegistro());
             pstmt.setInt(2, usuarioAlergia.getGrau());
-            pstmt.setInt(3, usuarioAlergia.getIdUsuario());
-            pstmt.setInt(4, usuarioAlergia.getIdAlergia());
-            pstmt.setInt(5, usuarioAlergia.getIdUsuarioAlergia());
+            pstmt.setInt(3, usuarioAlergia.getIdUsuarioAlergia());
 
             return pstmt.executeUpdate();
 
