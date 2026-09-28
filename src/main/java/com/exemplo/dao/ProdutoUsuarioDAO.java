@@ -14,7 +14,7 @@ public class ProdutoUsuarioDAO {
     public boolean inserirProdutoUsuario(ProdutoUsuario produtoUsuario) throws SQLException {
         String sql= "insert into produto_usuario (id_produto , id_usuario) values (?,?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
             pstm.setInt(1, produtoUsuario.getIdProduto());
             pstm.setInt(2, produtoUsuario.getIdUsuario());
@@ -25,9 +25,9 @@ public class ProdutoUsuarioDAO {
 
     public ArrayList<ProdutoUsuario> read() throws SQLException{
         String sql= "select*from produto_usuario order by id_produto_usuario";
-        ArrayList<ProdutoUsuario> produtoUsuario = new ArrayList<>();
+        ArrayList<ProdutoUsuario> produtosUsuario = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()){
@@ -35,16 +35,16 @@ public class ProdutoUsuarioDAO {
                     rset.getInt("id_produto_usuario"),
                     rset.getInt("id_produto"),
                     rset.getInt("id_usuario"));
-                produtoUsuario.add(prdUs);
+                produtosUsuario.add(prdUs);
             }
-        } return produtoUsuario;
+        } return produtosUsuario;
     }
 
     public ProdutoUsuario readById(int id) throws SQLException{
-        String sql= "select*from produto_usuario where id_produto_usuario = ?";
+        String sql= "select * from produto_usuario where id_produto_usuario = ?";
         ProdutoUsuario produtoUsuario = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
              pstm.setInt(1, id);
 
@@ -61,8 +61,8 @@ public class ProdutoUsuarioDAO {
     }
 
     public int update (ProdutoUsuario produtoUsuario) throws SQLException {
-        String sql = "update produto_usuario set id_produto = ?, id_usuario =?  where id_produto_usuario = ? ";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        String sql = "update produto_usuario set id_produto = ?, id_usuario = ?  where id_produto_usuario = ? ";
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setInt(1,produtoUsuario.getIdProduto());
@@ -77,7 +77,7 @@ public class ProdutoUsuarioDAO {
     public int deleteById(int id) throws SQLException{
         String sql = "delete from produto_usuario where id_produto_usuario = ?";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
@@ -88,7 +88,7 @@ public class ProdutoUsuarioDAO {
     public int deleteByIdProduto(int id) throws SQLException{
         String sql = "delete from produto_usuario where id_produto = ?";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
@@ -99,7 +99,7 @@ public class ProdutoUsuarioDAO {
     public int deleteByIdUsuario(int id) throws SQLException{
         String sql = "delete from produto_usuario where id_usuario = ?";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
