@@ -15,7 +15,7 @@ public class ProdutoIngredienteDAO {
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
-            pstmt.setInt(1, produtoIngrediente.getidIngrediente());
+            pstmt.setInt(1, produtoIngrediente.getIdIngrediente());
             pstmt.setInt(2, produtoIngrediente.getIdProduto());
             return pstmt.executeUpdate() > 0;
         }
@@ -23,7 +23,7 @@ public class ProdutoIngredienteDAO {
 
     public ArrayList<ProdutoIngrediente> read() throws SQLException {
         String sql = "select * from produto_ingrediente order by id_produto_ingrediente";
-        ArrayList<ProdutoIngrediente> produtoIngrediente = new ArrayList<>();
+        ArrayList<ProdutoIngrediente> produtosIngrediente = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
@@ -34,9 +34,9 @@ public class ProdutoIngredienteDAO {
                         rset.getInt("id_ingrediente"),
                         rset.getInt("id_produto")
                 );
-                produtoIngrediente.add(pi1);
+                produtosIngrediente.add(pi1);
             }
-        } return produtoIngrediente;
+        } return produtosIngrediente;
 
     }
 
@@ -62,19 +62,6 @@ public class ProdutoIngredienteDAO {
         } return produtoIngrediente;
     }
 
-    public int alterarValores(ProdutoIngrediente produtoIngrediente) throws SQLException {
-        String sql = "update produto_ingrediente set id_ingrediente = ?, id_produto = ? where id_produto_ingrediente = ?";
-
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, produtoIngrediente.getidIngrediente());
-            pstmt.setInt(2, produtoIngrediente.getIdProduto());
-            pstmt.setInt(3, produtoIngrediente.getIdProdutoIngrediente());
-
-            return pstmt.executeUpdate();
-        }
-    }
 
     public int deleteByIdIngrediente(int id) throws SQLException {
         String sql = "delete from produto_ingrediente where id_ingrediente = ?";
@@ -92,7 +79,7 @@ public class ProdutoIngredienteDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1,id);
+            pstmt.setInt(1, id);
             return pstmt.executeUpdate();
 
         }

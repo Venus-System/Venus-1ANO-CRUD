@@ -20,11 +20,11 @@ public class ProdutoIngrediente {
         this.idProdutoIngrediente = idProdutoIngrediente;
     }
 
-    public int getidIngrediente() {
+    public int getIdIngrediente() {
         return idIngrediente;
     }
 
-    public void setiIngrediente(int idIngrediente) {
+    public void setIdIngrediente(int idIngrediente) {
         this.idIngrediente = idIngrediente;
     }
 
@@ -39,7 +39,7 @@ public class ProdutoIngrediente {
     @Override
     public String toString() {
         return "Id Produto Ingrediente: " + getIdProdutoIngrediente() + "\n" +
-                "Id Ingrediente: " + getidIngrediente() + "\n" +
+                "Id Ingrediente: " + getIdIngrediente() + "\n" +
                 "Id Produto: " + getIdProduto() + "\n";
     }
 }
