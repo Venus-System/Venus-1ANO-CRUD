@@ -13,7 +13,7 @@ public class ProdutoDAO {
     public boolean cadastrarProduto(Produto produto) throws SQLException{
         String sql = "insert into produto (nome, marca, categoria, descricao, eh_vegano, eh_cruelty_free, pontuacao, lista_ingredientes) values (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection cnn= new ConexaoBanco().conectar();
+        try (Connection cnn= ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
             pstmt.setString(1,produto.getNome());
             pstmt.setString(2, produto.getMarca());
@@ -33,7 +33,7 @@ public class ProdutoDAO {
         String sql = "select * from produto order by id_produto";
         ArrayList<Produto> produto = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -59,7 +59,7 @@ public class ProdutoDAO {
         String sql = "select * from produto where id_produto = ?";
         Produto produto = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setInt(1,id);
@@ -89,7 +89,7 @@ public class ProdutoDAO {
         String sql = "select * from produto where nome = ?";
         Produto produto = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1,"%"+nome+"%");
@@ -119,7 +119,7 @@ public class ProdutoDAO {
         String sql = "select * from produto where marca = ?";
         Produto produto = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1,"%"+marca+"%");
@@ -146,7 +146,7 @@ public class ProdutoDAO {
 
     public int update (Produto produto) throws SQLException {
         String sql = "update produto set nome =? , marca =?, categoria =?, descricao =?, eh_vegano =?, eh_cruelty_free =?, pontuacao =?, lista_ingredientes= ? where id_produto = ? ";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setString(1, produto.getNome());
@@ -166,7 +166,7 @@ public class ProdutoDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from produto where id_produto = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -177,7 +177,7 @@ public class ProdutoDAO {
 
     public int delete(String nome) throws SQLException{
         String sql = "delete from produto where nome=?";
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstm = cnn.prepareStatement(sql)) {
             pstm.setString(1,nome);
             return pstm.executeUpdate();
