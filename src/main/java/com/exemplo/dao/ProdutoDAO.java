@@ -3,6 +3,8 @@ package com.exemplo.dao;
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Produto;
 
+import java.awt.*;
+import java.net.PortUnreachableException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,7 +33,7 @@ public class ProdutoDAO {
 
     public ArrayList<Produto> read() throws SQLException {
         String sql = "select * from produto order by id_produto";
-        ArrayList<Produto> produto = new ArrayList<>();
+        ArrayList<Produto> produtos = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
@@ -49,9 +51,9 @@ public class ProdutoDAO {
                     rset.getString("lista_ingredientes")
 
                 );
-                produto.add(p1);
+                produtos.add(p1);
             }
-        } return produto;
+        } return produtos;
 
     }
 
@@ -85,10 +87,10 @@ public class ProdutoDAO {
         } return produto;
     }
 
-    public Produto readByName(String nome) throws SQLException{
-        String sql = "select * from produto where nome = ?";
-        Produto produto = null;
-        //ainda sem objeto
+    public ArrayList<Produto> readByName(String nome) throws SQLException{
+        String sql = "select * from produto where nome like ?";
+        ArrayList<Produto> listaProdutos =  new ArrayList<>();
+
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
@@ -96,8 +98,8 @@ public class ProdutoDAO {
 
             try (ResultSet rset = pstmt.executeQuery()){
                 //que permite a visualização das tabelas
-                if(rset.next()){
-                    produto = new Produto(
+                while(rset.next()){
+                    Produto p1 = new Produto(
                             rset.getInt("id_produto"),
                             rset.getString("nome"),
                             rset.getString("marca"),
@@ -109,16 +111,18 @@ public class ProdutoDAO {
                             rset.getString("lista_ingredientes")
 
                     );
+
+                    listaProdutos.add(p1);
                 }
             }
 
-        } return produto;
+        } return listaProdutos;
     }
 
-    public Produto readByBrand(String marca) throws SQLException{
-        String sql = "select * from produto where marca = ?";
-        Produto produto = null;
-        //ainda sem objeto
+    public ArrayList<Produto> readByBrand(String marca) throws SQLException{
+        String sql = "select * from produto where marca like ?";
+        ArrayList<Produto> listaProdutosMarca = new ArrayList<>();
+
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
@@ -126,8 +130,8 @@ public class ProdutoDAO {
 
             try (ResultSet rset = pstmt.executeQuery()){
                 //que permite a visualização das tabelas
-                if(rset.next()){
-                    produto = new Produto(
+                while (rset.next()){
+                    Produto p1 = new Produto(
                             rset.getInt("id_produto"),
                             rset.getString("nome"),
                             rset.getString("marca"),
@@ -138,10 +142,11 @@ public class ProdutoDAO {
                             rset.getInt("pontuacao"),
                             rset.getString("lista_ingredientes")
                     );
+                    listaProdutosMarca.add(p1);
                 }
             }
 
-        } return produto;
+        } return listaProdutosMarca;
     }
 
     public int update (Produto produto) throws SQLException {
@@ -175,13 +180,4 @@ public class ProdutoDAO {
         }
     }
 
-    public int delete(String nome) throws SQLException{
-        String sql = "delete from produto where nome=?";
-        try(Connection cnn = ConexaoBanco.conectar();
-            PreparedStatement pstm = cnn.prepareStatement(sql)) {
-            pstm.setString(1,nome);
-            return pstm.executeUpdate();
-
-        }
-    }
 }
