@@ -61,18 +61,6 @@ public class IngredienteAnaliseDAO {
         } return ingredienteAnalise;
     }
 
-    public int alterarValores(IngredienteAnalise ingredienteAnalise) throws SQLException {
-        String sql = "update ingrediente_analise set id_ingrediente = ?, id_ingrediente = ?";
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
-            pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
-
-            return pstmt.executeUpdate();
-        }
-    }
-
     public int deleteById(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente_analise = ?";
         try (Connection cnn = ConexaoBanco.conectar();
