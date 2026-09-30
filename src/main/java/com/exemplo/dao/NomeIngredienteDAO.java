@@ -13,7 +13,7 @@ public class NomeIngredienteDAO {
     public boolean cadastrarNomeIngrediente(NomeIngrediente nomeIngrediente) throws SQLException {
         String sql = "insert into nome_ingrediente(nome_ingrediente, id_ingrediente) values (?, ?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setString(1, nomeIngrediente.getNomeIngrediente());
             pstmt.setInt(2, nomeIngrediente.getIdIngrediente());
@@ -25,16 +25,16 @@ public class NomeIngredienteDAO {
         String sql = "select * from nome_ingrediente order by id_nome";
         ArrayList<NomeIngrediente> nomeIngrediente = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
-                NomeIngrediente ni1 = new NomeIngrediente(
+                NomeIngrediente nI1 = new NomeIngrediente(
                         rset.getString("nome_ingrediente"),
                         rset.getInt("id_ingrediente"),
                         rset.getInt("id_nome")
                 );
-                nomeIngrediente.add(ni1);
+                nomeIngrediente.add(nI1);
             }
         } return nomeIngrediente;
 
@@ -44,7 +44,7 @@ public class NomeIngredienteDAO {
         String sql = "select * from nome_ingrediente where id_nome =?";
         NomeIngrediente nomeIngrediente = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -64,7 +64,7 @@ public class NomeIngredienteDAO {
 
     public int alterarValores(NomeIngrediente nomeIngrediente) throws SQLException {
         String sql = "update nome_ingrediente set nome_ingrediente = ?, id_ingrediente = ?, id_ingrediente = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, nomeIngrediente.getNomeIngrediente());
@@ -77,7 +77,7 @@ public class NomeIngredienteDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from nome_ingrediente where id_nome = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -88,7 +88,7 @@ public class NomeIngredienteDAO {
 
     public int deleteByIdIngrediente(int id) throws SQLException {
         String sql = "delete from nome_ingrediente where id_ingrediente = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
