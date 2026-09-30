@@ -13,7 +13,7 @@ public class IngredienteAnaliseDAO {
     public boolean cadastrarIngredienteAnalise(IngredienteAnalise ingredienteAnalise) throws SQLException {
         String sql = "insert into ingrediente_analise(id_ingrediente) values (?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
             return pstmt.executeUpdate() > 0;
@@ -24,7 +24,7 @@ public class IngredienteAnaliseDAO {
         String sql = "select * from ingrediente_analise order by id_ingrediente_analise";
         ArrayList<IngredienteAnalise> ingredienteAnalise = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -43,7 +43,7 @@ public class IngredienteAnaliseDAO {
         String sql = "select * from ingrediente_analise where id_ingrediente_analise =?";
         IngredienteAnalise ingredienteAnalise = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -63,7 +63,7 @@ public class IngredienteAnaliseDAO {
 
     public int alterarValores(IngredienteAnalise ingredienteAnalise) throws SQLException {
         String sql = "update ingrediente_analise set id_ingrediente = ?, id_ingrediente = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
@@ -75,7 +75,7 @@ public class IngredienteAnaliseDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente_analise = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -86,7 +86,7 @@ public class IngredienteAnaliseDAO {
 
     public int deleteByIdIngrediente(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente= ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -97,7 +97,7 @@ public class IngredienteAnaliseDAO {
 
     public int deleteByIdAnalise(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_analise = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
