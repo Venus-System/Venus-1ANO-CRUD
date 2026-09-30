@@ -30,7 +30,7 @@ public class PreferenciasDAO {
 
     public ArrayList<Preferencias> read() throws SQLException {
         String sql = "select * from preferencias order by id_preferencias";
-        ArrayList<Preferencias> preferencias = new ArrayList<>();
+        ArrayList<Preferencias> listaPreferencias = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
@@ -46,9 +46,9 @@ public class PreferenciasDAO {
                     rset.getInt("id_usuario")
 
                 );
-                preferencias.add(prf1);
+                listaPreferencias.add(prf1);
             }
-        } return preferencias;
+        } return listaPreferencias;
 
     }
 
@@ -85,7 +85,6 @@ public class PreferenciasDAO {
         String sql = "select * from preferencias where faixa_preco like ?";
         ArrayList<Preferencias> listaPreferencias = new ArrayList<>();
 
-        //ainda sem objeto
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
@@ -116,7 +115,7 @@ public class PreferenciasDAO {
     public ArrayList<Preferencias> readByBrand(String marca) throws SQLException{
         String sql = "select * from preferencias where preferencias.marcas_fav like ?";
         ArrayList<Preferencias> listaPreferencias = new ArrayList<>();
-        //ainda sem objeto
+
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
