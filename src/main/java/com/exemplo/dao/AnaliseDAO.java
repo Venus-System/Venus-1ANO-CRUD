@@ -12,7 +12,7 @@ public class AnaliseDAO {
     public boolean cadastrarAnalise(Analise analise) throws SQLException {
         String sql = "insert into analise (dt_hr_analise, resumo_resultado, pontuacao, id_usuario) values (?, ?, ?, ?)";
 
-        try (Connection cnn= new ConexaoBanco().conectar();
+        try (Connection cnn= ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
             pstmt.setObject(1, analise.getDtHrAnalise());
             pstmt.setString( 2, analise.getResumoResultado());
@@ -28,7 +28,7 @@ public class AnaliseDAO {
         String sql = "select * from analise order by id_analise";
         ArrayList<Analise> analise = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -50,7 +50,7 @@ public class AnaliseDAO {
         String sql = "select * from analise where id_analise = ?";
         Analise analise = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setInt(1,id);
@@ -74,7 +74,7 @@ public class AnaliseDAO {
     }
     public int update (Analise analise) throws SQLException {
         String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =? , id_usuario = ? where id_analise = ? ";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setObject(1, analise.getDtHrAnalise());
@@ -89,7 +89,7 @@ public class AnaliseDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from analise where id_analise = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -100,7 +100,7 @@ public class AnaliseDAO {
 
     public int deleteByIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from analise where id_usuario = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idUsuario);
