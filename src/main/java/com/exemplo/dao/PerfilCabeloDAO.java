@@ -13,7 +13,7 @@ public class PerfilCabeloDAO {
     public boolean cadastrarPerfilCabelo(PerfilCabelo perfilCabelo) throws SQLException {
         String sql = "insert into perfil_cabelo(curvatura, oleosidade, espessura, id_usuario) values (?, ?, ?, ?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, perfilCabelo.getCurvatura());
             pstmt.setInt(2, perfilCabelo.getOleosidade());
@@ -27,7 +27,7 @@ public class PerfilCabeloDAO {
         String sql = "select * from perfil_cabelo order by id_perfil_cabelo";
         ArrayList<PerfilCabelo> perfis = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -48,7 +48,7 @@ public class PerfilCabeloDAO {
         String sql = "select * from perfil_cabelo where id_perfil_cabelo = ?";
         PerfilCabelo perfil = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -73,7 +73,7 @@ public class PerfilCabeloDAO {
         String sql = "select * from perfil_cabelo where id_usuario = ?";
         PerfilCabelo perfil = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idUsuario);
@@ -96,7 +96,7 @@ public class PerfilCabeloDAO {
 
     public int alterarValores(PerfilCabelo perfilCabelo) throws SQLException {
         String sql = "update perfil_cabelo set curvatura = ?, oleosidade = ?, espessura = ? where id_perfil_cabelo = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, perfilCabelo.getCurvatura());
@@ -110,7 +110,7 @@ public class PerfilCabeloDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from perfil_cabelo where id_perfil_cabelo = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -121,7 +121,7 @@ public class PerfilCabeloDAO {
 
     public int deleteByIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from perfil_cabelo where id_usuario = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idUsuario);
@@ -131,7 +131,7 @@ public class PerfilCabeloDAO {
     }
 
     public boolean existePerfilParaUsuario(int idUsuario) throws SQLException {
-        Connection conexao = new ConexaoBanco().conectar();
+        Connection conexao = ConexaoBanco.conectar();
 
         String sql = "SELECT 1 FROM perfil_cabelo WHERE id_usuario = ?";
         PreparedStatement comando = conexao.prepareStatement(sql);
