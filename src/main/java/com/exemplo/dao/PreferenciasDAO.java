@@ -81,9 +81,10 @@ public class PreferenciasDAO {
         } return preferencias;
     }
 
-    public Preferencias readByPrice(String faixaPreco) throws SQLException{
+    public ArrayList<Preferencias> readByPreco (String faixaPreco) throws SQLException{
         String sql = "select * from preferencias where faixa_preco like ?";
-        Preferencias preferencias = null;
+        ArrayList<Preferencias> listaPreferencias = new ArrayList<>();
+
         //ainda sem objeto
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
@@ -92,8 +93,8 @@ public class PreferenciasDAO {
 
             try (ResultSet rset = pstmt.executeQuery()){
                 //que permite a visualização das tabelas
-                if(rset.next()){
-                    preferencias = new Preferencias(
+                while (rset.next()){
+                    Preferencias pref1 = new Preferencias(
                             rset.getInt("id_preferencias"),
                             rset.getString("faixa_preco"),
                             rset.getBoolean("prefere_vegano"),
@@ -104,15 +105,17 @@ public class PreferenciasDAO {
 
                             //retornará as preferencias com a faixa que está sendo procurada.
                     );
+                    listaPreferencias.add(pref1);
+
                 }
             }
 
-        } return preferencias;
+        } return listaPreferencias;
     }
 
-    public Preferencias readByBrand(String marca) throws SQLException{
+    public ArrayList<Preferencias> readByBrand(String marca) throws SQLException{
         String sql = "select * from preferencias where preferencias.marcas_fav like ?";
-        Preferencias preferencias = null;
+        ArrayList<Preferencias> listaPreferencias = new ArrayList<>();
         //ainda sem objeto
         try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
@@ -121,8 +124,8 @@ public class PreferenciasDAO {
 
             try (ResultSet rset = pstmt.executeQuery()){
                 //que permite a visualização das tabelas
-                if(rset.next()){
-                    preferencias = new Preferencias(
+                while (rset.next()){
+                    Preferencias pref1 = new Preferencias(
                             rset.getInt("id_preferencias"),
                             rset.getString("faixa_preco"),
                             rset.getBoolean("prefere_vegano"),
@@ -133,14 +136,15 @@ public class PreferenciasDAO {
 
                             //retornará as preferencias com a marca que está sendo procurada.
                     );
+                    listaPreferencias.add(pref1);
                 }
             }
 
-        } return preferencias;
+        } return listaPreferencias;
     }
 
     public int update (Preferencias preferencias) throws SQLException {
-        String sql = "update preferencias set faixa_preco =?, prefere_vegano =?, restricoes_dieta =?, categorias_pref =?, marcas_fav =?, id_usuario =? where id_preferencias = ? ";
+        String sql = "update preferencias set faixa_preco =?, prefere_vegano =?, restricoes_dieta =?, categorias_pref =?, marcas_fav =? where id_preferencias = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
@@ -149,8 +153,7 @@ public class PreferenciasDAO {
             pstmt.setString(3, preferencias.getRestricoesDieta());
             pstmt.setString(4, preferencias.getCategoriaPref());
             pstmt.setString(5, preferencias.getMarcasFav());
-            pstmt.setInt(6, preferencias.getIdUsuario());
-            pstmt.setInt(7, preferencias.getIdPreferencias());
+            pstmt.setInt(6, preferencias.getIdPreferencias());
 
             return pstmt.executeUpdate();
         }
