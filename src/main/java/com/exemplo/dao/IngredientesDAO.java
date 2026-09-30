@@ -13,7 +13,7 @@ public class IngredientesDAO {
     public boolean cadastrarIngredientes(Ingredientes ingredientes) throws SQLException {
         String sql = "insert into ingredientes(nivel_perigo, tipo, dt_atualizacao) values (?, ?, ?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientes.getNivelPerigo());
             pstmt.setString(2, ingredientes.getTipo());
@@ -26,7 +26,7 @@ public class IngredientesDAO {
         String sql = "select * from ingredientes order by id_ingrediente";
         ArrayList<Ingredientes> ingredientes = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -46,7 +46,7 @@ public class IngredientesDAO {
         String sql = "select * from ingredientes where id_ingrediente =?";
         Ingredientes ingredientes = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -67,7 +67,7 @@ public class IngredientesDAO {
 
     public int alterarValores(Ingredientes ingredientes) throws SQLException {
         String sql = "update ingredientes set nivel_perigo = ?, tipo = ?, dt_atualizacao = ? where id_ingrediente = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, ingredientes.getNivelPerigo());
@@ -81,7 +81,7 @@ public class IngredientesDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from ingredientes where id_ingrediente = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
