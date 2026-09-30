@@ -14,7 +14,7 @@ public class PreferenciasDAO {
     public boolean cadastrarPreferencias(Preferencias preferencias) throws SQLException {
         String sql = "insert into preferencias (faixa_preco, prefere_vegano, restricoes_dieta, categorias_pref, marcas_fav, id_usuario) values (?, ?, ?, ?, ?, ?)";
 
-        try (Connection cnn= new ConexaoBanco().conectar();
+        try (Connection cnn= ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
                 pstmt.setString(1, preferencias.getFaixaPreco());
                 pstmt.setBoolean(2, preferencias.getPrefereVegano());
@@ -32,7 +32,7 @@ public class PreferenciasDAO {
         String sql = "select * from preferencias order by id_preferencias";
         ArrayList<Preferencias> preferencias = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -56,7 +56,7 @@ public class PreferenciasDAO {
         String sql = "select * from preferencias where id_preferencias = ?";
         Preferencias preferencias = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setInt(1,id);
@@ -85,7 +85,7 @@ public class PreferenciasDAO {
         String sql = "select * from preferencias where faixa_preco like ?";
         Preferencias preferencias = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1,"%"+faixaPreco+"%");
@@ -114,7 +114,7 @@ public class PreferenciasDAO {
         String sql = "select * from preferencias where preferencias.marcas_fav like ?";
         Preferencias preferencias = null;
         //ainda sem objeto
-        try(Connection cnn = new ConexaoBanco().conectar();
+        try(Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
             pstmt.setString(1,"%"+marca+"%");
@@ -141,7 +141,7 @@ public class PreferenciasDAO {
 
     public int update (Preferencias preferencias) throws SQLException {
         String sql = "update preferencias set faixa_preco =?, prefere_vegano =?, restricoes_dieta =?, categorias_pref =?, marcas_fav =?, id_usuario =? where id_preferencias = ? ";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setString(1, preferencias.getFaixaPreco());
@@ -158,7 +158,7 @@ public class PreferenciasDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from preferencias where id_preferencias = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,id);
@@ -169,7 +169,7 @@ public class PreferenciasDAO {
 
     public int deleteByIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from preferencias where id_usuario = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1,idUsuario);
