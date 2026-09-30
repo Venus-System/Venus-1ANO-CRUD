@@ -72,16 +72,16 @@ public class AnaliseDAO {
 
         } return analise;
     }
+
     public int update (Analise analise) throws SQLException {
-        String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =? , id_usuario = ? where id_analise = ? ";
+        String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =?  where id_analise = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
-            pstmt.setObject(1, analise.getDtHrAnalise());
+            pstmt.setString(1, analise.getDtHrAnalise());
             pstmt.setString( 2, analise.getResumoResultado());
             pstmt.setInt(3, analise.getPontuacao());
-            pstmt.setInt(4, analise.getIdUsuario());
-            pstmt.setInt(5, analise.getIdAnalise());
+            pstmt.setInt(4, analise.getIdAnalise());
 
             return pstmt.executeUpdate();
         }
@@ -105,7 +105,7 @@ public class AnaliseDAO {
 
             pstmt.setInt(1, idUsuario);
             return pstmt.executeUpdate();
-
+            //aqui limpa o histórico de análises
         }
     }
 }
