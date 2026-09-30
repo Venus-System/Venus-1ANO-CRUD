@@ -13,7 +13,7 @@ public class PerfilPeleDAO {
     public boolean cadastrarPerfilPele(PerfilPele perfilPele) throws SQLException {
         String sql = "insert into perfil_pele(sensibilidade, tipo_pele, nivel_oleosidade, id_usuario) values (?, ?, ?, ?)";
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, perfilPele.getSensibilidade());
             pstmt.setString(2, perfilPele.getTipoPele());
@@ -27,7 +27,7 @@ public class PerfilPeleDAO {
         String sql = "select * from perfil_pele order by id_perfil_pele";
         ArrayList<PerfilPele> perfis = new ArrayList<>();
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
@@ -48,7 +48,7 @@ public class PerfilPeleDAO {
         String sql = "select * from perfil_pele where id_perfil_pele = ?";
         PerfilPele perfil = null;
         //ainda sem objeto
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -74,7 +74,7 @@ public class PerfilPeleDAO {
         String sql = "select * from perfil_pele where id_usuario = ?";
         PerfilPele perfil = null;
 
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idUsuario);
@@ -97,7 +97,7 @@ public class PerfilPeleDAO {
 
     public int alterarValores(PerfilPele perfilPele) throws SQLException {
         String sql = "update perfil_pele set sensibilidade = ?, tipo_pele = ?, nivel_oleosidade = ? where id_perfil_pele = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, perfilPele.getSensibilidade());
@@ -111,7 +111,7 @@ public class PerfilPeleDAO {
 
     public int deleteById(int id) throws SQLException {
         String sql = "delete from perfil_pele where id_perfil_pele = ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -122,7 +122,7 @@ public class PerfilPeleDAO {
 
     public int deleteByIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from perfil_pele where id_usuario= ?";
-        try (Connection cnn = new ConexaoBanco().conectar();
+        try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idUsuario);
@@ -133,7 +133,7 @@ public class PerfilPeleDAO {
 
 
     public boolean existePerfilParaUsuario(int idUsuario) throws SQLException {
-        Connection conexao = new ConexaoBanco().conectar();
+        Connection conexao = ConexaoBanco.conectar();
 
         String sql = "SELECT 1 FROM perfil_pele WHERE id_usuario = ?";
         PreparedStatement comando = conexao.prepareStatement(sql);
