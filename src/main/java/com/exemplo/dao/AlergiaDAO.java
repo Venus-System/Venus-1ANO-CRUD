@@ -46,7 +46,9 @@ public class AlergiaDAO {
 
             try (ResultSet rset = pstm.executeQuery()) {
                 if(rset.next()){
-                    alergia = new Alergia(rset.getInt("id_alergia"), rset.getString("nome_alergia"));
+                    alergia = new Alergia(
+                            rset.getInt("id_alergia"),
+                            rset.getString("nome_alergia"));
                 }
             }
         }return alergia;
@@ -78,16 +80,6 @@ public class AlergiaDAO {
         }
     }
 
-    public int deleteByNome(String nome) throws SQLException{
-        String sql = "delete from alergia where nome_alergia= ?";
-
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)){
-
-            pstm.setString(1,nome);
-            return pstm.executeUpdate();
-        }
-    }
 
 
 }
