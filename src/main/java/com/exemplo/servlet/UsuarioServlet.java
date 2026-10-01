@@ -38,7 +38,7 @@ public class UsuarioServlet extends HttpServlet {
             //caminho até o JSP(vitrine, a página que aparece para o usuário), o forward encaminha o pedido, mantendo os atributos.
 
         }catch (SQLException sqle){
-            throw new RuntimeException("Erro ao listar usuários", sqle);
+            throw new ServletException("Erro ao listar usuários", sqle);
 
         }
     }
