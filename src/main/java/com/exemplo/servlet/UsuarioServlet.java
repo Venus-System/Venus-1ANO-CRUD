@@ -22,26 +22,6 @@ public class UsuarioServlet extends HttpServlet {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     //O tomcat cria só uma instância do servlet e reutiliza.
 
-    @Override  //reescreve um metodo que já existe na classe HttpServlet
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        //request representa o pedido que chegou do navegador.
-        //response representa a resposta que será construída.
-            throws ServletException, IOException{
-        try {
-            ArrayList<Usuario> listaUsuarios = usuarioDAO.read();
-            //busca os dados no banco através do DAO.
-
-            request.setAttribute("usuarios", listaUsuarios);
-            //lista está sendo guardada dentro do resquest usando a chave 'usuarios'.
-
-            request.getRequestDispatcher("/lista_usuarios.jsp").forward(request, response);
-            //caminho até o JSP(vitrine, a página que aparece para o usuário), o forward encaminha o pedido, mantendo os atributos.
-
-        }catch (SQLException sqle){
-            throw new ServletException("Erro ao listar usuários", sqle);
-
-        }
-    }
 
     //create
     @Override
@@ -95,17 +75,54 @@ public class UsuarioServlet extends HttpServlet {
             request.getRequestDispatcher("/cadastro_usuario.jsp").forward(request,response);
         }
         catch (SQLException e){
-            throw new ServletException("Erro ao cadastrar usuário: ", e);
+            throw new ServletException("Erro ao cadastrar usuário ", e);
         }
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException{
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        //Lê o corpo (linha por linha) da requisição.
-        String corpo = request.getReader().lines().collect(Collectors.joining());
+        // Se a URL for /usuarios?id=5, vem "5". Se for só /usuarios, vem null.
+        String idTexto = request.getParameter("id");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                Usuario usuario = usuarioDAO.readById(id);
+                //readById se nenhum usuário tiver esse id
+
+                if (usuario == null) {
+                    response.sendRedirect(request.getContextPath() + "/usuarios");
+                }
+
+                request.setAttribute("usuario", usuario);
+                request.getRequestDispatcher("/editar_usuario.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Usuario> listaUsuarios = usuarioDAO.read();
+            request.setAttribute("usuarios", listaUsuarios);
+            request.getRequestDispatcher("/lista_usuarios.jsp").forward(request, response);
+
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/usuarios");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar usuários", sqle);
+        }
+    }
+
+        //Se não veio com id, vai listar todos os usuários
 
 
+        @Override
+        protected void doPut (HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+            //Lê o corpo (linha por linha) da requisição.
+            String corpo = request.getReader().lines().collect(Collectors.joining());
+
+
+        }
     }
 }
