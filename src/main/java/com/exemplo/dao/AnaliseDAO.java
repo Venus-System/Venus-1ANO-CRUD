@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class AnaliseDAO {
@@ -14,7 +15,7 @@ public class AnaliseDAO {
 
         try (Connection cnn= ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
-            pstmt.setObject(1, analise.getDtHrAnalise());
+            pstmt.setObject(1, LocalDateTime.now());
             pstmt.setString( 2, analise.getResumoResultado());
             pstmt.setInt(3, analise.getPontuacao());
             pstmt.setInt(4, analise.getIdUsuario());
@@ -34,7 +35,7 @@ public class AnaliseDAO {
             while (rset.next()) {
                 Analise an1 = new Analise(
                     rset.getInt("id_analise"),
-                    rset.getString("dt_hr_analise"),
+                    rset.getObject("dt_hr_analise", LocalDateTime.class),
                     rset.getString( "resumo_resultado"),
                     rset.getInt("pontuacao"),
                     rset.getInt("id_usuario")
@@ -60,7 +61,7 @@ public class AnaliseDAO {
                 if(rset.next()){
                     analise = new Analise(
                             rset.getInt("id_analise"),
-                            rset.getString("dt_hr_analise"),
+                            rset.getObject("dt_hr_analise", LocalDateTime.class),
                             rset.getString( "resumo_resultado"),
                             rset.getInt("pontuacao"),
                             rset.getInt("id_usuario")
@@ -78,7 +79,7 @@ public class AnaliseDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
-            pstmt.setString(1, analise.getDtHrAnalise());
+            pstmt.setObject(1, LocalDateTime.now());
             pstmt.setString( 2, analise.getResumoResultado());
             pstmt.setInt(3, analise.getPontuacao());
             pstmt.setInt(4, analise.getIdAnalise());

@@ -1,14 +1,16 @@
 package com.exemplo.model;
 
+import java.time.LocalDateTime;
+
 public class Analise {
 
     private int idAnalise;
-    private String dtHrAnalise;
+    private LocalDateTime dtHrAnalise;
     private String resumoResultado;
     private int pontuacao;
     private int idUsuario;
 
-    public Analise(int idAnalise, String dtHrAnalise, String resumoResultado, int pontuacao, int idUsuario) {
+    public Analise(int idAnalise, LocalDateTime dtHrAnalise, String resumoResultado, int pontuacao, int idUsuario) {
         this.idAnalise = idAnalise;
         this.dtHrAnalise = dtHrAnalise;
         this.resumoResultado = resumoResultado;
@@ -25,11 +27,11 @@ public class Analise {
         this.idAnalise = idAnalise;
     }
 
-    public String getDtHrAnalise() {
+    public LocalDateTime getDtHrAnalise() {
         return dtHrAnalise;
     }
 
-    public void setDtHrAnalise(String dtHrAnalise) {
+    public void setDtHrAnalise(LocalDateTime dtHrAnalise) {
         this.dtHrAnalise = dtHrAnalise;
     }
 
