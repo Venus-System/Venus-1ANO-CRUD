@@ -62,6 +62,31 @@ public class NomeIngredienteDAO {
         } return nomeIngrediente;
     }
 
+
+    public ArrayList<NomeIngrediente> readByIdIngrediente (int id) throws SQLException {
+        String sql = "select * from nome_ingrediente where id_nome =?";
+        ArrayList<NomeIngrediente> listaNomeIngredientes = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                if (rset.next()) {
+                    NomeIngrediente nomeIngrediente = new NomeIngrediente(
+                            rset.getString("nome_ingrediente"),
+                            rset.getInt("id_ingrediente"),
+                            rset.getInt("id_nome")
+                    );
+                    listaNomeIngredientes.add(nomeIngrediente);
+                }
+            }
+
+        } return listaNomeIngredientes;
+    }
+
+
     public int alterarValores(NomeIngrediente nomeIngrediente) throws SQLException {
         String sql = "update nome_ingrediente set nome_ingrediente = ? where id_nome = ?";
         try (Connection cnn = ConexaoBanco.conectar();
