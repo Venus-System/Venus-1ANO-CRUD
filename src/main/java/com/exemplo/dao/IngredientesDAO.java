@@ -43,7 +43,7 @@ public class IngredientesDAO {
 
     }
 
-    public Ingredientes readById(int id) throws SQLException {
+    public Ingredientes readById (int id) throws SQLException {
         String sql = "select * from ingredientes where id_ingrediente =?";
         Ingredientes ingredientes = null;
 
@@ -67,7 +67,7 @@ public class IngredientesDAO {
     }
 
     public int alterarValores(Ingredientes ingredientes) throws SQLException {
-        String sql = "update ingredientes set nivel_perigo = ?, tipo = ? where id_ingrediente = ?";
+        String sql = "update ingredientes set nivel_perigo = ?, tipo = ?, dt_atualizacao = ? where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
