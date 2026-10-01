@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class IngredientesDAO {
@@ -17,7 +18,7 @@ public class IngredientesDAO {
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientes.getNivelPerigo());
             pstmt.setString(2, ingredientes.getTipo());
-            pstmt.setString(3, ingredientes.getDtAtualizacao());
+            pstmt.setObject(3, LocalDate.now());
             return pstmt.executeUpdate() > 0;
         }
     }
@@ -34,7 +35,7 @@ public class IngredientesDAO {
                         rset.getInt("id_ingrediente"),
                         rset.getInt("nivel_perigo"),
                         rset.getString("tipo"),
-                        rset.getString("dt_atualizacao")
+                        rset.getObject("dt_atualizacao", LocalDate.class)
                 );
                 ingredientes.add(ing1);
             }
@@ -57,7 +58,7 @@ public class IngredientesDAO {
                             rset.getInt("id_ingrediente"),
                             rset.getInt("nivel_perigo"),
                             rset.getString("tipo"),
-                            rset.getString("dt_atualizacao")
+                            rset.getObject("dt_atualizacao", LocalDate.class)
                     );
                 }
             }
@@ -72,7 +73,8 @@ public class IngredientesDAO {
 
             pstmt.setInt(1, ingredientes.getNivelPerigo());
             pstmt.setString(2, ingredientes.getTipo());
-            pstmt.setInt(3, ingredientes.getIdIngrediente());
+            pstmt.setObject(3,LocalDate.now());
+            pstmt.setInt(4, ingredientes.getIdIngrediente());
 
             return pstmt.executeUpdate();
         }

@@ -1,13 +1,15 @@
 package com.exemplo.model;
 
+import java.time.LocalDate;
+
 public class Ingredientes {
 
     private int idIngrediente;
     private int nivelPerigo;
     private String tipo;
-    private String dtAtualizacao;
+    private LocalDate dtAtualizacao;
 
-    public Ingredientes(int idIngrediente, int nivelPerigo, String tipo, String dtAtualizacao) {
+    public Ingredientes(int idIngrediente, int nivelPerigo, String tipo, LocalDate dtAtualizacao) {
         this.idIngrediente = idIngrediente;
         this.nivelPerigo = nivelPerigo;
         this.tipo = tipo;
@@ -38,11 +40,11 @@ public class Ingredientes {
         this.tipo = tipo;
     }
 
-    public String getDtAtualizacao() {
+    public LocalDate getDtAtualizacao() {
         return dtAtualizacao;
     }
 
-    public void setDtAtualizacao(String dtAtualizacao) {
+    public void setDtAtualizacao(LocalDate dtAtualizacao) {
         this.dtAtualizacao = dtAtualizacao;
     }
 
