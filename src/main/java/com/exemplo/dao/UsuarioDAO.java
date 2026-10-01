@@ -2,6 +2,7 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Usuario;
+
 import java.time.LocalDate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,8 +58,8 @@ public class UsuarioDAO {
 
     public Usuario readById(int id) throws SQLException {
         String sql = "select * from usuario where id_usuario =?";
-        Usuario usuario = null;
-        //ainda sem objeto
+        Usuario usuario = null; //ainda sem objeto
+
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
@@ -117,9 +118,10 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public Usuario readByName(String nomeCompleto) throws SQLException {
+    public ArrayList<Usuario> readByName(String nomeCompleto) throws SQLException {
         String sql = "select * from usuario where nome_completo like ? ";
-        Usuario usuario = null;
+        ArrayList<Usuario> listaUsuarios = new ArrayList<>();
+
         //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -128,8 +130,8 @@ public class UsuarioDAO {
 
             try (ResultSet rset = pstmt.executeQuery()) {
                 //que permite a visualização das tabelas
-                if (rset.next()) {
-                    usuario = new Usuario(
+                while (rset.next()) {
+                    Usuario us1 = new Usuario(
                             rset.getInt("id_usuario"),
                             rset.getString("nome_completo"),
                             rset.getString("genero"),
@@ -141,11 +143,13 @@ public class UsuarioDAO {
 
                             //retornará os usuario com o nome que está sendo procurado.
                     );
+
+                    listaUsuarios.add(us1);
                 }
             }
 
         }
-        return usuario;
+        return listaUsuarios;
     }
 
     public int update(Usuario usuario) throws SQLException {
@@ -168,7 +172,7 @@ public class UsuarioDAO {
         String sql = "update usuario set senha = ? where id_usuario = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
-            PreparedStatement pstmt = cnn.prepareStatement(sql)){
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, novaSenha);
             pstmt.setInt(2, idUsuario);
@@ -176,8 +180,8 @@ public class UsuarioDAO {
             int linhas = pstmt.executeUpdate();
             return linhas > 0;
             //fica dentro do try porque é somente aqui dentro que linhas tem o valor que precisa devolver.
-            }
         }
+    }
 
 
     public int deleteById(int id) throws SQLException {
