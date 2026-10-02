@@ -9,7 +9,12 @@ public class NomeIngrediente {
     public NomeIngrediente(String nomeIngrediente, int idIngrediente, int idNomeIngrediente) {
         this.nomeIngrediente = nomeIngrediente;
         this.idIngrediente = idIngrediente;
+        this.idNomeIngrediente = idNomeIngrediente;
+    }
+
+    public NomeIngrediente(String nomeIngrediente, int idIngrediente) {
         this.nomeIngrediente = nomeIngrediente;
+        this.idIngrediente = idIngrediente;
     }
 
     public String getNomeIngrediente() {
@@ -38,7 +43,7 @@ public class NomeIngrediente {
 
     @Override
     public String toString() {
-        return "Id Nome Ingrediente: " + getNomeIngrediente()+ "\n" +
+        return "Id Nome Ingrediente: " + getIdNomeIngrediente()+ "\n" +
                 "Nome Ingrediente: " + getNomeIngrediente()+ "\n" +
                 "Id Ingrediente: " + getIdIngrediente() + "\n";
     }

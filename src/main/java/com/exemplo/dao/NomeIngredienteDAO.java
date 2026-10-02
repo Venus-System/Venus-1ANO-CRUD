@@ -62,9 +62,8 @@ public class NomeIngredienteDAO {
         } return nomeIngrediente;
     }
 
-
     public ArrayList<NomeIngrediente> readByIdIngrediente (int id) throws SQLException {
-        String sql = "select * from nome_ingrediente where id_nome =?";
+        String sql = "select * from nome_ingrediente where id_ingrediente =?";
         ArrayList<NomeIngrediente> listaNomeIngredientes = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -73,7 +72,7 @@ public class NomeIngredienteDAO {
             pstmt.setInt(1, id);
 
             try (ResultSet rset = pstmt.executeQuery()) {
-                if (rset.next()) {
+                while (rset.next()) {
                     NomeIngrediente nomeIngrediente = new NomeIngrediente(
                             rset.getString("nome_ingrediente"),
                             rset.getInt("id_ingrediente"),
