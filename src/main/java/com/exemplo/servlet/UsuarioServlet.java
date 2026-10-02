@@ -141,12 +141,14 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
+            //extrai os campos como texto
             int id = Integer.parseInt(json.get("idUsuario").getAsString());
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
             String email = json.get("email").getAsString();
             String telefone = json.get("telefone").getAsString();
             String dtNascimentoTexto = json.get("dt_nascimento").getAsString();
+
 
             if (nome.isBlank() || email.isBlank() || dtNascimentoTexto.isBlank()) {
                 response.setStatus(400);
