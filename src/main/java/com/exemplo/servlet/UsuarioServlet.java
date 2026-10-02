@@ -96,6 +96,7 @@ public class UsuarioServlet extends HttpServlet {
 
                 if (usuario == null) {
                     response.sendRedirect(request.getContextPath() + "/usuarios");
+                    return;
                 }
 
                 request.setAttribute("usuario", usuario);
@@ -186,5 +187,40 @@ public class UsuarioServlet extends HttpServlet {
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao atualizar o usuário.", sqle);
         }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException{
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+
+        if (idTexto==null || idTexto.isBlank()){
+            response.setStatus(400);
+            response.getWriter().write("Id não informado.");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idTexto);
+            int linhas = usuarioDAO.deleteById(id);
+
+            if (linhas>0){
+                response.setStatus(200);
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Usuário não encontrado.");
+            }
+        }catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao excluir o usuário.", sqle);
+        }
+
+
     }
 }
