@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/nomeIngredientes")
 public class NomeIngredienteServlet extends HttpServlet {
@@ -60,6 +61,50 @@ public class NomeIngredienteServlet extends HttpServlet {
             } else {
                 throw new ServletException("Erro ao cadastrar nome do ingrediente", sqle);
             }
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+
+        String idTexto = request.getParameter("id");
+        String idIngredienteTexto = request.getParameter("idIngrediente");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                NomeIngrediente nomeIngrediente = nomeIngredienteDAO.readById(id);
+
+                if (nomeIngrediente == null) {
+                    response.sendRedirect(request.getContextPath() + "/nomeIngrediente");
+                    return;
+                }
+
+                request.setAttribute("nomeIngrediente", nomeIngrediente);
+                request.getRequestDispatcher("/editar_nome_ingrediente.jsp").forward(request, response);
+                return;
+            }
+
+            if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
+                int idIngrediente = Integer.parseInt(idIngredienteTexto);
+                ArrayList<NomeIngrediente> listaIngrediente = nomeIngredienteDAO.readByIdIngrediente(idIngrediente);
+
+                request.setAttribute("nomeIngredientes", listaIngrediente);
+                request.getRequestDispatcher("/lista_nome_ingredientes.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<NomeIngrediente> listaNomesIngredientes = nomeIngredienteDAO.read();
+            request.setAttribute("nomesIngredientes", listaNomesIngredientes);
+            request.getRequestDispatcher("/lista_nome_ingredientes.jsp").forward(request, response);
+
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/nomeIngredientes");
+
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar nomes de ingredientes", sqle);
         }
     }
 
