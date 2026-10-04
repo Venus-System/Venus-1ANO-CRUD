@@ -3,6 +3,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.NomeIngredienteDAO;
 import com.exemplo.model.NomeIngrediente;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,8 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @WebServlet("/nomeIngredientes")
 public class NomeIngredienteServlet extends HttpServlet {
@@ -107,5 +112,56 @@ public class NomeIngredienteServlet extends HttpServlet {
             throw new ServletException("Erro ao buscar nomes de ingredientes", sqle);
         }
     }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idNomeIngrediente") || !json.has("nome")) {
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idNomeIngrediente").getAsString());
+            String nome = json.get("nome").getAsString();
+
+            if (nome.isBlank()){
+                response.setStatus(400);
+                response.getWriter().write("Preencha todos os campos obrigatórios.");
+                return;
+
+            }
+
+            NomeIngrediente nomeIngrediente = new NomeIngrediente(id, nome.trim());
+
+            int linhas = nomeIngredienteDAO.alterarValores(nomeIngrediente);
+
+            if (linhas > 0){
+                response.setStatus(200);
+
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Nome de ingrediente não encontrado.");
+            }
+
+        }catch (JsonParseException | IllegalStateException | UnsupportedEncodingException | NumberFormatException e){
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao atualizar o nome do ingrediente.", sqle);
+        }
+    }
+
 
 }

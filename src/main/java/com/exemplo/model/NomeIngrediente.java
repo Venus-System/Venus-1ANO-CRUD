@@ -17,6 +17,11 @@ public class NomeIngrediente {
         this.idIngrediente = idIngrediente;
     }
 
+    public NomeIngrediente(int idNomeIngrediente, String nomeIngrediente) {
+        this.idNomeIngrediente = idNomeIngrediente;
+        this.nomeIngrediente = nomeIngrediente;
+    }
+
     public String getNomeIngrediente() {
         return nomeIngrediente;
     }
