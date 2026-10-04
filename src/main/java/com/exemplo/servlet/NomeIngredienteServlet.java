@@ -51,7 +51,7 @@ public class NomeIngredienteServlet extends HttpServlet {
                 // request.getContextPath --> Devolve o PREFIXO da URL (/Venus2). é necessário no sendRedirect porque o redirect é feito pelo navegador. que interpreta /usuarios como URL sem o nome Venus (app). Com o ContextPath, fica correto.
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o nome do ingrediente.");
-                request.getRequestDispatcher("cadastro_nome_ingrediente.jsp").forward(request, response);
+                request.getRequestDispatcher("/cadastro_nome_ingrediente.jsp").forward(request, response);
 
                 //setAttribute guarda um objeto dentro da requisição atual. 'O atributo só existe durante essa requisição'
                 //request.getRequestDispatcher junto com o forward (entregam a requisição) para o recurso que foi criado um despachante, geram a resposta.
@@ -83,7 +83,7 @@ public class NomeIngredienteServlet extends HttpServlet {
                 NomeIngrediente nomeIngrediente = nomeIngredienteDAO.readById(id);
 
                 if (nomeIngrediente == null) {
-                    response.sendRedirect(request.getContextPath() + "/nomeIngrediente");
+                    response.sendRedirect(request.getContextPath() + "/nomeIngredientes");
                     return;
                 }
 
@@ -101,8 +101,8 @@ public class NomeIngredienteServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<NomeIngrediente> listaNomesIngredientes = nomeIngredienteDAO.read();
-            request.setAttribute("nomesIngredientes", listaNomesIngredientes);
+            ArrayList<NomeIngrediente> listaIngredientes = nomeIngredienteDAO.read();
+            request.setAttribute("nomesIngredientes", listaIngredientes);
             request.getRequestDispatcher("/lista_nome_ingredientes.jsp").forward(request, response);
 
         } catch (NumberFormatException nfe) {
@@ -165,7 +165,8 @@ public class NomeIngredienteServlet extends HttpServlet {
                 response.getWriter().write("Nome de ingrediente não encontrado.");
             }
 
-        }catch (JsonParseException | IllegalStateException | UnsupportedEncodingException | NumberFormatException e){
+        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException| NumberFormatException e){
+            //UnsupportedOperationException -> Quando Json traz null em algum campo.
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         }catch (SQLException sqle){
@@ -178,7 +179,7 @@ public class NomeIngredienteServlet extends HttpServlet {
     protected void doDelete (HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/palin");
+        response.setContentType("text/plain");
 
         String idTexto = request.getParameter("id"); //exclui um NOME
         String idIngredienteTexto = request.getParameter("idIngrediente");
@@ -207,13 +208,13 @@ public class NomeIngredienteServlet extends HttpServlet {
             }else {
                 response.setStatus(404);
                 response.getWriter().write("Nome de ingrediente não encontrado.");
-                //se nada for encontrado, 400.
+                //se nada for encontrado, 404.
             }
         }catch (NumberFormatException nfe){
             response.setStatus(400);
             response.getWriter().write("Id inválido.");
         }catch (SQLException sqle){
-            throw new ServletException("Erro ao excluir o nomedo ingrediente.", sqle);
+            throw new ServletException("Erro ao excluir o nome do ingrediente.", sqle);
         }
     }
 
