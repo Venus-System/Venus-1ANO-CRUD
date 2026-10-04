@@ -122,14 +122,24 @@ public class NomeIngredienteServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+       //define decodificação de caracteres.
+
         String corpo = request.getReader().lines().collect(Collectors.joining());
+        /*
+            - Abre um leitor de texto sobre o corpo.
+            - Transforma o texto em um fluxo de linhas.
+            - Junta todas as linhas em uma só STRING.
+         */
 
         try {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+            // Converte o texto JSON em um objeto Java Navegável. Interpreta a String como JSON.
 
             if (!json.has("idNomeIngrediente") || !json.has("nome")) {
                 response.setStatus(400);
+                //Define o código de status HTTP DA RESPOSTA.
                 response.getWriter().write("Dados incompletos.");
+                //Escreve texto no corpo da resposta enviada ao navegador "Dados incompletos"
                 return;
             }
 
@@ -160,6 +170,50 @@ public class NomeIngredienteServlet extends HttpServlet {
             response.getWriter().write("Dados inválidos.");
         }catch (SQLException sqle){
             throw new ServletException("Erro ao atualizar o nome do ingrediente.", sqle);
+        }
+    }
+
+    //delete
+    @Override
+    protected void doDelete (HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/palin");
+
+        String idTexto = request.getParameter("id"); //exclui um NOME
+        String idIngredienteTexto = request.getParameter("idIngrediente");
+
+        try {
+            int linhas;
+
+            if (idTexto !=null && !idTexto.isBlank()){
+                linhas = nomeIngredienteDAO.deleteById(Integer.parseInt(idTexto));
+                //aqui exclui, pela chave da tabela IDNOME!
+            } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
+                linhas = nomeIngredienteDAO.deleteByIdIngrediente(Integer.parseInt(idIngredienteTexto));
+                //aqui exclui TODOS os NOMES de um ingrediente
+
+            }else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+
+                //se não for nenhum dos dois responde 400.
+            }
+
+            if (linhas>0){
+                response.setStatus(200);
+                //aqui a resposta é baseada no número de linahs afetadas.
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Nome de ingrediente não encontrado.");
+                //se nada for encontrado, 400.
+            }
+        }catch (NumberFormatException nfe){
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao excluir o nomedo ingrediente.", sqle);
         }
     }
 
