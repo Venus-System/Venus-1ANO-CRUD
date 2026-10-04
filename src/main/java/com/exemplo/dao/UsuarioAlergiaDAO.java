@@ -13,14 +13,13 @@ import java.time.LocalDate;
 
 public class UsuarioAlergiaDAO {
     public boolean inserirUsuarioAlergia(UsuarioAlergia usuarioAlergia) throws SQLException {
-        String sql= "insert into usuario_alergia (dt_registro, grau, id_usuario , id_alergia) values (?,?,?,?)";
+        String sql= "insert into usuario_alergia (grau, id_usuario , id_alergia) values (?,?,?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstm = cnn.prepareStatement(sql)){
-                pstm.setObject(1, usuarioAlergia.getDtRegistro());
-                pstm.setInt(2,usuarioAlergia.getGrau());
-                pstm.setInt(3,usuarioAlergia.getIdUsuario());
-                pstm.setInt(4,usuarioAlergia.getIdAlergia());
+                pstm.setInt(1,usuarioAlergia.getGrau());
+                pstm.setInt(2,usuarioAlergia.getIdUsuario());
+                pstm.setInt(3,usuarioAlergia.getIdAlergia());
             return pstm.executeUpdate()>0;
         }
     }
@@ -91,13 +90,12 @@ public class UsuarioAlergiaDAO {
     }
 
     public int update (UsuarioAlergia usuarioAlergia) throws SQLException{
-        String sql = "update usuario_alergia set dt_registro=?, grau =? where id_usuario_alergia=?";
+        String sql = "update usuario_alergia set grau =? where id_usuario_alergia=?";
         try (Connection cnn = ConexaoBanco.conectar();
             PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
-            pstmt.setObject(1, usuarioAlergia.getDtRegistro());
-            pstmt.setInt(2, usuarioAlergia.getGrau());
-            pstmt.setInt(3, usuarioAlergia.getIdUsuarioAlergia());
+            pstmt.setInt(1, usuarioAlergia.getGrau());
+            pstmt.setInt(2, usuarioAlergia.getIdUsuarioAlergia());
 
             return pstmt.executeUpdate();
 

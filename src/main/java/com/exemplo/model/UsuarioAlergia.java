@@ -18,6 +18,17 @@ public class UsuarioAlergia {
         this.idAlergia = idAlergia;
     }
 
+    public UsuarioAlergia(int grau, int idUsuario, int idAlergia) {
+        this.grau = grau;
+        this.idUsuario = idUsuario;
+        this.idAlergia = idAlergia;
+    }
+
+    public UsuarioAlergia(int idUsuarioAlergia, int grau) {
+        this.idUsuarioAlergia = idUsuarioAlergia;
+        this.grau = grau;
+    }
+
     public int getIdUsuarioAlergia() {
         return idUsuarioAlergia;
     }
