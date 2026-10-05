@@ -3,23 +3,33 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.UsuarioAlergiaDAO;
 import com.exemplo.model.UsuarioAlergia;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kotlin.OverloadResolutionByLambdaReturnType;
+import org.postgresql.core.SqlCommand;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @WebServlet("/usuarioAlergias")
-public class UsuarioAlergiaServlet {
+public class UsuarioAlergiaServlet extends HttpServlet {
 
     private final UsuarioAlergiaDAO usuarioAlergiaDAO = new UsuarioAlergiaDAO();
 
     //create
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -102,6 +112,59 @@ public class UsuarioAlergiaServlet {
             response.sendRedirect(request.getContextPath() + "/usuarioAlergias");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar alergias dos usuários", sqle);
+        }
+    }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idUsuarioAlergia") || !json.has("grau") || !json.has("dt_registro")) {
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idUsuarioAlergia").getAsString());
+            int grau = Integer.parseInt(json.get("grau").getAsString());
+            String dtRegistroTexto = json.get("dt_registro").getAsString();
+
+            if (dtRegistroTexto.isBlank()) {
+                response.setStatus(400);
+                response.getWriter().write("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            LocalDate dtRegistro = LocalDate.parse(dtRegistroTexto);
+
+            UsuarioAlergia usuarioAlergia = new UsuarioAlergia(grau, id);
+
+            int linhas = usuarioAlergiaDAO.update(usuarioAlergia);
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Registro não encontrado.");
+            }
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        } catch (DateTimeParseException dtpe) {
+            response.setStatus(400);
+            response.getWriter().write("Data de registro inválida.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao atualizar a alergia do usuário");
         }
     }
 
