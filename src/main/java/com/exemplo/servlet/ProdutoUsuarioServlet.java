@@ -116,5 +116,49 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         }
     }
 
+    //delete
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idProdutoTexto = request.getParameter("idProduto");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = produtoUsuarioDAO.deleteById(id);
+            } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                int idProduto = Integer.parseInt(idProdutoTexto);
+                linhas = produtoUsuarioDAO.deleteByIdProduto(idProduto);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = produtoUsuarioDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Registro não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir o produto do usuário.", sqle);
+        }
+
+    }
 
 }
