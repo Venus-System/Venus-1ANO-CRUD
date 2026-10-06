@@ -60,18 +60,26 @@ public class ProdutoUsuarioDAO {
 
     }
 
-    public int update (ProdutoUsuario produtoUsuario) throws SQLException {
-        String sql = "update produto_usuario set id_produto = ?, id_usuario = ?  where id_produto_usuario = ? ";
+    public ArrayList<ProdutoUsuario> readByIdUsuario(int idUsuario) throws SQLException{
+        String sql= "select * from produto_usuario where id_usuario = ?";
+        ArrayList<ProdutoUsuario> listaProdutoUsuario = new ArrayList<>();
+
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)){
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
+            pstm.setInt(1, idUsuario);
 
-            pstmt.setInt(1,produtoUsuario.getIdProduto());
-            pstmt.setInt(2,produtoUsuario.getIdUsuario());
-            pstmt.setInt(3,produtoUsuario.getIdProdutoUsuario());
+            try (ResultSet rset = pstm.executeQuery()) {
+                while(rset.next()){
+                    ProdutoUsuario pU1 = new ProdutoUsuario(
+                            rset.getInt("id_produto_usuario"),
+                            rset.getInt("id_produto"),
+                            rset.getInt("id_usuario"));
 
+                    listaProdutoUsuario.add(pU1);
+                }
+            }
+        }return listaProdutoUsuario;
 
-            return pstmt.executeUpdate();
-        }
     }
 
     public int deleteById(int id) throws SQLException{

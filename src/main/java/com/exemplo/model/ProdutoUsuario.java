@@ -13,6 +13,11 @@ public class ProdutoUsuario {
         this.idUsuario = idUsuario;
     }
 
+    public ProdutoUsuario(int idProduto, int idUsuario) {
+        this.idProduto = idProduto;
+        this.idUsuario = idUsuario;
+    }
+
     public int getIdProdutoUsuario() {
         return idProdutoUsuario;
     }
