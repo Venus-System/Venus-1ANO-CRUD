@@ -3,8 +3,6 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.ProdutoUsuarioDAO;
 import com.exemplo.model.ProdutoUsuario;
-import com.google.gson.Gson;
-import com.sun.security.auth.NTSidUserPrincipal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -21,6 +18,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
     private final ProdutoUsuarioDAO produtoUsuarioDAO = new ProdutoUsuarioDAO();
 
     //create
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -53,8 +51,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
                 request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
             }
         } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Não foi possível cadastrar o produto do usuário.");
-            request.getRequestDispatcher("/cadastrar_produto_usuario.jsp").forward(request, response);
+            request.setAttribute("erro", "Dados inválidos. Selecione o produto e o usuário e tente novamente.");
+            request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
         } catch (SQLException sqle) {
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Produto ou usuário não existe, ou o registro já está cadastrado.");
@@ -71,28 +69,10 @@ public class ProdutoUsuarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String idTexto = request.getParameter("id");
+
         String idUsuarioTexto = request.getParameter("idUsuario"); //aqui filtrará por usuário.
 
         try {
-            if (idTexto != null && !idTexto.isBlank() ||
-                    idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int id = Integer.parseInt(idTexto);
-                ProdutoUsuario produtoUsuario = produtoUsuarioDAO.readById(id);
-                // "Se o id for diferente de null,  então converta ele para número. (Ele estará preenchido)"
-
-                if (produtoUsuario == null) {
-                    response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
-                    // O ContextPath acrescenta o nome da aplicação (Venus) na frente da URL.
-                    return;
-                    //Return serve para o código não continuar executando as linhas seguintes.
-                }
-
-                request.setAttribute("produtoUsuario", produtoUsuario);
-                request.getRequestDispatcher("/editar_produto_usuario.jsp").forward(request, response);
-                return;
-            }
-
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
                 ArrayList<ProdutoUsuario> listaUsuarios = produtoUsuarioDAO.readByIdUsuario(idUsuario);
@@ -101,12 +81,11 @@ public class ProdutoUsuarioServlet extends HttpServlet {
                 request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
                 return;
                 //Return serve para o código não continuar executando as linhas seguintes.
-
             }
 
             ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.read();
             //Guarda todos os registros de produto_usuario em uma lista.
-            request.setAttribute("produtoUsuarios", listaProdutoUsuarios);
+            request.setAttribute("produtosUsuarios", listaProdutoUsuarios);
             request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
             //o código guarda a lista com setAttribute e faz o forward para o JSP, que percorre ${produtosUsuarios} para montar a tabela.
         } catch (NumberFormatException nfe) {
