@@ -4,6 +4,7 @@ package com.exemplo.servlet;
 import com.exemplo.dao.ProdutoUsuarioDAO;
 import com.exemplo.model.ProdutoUsuario;
 import com.google.gson.Gson;
+import com.sun.security.auth.NTSidUserPrincipal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,15 +12,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-@WebServlet ("/produto-usuarios")
+@WebServlet("/produtoUsuarios")
 public class ProdutoUsuarioServlet extends HttpServlet {
     private final ProdutoUsuarioDAO produtoUsuarioDAO = new ProdutoUsuarioDAO();
 
     //create
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException{
+            throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
@@ -27,7 +30,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         String idUsuarioTexto = request.getParameter("id_usuario");
 
         if (idProdutoTexto == null || idProdutoTexto.isBlank() ||
-            idUsuarioTexto == null || idUsuarioTexto.isBlank()){
+                idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
             //Aqui o if barra se qualquer campo estiver vazio.
 
             request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
@@ -42,28 +45,76 @@ public class ProdutoUsuarioServlet extends HttpServlet {
 
             ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
 
-            if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)){
-                response.sendRedirect(request.getContextPath()+ "/produtoUsuarios");
+            if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)) {
+                response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
                 //O getContextPath devolve o nome da aplicação (o nome do VENUS na URL).
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o produto do usuário.");
                 request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
             }
-        }catch (NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             request.setAttribute("erro", "Não foi possível cadastrar o produto do usuário.");
             request.getRequestDispatcher("/cadastrar_produto_usuario.jsp").forward(request, response);
-        }catch (SQLException sqle){
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Produto ou usuário não existe, ou o registro já está cadastrado.");
                 request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
                 //se o erro for por causa dos dados informados, então a resposta voltará ao formulário cm uma mensagem.
-            }else {
+            } else {
                 throw new ServletException("Erro ao cadastrar produto do usuário.", sqle);
                 //aqui é qualquer outro erro com o banco, o que não for 'culpa' de quem preencheu o formulário
             }
         }
     }
 
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario"); //aqui filtrará por usuário.
+
+        try {
+            if (idTexto != null && !idTexto.isBlank() ||
+                    idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                ProdutoUsuario produtoUsuario = produtoUsuarioDAO.readById(id);
+                // "Se o id for diferente de null,  então converta ele para número. (Ele estará preenchido)"
+
+                if (produtoUsuario == null) {
+                    response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
+                    // O ContextPath acrescenta o nome da aplicação (Venus) na frente da URL.
+                    return;
+                    //Return serve para o código não continuar executando as linhas seguintes.
+                }
+
+                request.setAttribute("produtoUsuario", produtoUsuario);
+                request.getRequestDispatcher("/editar_produto_usuario.jsp").forward(request, response);
+                return;
+            }
+
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                ArrayList<ProdutoUsuario> listaUsuarios = produtoUsuarioDAO.readByIdUsuario(idUsuario);
+
+                request.setAttribute("produtosUsuarios", listaUsuarios);
+                request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+                return;
+                //Return serve para o código não continuar executando as linhas seguintes.
+
+            }
+
+            ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.read();
+            //Guarda todos os registros de produto_usuario em uma lista.
+            request.setAttribute("produtoUsuarios", listaProdutoUsuarios);
+            request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+            //o código guarda a lista com setAttribute e faz o forward para o JSP, que percorre ${produtosUsuarios} para montar a tabela.
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar produtos no usuário.", sqle);
+        }
+    }
 
 
 }
