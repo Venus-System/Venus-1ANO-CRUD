@@ -10,6 +10,10 @@ public class Alergia {
         this.nomeAlergia = nomeAlergia;
     }
 
+    public Alergia(String nomeAlergia) {
+        this.nomeAlergia = nomeAlergia;
+    }
+
     public int getIdAlergia() {
         return idAlergia;
     }
@@ -28,7 +32,7 @@ public class Alergia {
 
     @Override
     public String toString() {
-        return "id Alergia: " + getIdAlergia() +
+        return "id Alergia: " + getIdAlergia() + "\n"+
                 "Nome Alergia: " + getNomeAlergia() + "\n";
     }
 }
