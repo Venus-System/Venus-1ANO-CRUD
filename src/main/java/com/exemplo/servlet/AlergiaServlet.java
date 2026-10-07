@@ -139,4 +139,44 @@ public class AlergiaServlet extends HttpServlet {
             }
         }
     }
+
+    //delete
+    @Override
+
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+
+        if (idTexto == null || idTexto.isBlank()){
+            response.setStatus(400);
+            response.getWriter().write("Id não informado.");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idTexto);
+            int linhas = alergiaDAO.deleteById(id);
+
+            if (linhas>0){
+                response.setStatus(200);
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Alergia não encontrada.");
+            }
+        }catch (NumberFormatException nfe){
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        }catch (SQLException sqle){
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
+                response.setStatus(409);
+                response.getWriter().write("Não é possível excluir: a alergia está em uso por algum usuário.");
+            }else {
+                throw new ServletException("Erro ao excluir a alergia.", sqle);
+            }
+        }
+    }
 }
