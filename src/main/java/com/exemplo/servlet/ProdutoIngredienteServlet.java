@@ -87,3 +87,51 @@ public class ProdutoIngredienteServlet extends HttpServlet {
             throw new ServletException("Erro ao buscar ingredientes dos produtos.", sqle);
         }
     }
+
+    //delete
+    @Override
+
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idIngredienteTexto = request.getParameter("idIngrediente");
+        String idProdutoTexto = request.getParameter("idProduto");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = produtoIngredienteDAO.deleteById(id);
+            } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
+                int idIngrediente = Integer.parseInt(idIngredienteTexto);
+                linhas = produtoIngredienteDAO.deleteByIdIngrediente(idIngrediente);
+            } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                int idProduto = Integer.parseInt(idProdutoTexto);
+                linhas = produtoIngredienteDAO.deleteByIdProduto(idProduto);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+                //algo foi apagado, então a exclusão deu certo.
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Registro não encontrado.");
+                //o comando rodou sem erro, mas nenhum registro tinha aquele id, então não havia o que apagar.
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir o ingrediente do produto.", sqle);
+        }
+    }
+}
