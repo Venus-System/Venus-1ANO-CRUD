@@ -12,6 +12,12 @@ public class ProdutoIngrediente {
         this.idProduto = idProduto;
     }
 
+
+    public ProdutoIngrediente(int idIngrediente, int idProduto) {
+        this.idIngrediente = idIngrediente;
+        this.idProduto = idProduto;
+    }
+
     public int getIdProdutoIngrediente() {
         return idProdutoIngrediente;
     }

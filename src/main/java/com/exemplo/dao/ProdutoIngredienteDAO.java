@@ -40,6 +40,29 @@ public class ProdutoIngredienteDAO {
 
     }
 
+    public ArrayList<ProdutoIngrediente> readByIdProduto (int id) throws SQLException {
+        String sql = "select * from produto_ingrediente where id_produto_ingrediente =?";
+        ArrayList<ProdutoIngrediente> listaProdutosIngredientes = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                while (rset.next()) {
+                    ProdutoIngrediente produtoIngrediente = new ProdutoIngrediente(
+                            rset.getInt("id_produto_ingrediente"),
+                            rset.getInt("id_ingrediente"),
+                            rset.getInt("id_produto")
+                    );
+                    listaProdutosIngredientes.add(produtoIngrediente);
+                }
+            }
+
+        } return listaProdutosIngredientes;
+    }
+
     public ProdutoIngrediente readById(int id) throws SQLException {
         String sql = "select * from produto_ingrediente where id_produto_ingrediente =?";
         ProdutoIngrediente produtoIngrediente = null;
@@ -62,6 +85,16 @@ public class ProdutoIngredienteDAO {
         } return produtoIngrediente;
     }
 
+    public int deleteById(int id) throws SQLException {
+        String sql = "delete from produto_ingrediente where id_produto_ingrediente = ?";
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1,id);
+            return pstmt.executeUpdate();
+
+        }
+    }
 
     public int deleteByIdIngrediente(int id) throws SQLException {
         String sql = "delete from produto_ingrediente where id_ingrediente = ?";
