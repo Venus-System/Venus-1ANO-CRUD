@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/produtoIngredientes")
 public class ProdutoIngredienteServlet extends HttpServlet {
@@ -59,4 +60,30 @@ public class ProdutoIngredienteServlet extends HttpServlet {
         }
 
     }
-}
+
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String idProdutoTexto = request.getParameter("idProduto"); //aqui filtrará por produto.
+
+        try {
+            if (idProdutoTexto != null || !idProdutoTexto.isBlank()) {
+                int idProduto = Integer.parseInt(idProdutoTexto);
+                ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.readByIdProduto(idProduto);
+
+                request.setAttribute("produtosIngredientes", listaProduto);
+                request.getRequestDispatcher("/lista_produto_ingrediente.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.read();
+            request.setAttribute("produtosIngredientes", listaProduto);
+            request.getRequestDispatcher("/lista_produto_ingrediente").forward(request, response);
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/produtoIngredientes");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar ingredientes dos produtos.", sqle);
+        }
+    }
