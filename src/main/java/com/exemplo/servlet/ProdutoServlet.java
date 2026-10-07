@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/produtos")
 public class ProdutoServlet extends HttpServlet {
@@ -73,6 +74,55 @@ public class ProdutoServlet extends HttpServlet {
                 throw new ServletException("Erro ao cadastrar produto.", sqle);
             }
         }
+    }
 
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String idTexto = request.getParameter("id");
+        String nomeBusca = request.getParameter("nome");
+        String marcaBusca = request.getParameter("marca");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                Produto produto = produtoDAO.readById(id);
+
+                if (produto == null) {
+                    response.sendRedirect(request.getContextPath() + "/produtos");
+                    return;
+                }
+
+                request.setAttribute("produto", produto);
+                request.getRequestDispatcher("/editar_produto.jsp").forward(request, response);
+                return;
+            }
+
+            if (nomeBusca != null && !nomeBusca.isBlank()) {
+                ArrayList<Produto> listaNomesProdutos = produtoDAO.readByName(nomeBusca.trim());
+
+                request.setAttribute("produtos", listaNomesProdutos);
+                request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+                return;
+            }
+
+            if (marcaBusca != null && !marcaBusca.isBlank()) {
+                ArrayList<Produto> listaMarcasProdutos = produtoDAO.readByBrand(marcaBusca.trim());
+
+                request.setAttribute("produtos", listaMarcasProdutos);
+                request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Produto> listaProdutos = produtoDAO.read();
+            request.setAttribute("produtos", listaProdutos);
+            request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/produtos");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar produtos.", sqle);
+        }
     }
 }
