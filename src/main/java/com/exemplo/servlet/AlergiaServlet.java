@@ -107,22 +107,28 @@ public class AlergiaServlet extends HttpServlet {
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
                 return;
+                //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
+
             }
 
-            /int id = Integer.parseInt(json.get("idAlergia").getAsString());
-            /String nome = json.get("nome").getAsString();
+            int id = Integer.parseInt(json.get("idAlergia").getAsString());
+            //Lê o id que veio do json e o transforma em número. Pega o campo, lê o valor desse campo como texto, converte para int.
+            String nome = json.get("nome").getAsString();
+            //Pega o campo 'nome' do Json e o lê como texto.
 
             if (nome.isBlank()) {
                 response.setStatus(400);
-                response.getWriter().write("Informa o nome da alergia.");]
+                response.getWriter().write("Informa o nome da alergia.");
                 return;
+                //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
+
             }
 
             Alergia alergia = new Alergia(id, nome.trim());
             int linhas = alergiaDAO.update(alergia);
 
             if (linhas > 0) {
-                response.setStatus(400);
+                response.setStatus(200);
             } else {
                 response.setStatus(404);
                 response.getWriter().write("Alergia não encontrada.");
@@ -131,8 +137,10 @@ public class AlergiaServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
-            /if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                /response.setStatus(409);
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                //Confere se o código existe e se começa com 23
+                response.setStatus(409);
+                //caso o novo nome já pertença a outra alergia (unique)
                 response.getWriter().write("Já existe uma alergia com esse nome.");
             } else {
                 throw new ServletException("Erro ao atualizar a alergia.", sqle);
@@ -142,7 +150,6 @@ public class AlergiaServlet extends HttpServlet {
 
     //delete
     @Override
-
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -155,6 +162,7 @@ public class AlergiaServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Id não informado.");
             return;
+            //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
         }
 
         try {
@@ -173,6 +181,7 @@ public class AlergiaServlet extends HttpServlet {
         }catch (SQLException sqle){
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
                 response.setStatus(409);
+                //Conflict. Ele avisa que a requisição está correta, mas conflita com o estado atual dos dados no banco.
                 response.getWriter().write("Não é possível excluir: a alergia está em uso por algum usuário.");
             }else {
                 throw new ServletException("Erro ao excluir a alergia.", sqle);
