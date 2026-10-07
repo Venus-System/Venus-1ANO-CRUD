@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/alergias")
 public class AlergiaServlet extends HttpServlet {
@@ -50,6 +51,38 @@ public class AlergiaServlet extends HttpServlet {
             } else {
                 throw new ServletException("Erro ao cadastrar alergia", sqle);
             }
+        }
+    }
+
+    //create
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException{
+
+        String idTexto = request.getParameter("id");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()){
+                int id = Integer.parseInt(idTexto);
+                Alergia alergia = alergiaDAO.readById(id);
+
+                if (alergia == null){
+                    response.sendRedirect(request.getContextPath()+"/alergias");]
+                    return;
+                }
+
+                request.setAttribute("alergia", alergia);
+                request.getRequestDispatcher("/editar_alergia.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Alergia> listaAlergias = alergiaDAO.read();
+            request.setAttribute("alergias", listaAlergias);
+            request.getRequestDispatcher("/lista_alergias.jsp").forward(request, response);
+        }catch (NumberFormatException nfe){
+            response.sendRedirect(request.getContextPath()+"/alergias");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao buscar alergias.", sqle);
         }
     }
 }
