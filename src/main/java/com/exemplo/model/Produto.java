@@ -24,6 +24,17 @@ public class Produto {
         this.listaIngredientes = listaIngredientes;
     }
 
+    public Produto(String nome, String marca, String categoria, String descricao, Boolean ehVegano, Boolean ehCrueltyFree, int pontuacao, String listaIngredientes) {
+        this.nome = nome;
+        this.marca = marca;
+        this.categoria = categoria;
+        this.descricao = descricao;
+        this.ehVegano = ehVegano;
+        this.ehCrueltyFree = ehCrueltyFree;
+        this.pontuacao = pontuacao;
+        this.listaIngredientes = listaIngredientes;
+    }
+
     public int getIdProduto() {
         return idProduto;
     }
@@ -104,8 +115,8 @@ public class Produto {
                 "Categoria: " + getCategoria() + "\n" +
                 "Descrição: " + getDescricao() + "\n" +
                 "É Vegano: " + getEhVegano() + "\n" +
-                "É Cruelty Free :" + getEhCrueltyFree() + "\n" +
-                "Pontuação :" + getPontuacao() + "\n" +
+                "É Cruelty Free:" + getEhCrueltyFree() + "\n" +
+                "Pontuação:" + getPontuacao() + "\n" +
                 "Lista Ingredientes: " + getListaIngredientes() + "\n";
     }
 }

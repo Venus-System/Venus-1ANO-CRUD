@@ -4,7 +4,6 @@ import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Produto;
 
 import java.awt.*;
-import java.net.PortUnreachableException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
