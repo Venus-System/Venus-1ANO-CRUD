@@ -25,7 +25,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        String idIngredienteTexto = request.getParameter("id_igrediente");
+        String idIngredienteTexto = request.getParameter("id_ingrediente");
         String idProdutoTexto = request.getParameter("id_produto");
 
         if (idIngredienteTexto == null || idIngredienteTexto.isBlank() ||
@@ -49,7 +49,8 @@ public class ProdutoIngredienteServlet extends HttpServlet {
                 request.getRequestDispatcher("/cadastro_produto_ingrediente.jsp").forward(request, response);
             }
         } catch (NumberFormatException nfe) {
-            request.setAttribute("erro ", "Dados inválidos. Selecione o produto e o ingrediente e tente novamente.");
+            request.setAttribute("erro", "Dados inválidos. Selecione o produto e o ingrediente e tente novamente.");
+            request.getRequestDispatcher("/cadastro_produto_ingrediente.jsp").forward(request, response);
         } catch (SQLException sqle) {
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Produto ou ingrediente não existe, ou o registro já está cadastrado.");
@@ -69,7 +70,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
         String idProdutoTexto = request.getParameter("idProduto"); //aqui filtrará por produto.
 
         try {
-            if (idProdutoTexto != null || !idProdutoTexto.isBlank()) {
+            if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
                 int idProduto = Integer.parseInt(idProdutoTexto);
                 ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.readByIdProduto(idProduto);
 
@@ -80,7 +81,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
 
             ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.read();
             request.setAttribute("produtosIngredientes", listaProduto);
-            request.getRequestDispatcher("/lista_produto_ingrediente").forward(request, response);
+            request.getRequestDispatcher("/lista_produto_ingrediente.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/produtoIngredientes");
         } catch (SQLException sqle) {
