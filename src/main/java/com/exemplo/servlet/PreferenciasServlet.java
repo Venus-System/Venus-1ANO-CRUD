@@ -2,6 +2,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.PreferenciasDAO;
 import com.exemplo.model.Preferencias;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @WebServlet("/preferencias")
 public class PreferenciasServlet extends HttpServlet {
@@ -110,4 +114,52 @@ public class PreferenciasServlet extends HttpServlet {
             throw new ServletException("Erro ao buscar preferências.", sqle);
         }
     }
+
+    //update
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+                    //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
+            if (!json.has("idPreferencias") || !json.has("faixaPreco")
+                || !json.has("prefereVegano") || !json.has("restricoesDieta")
+                || !json.has("categoriaPref") || !json.has("marca")){
+
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idPreferencias").getAsString());
+            boolean prefereVegano = json.get("prefereVegano").getAsBoolean();
+            String faixaPreco = json.get("faixaPreco").getAsString();
+            String restricoesDieta = json.get("restricoesDieta").getAsString();
+            String categoriaPref = json.get("categoriaPref").getAsString();
+            String marcasFav = json.get("marcasFav").getAsString();
+
+            Preferencias preferencias = new Preferencias(id, faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav);
+
+            int linhas = preferenciasDAO.update(preferencias);
+
+            if (linhas > 0){
+                response.setStatus(200);
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Preferências não encontradas.");
+            }
+        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao atualizar as preferências.", sqle);
+        }
+    }
+
 }
