@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -70,24 +71,24 @@ public class PreferenciasServlet extends HttpServlet {
     //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException{
+            throws ServletException, IOException {
 
-        String idTexto= request.getParameter("id");
+        String idTexto = request.getParameter("id");
         String idUsuarioTexto = request.getParameter("idUsuario");
         String faixaPrecoBusca = request.getParameter("faixaPreco");
         String marcaBusca = request.getParameter("marca");
 
         try {
-            if (idTexto != null && !idTexto.isBlank()){
+            if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 Preferencias preferencias = preferenciasDAO.readById(id);
 
-                if (preferencias == null){
-                    response.sendRedirect(request.getContextPath()+"/preferencias");
+                if (preferencias == null) {
+                    response.sendRedirect(request.getContextPath() + "/preferencias");
                     return;
                 }
 
-                if (idUsuarioTexto != null && idUsuarioTexto.isBlank()){
+                if (idUsuarioTexto != null && idUsuarioTexto.isBlank()) {
                     int idUsuario = Integer.parseInt(idUsuarioTexto);
                     ArrayList<Preferencias> listaUsuarios = preferenciasDAO.readByIdUsuario(idUsuario);
 
@@ -96,7 +97,7 @@ public class PreferenciasServlet extends HttpServlet {
                     return;
                 }
 
-                if (faixaPrecoBusca!= null && !faixaPrecoBusca.isBlank()){
+                if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
                     ArrayList<Preferencias> listaPrecos = preferenciasDAO.readByPreco(faixaPrecoBusca);
 
                     request.setAttribute("listaPreferencias", listaPrecos);
@@ -108,16 +109,16 @@ public class PreferenciasServlet extends HttpServlet {
                 request.setAttribute("listaPreferencias", listaPreferencias);
                 request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
             }
-        }catch (NumberFormatException nfe){
-            response.sendRedirect(request.getContextPath()+"/preferencias");
-        }catch (SQLException sqle){
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/preferencias");
+        } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar preferências.", sqle);
         }
     }
 
     //update
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -127,10 +128,10 @@ public class PreferenciasServlet extends HttpServlet {
 
         try {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
-                    //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
+            //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
             if (!json.has("idPreferencias") || !json.has("faixaPreco")
-                || !json.has("prefereVegano") || !json.has("restricoesDieta")
-                || !json.has("categoriaPref") || !json.has("marca")){
+                    || !json.has("prefereVegano") || !json.has("restricoesDieta")
+                    || !json.has("categoriaPref") || !json.has("marca")) {
 
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
@@ -148,18 +149,59 @@ public class PreferenciasServlet extends HttpServlet {
 
             int linhas = preferenciasDAO.update(preferencias);
 
-            if (linhas > 0){
+            if (linhas > 0) {
                 response.setStatus(200);
-            }else {
+            } else {
                 response.setStatus(404);
                 response.getWriter().write("Preferências não encontradas.");
             }
-        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
-        }catch (SQLException sqle){
+        } catch (SQLException sqle) {
             throw new ServletException("Erro ao atualizar as preferências.", sqle);
         }
+    }
+
+    //delete
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = preferenciasDAO.deleteById(id);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = preferenciasDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Preferências não encontradas.");
+            }
+
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir as preferências.", sqle);
+        }
+
     }
 
 }
