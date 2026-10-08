@@ -3,6 +3,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.ProdutoDAO;
 import com.exemplo.model.Produto;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,6 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @WebServlet("/produtos")
 public class ProdutoServlet extends HttpServlet {
@@ -123,6 +128,72 @@ public class ProdutoServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/produtos");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar produtos.", sqle);
+        }
+    }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        //Lê o corpo (linha por linha) da requisição.
+        //o getReader lê o corpo, lines separa em linhas, collectiors.joining junta tudo em um texto só.
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            // o update grava todos os campos, então todos precisam vir no JSON
+            if (!json.has("idProduto") || !json.has("nome") ||
+                    !json.has("marca") || !json.has("categoria") ||
+                    !json.has("descricao") || !json.has("ehVegano")
+                    || !json.has("ehCrueltyFree") || !json.has("pontuacao")
+                    || !json.has("listaIngredientes")) {
+
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("id").getAsString());
+            String nome = json.get("nome").getAsString();
+            String marca = json.get("marca").getAsString();
+            String categoria = json.get("categoria").getAsString();
+            String descricao = json.get("descricao").getAsString();
+            boolean ehVegano = json.get("ehVegano").getAsBoolean();
+            boolean ehCrueltyFree = json.get("ehCrueltyFree").getAsBoolean();
+            int pontuacao = Integer.parseInt(json.get("pontuacao").getAsString());
+            String listaIngredientes = json.get("listaIngredientes").getAsString();
+
+            if (nome.isBlank() || marca.isBlank() || categoria.isBlank()){
+                response.setStatus(400);
+                response.getWriter().write("Preencha nome, marca e categoria.");
+                return;
+            }
+
+            Produto produto = new Produto(id, nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
+            int linhas = produtoDAO.update(produto);
+
+            if (linhas>0){
+                response.setStatus(200);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Produto não encontrado.");
+            }
+        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        }catch (SQLException sqle){
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
+                response.setStatus(409);
+                response.getWriter().write("Já existe um produto com esses dados ou algum dado não foi aceito.");
+            }else {
+                throw new ServletException("Erro ao atualizar o produto.", sqle);
+            }
         }
     }
 }
