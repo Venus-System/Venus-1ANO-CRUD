@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @WebServlet("/produtos")
@@ -159,7 +158,7 @@ public class ProdutoServlet extends HttpServlet {
                 return;
             }
 
-            int id = Integer.parseInt(json.get("id").getAsString());
+            int id = Integer.parseInt(json.get("idProduto").getAsString());
             String nome = json.get("nome").getAsString();
             String marca = json.get("marca").getAsString();
             String categoria = json.get("categoria").getAsString();
@@ -175,13 +174,13 @@ public class ProdutoServlet extends HttpServlet {
                 return;
             }
 
-            Produto produto = new Produto(id, nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
+            Produto produto = new Produto(id, nome.trim(), marca.trim(), categoria.trim(), descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
             int linhas = produtoDAO.update(produto);
 
             if (linhas>0){
                 response.setStatus(200);
             } else {
-                response.setStatus(400);
+                response.setStatus(404);
                 response.getWriter().write("Produto não encontrado.");
             }
         }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
