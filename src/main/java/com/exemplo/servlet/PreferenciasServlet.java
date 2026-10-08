@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -88,27 +87,39 @@ public class PreferenciasServlet extends HttpServlet {
                     return;
                 }
 
-                if (idUsuarioTexto != null && idUsuarioTexto.isBlank()) {
-                    int idUsuario = Integer.parseInt(idUsuarioTexto);
-                    ArrayList<Preferencias> listaUsuarios = preferenciasDAO.readByIdUsuario(idUsuario);
-
-                    request.setAttribute("listaPreferencias", listaUsuarios);
-                    request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
-                    return;
-                }
-
-                if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
-                    ArrayList<Preferencias> listaPrecos = preferenciasDAO.readByPreco(faixaPrecoBusca);
-
-                    request.setAttribute("listaPreferencias", listaPrecos);
-                    request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
-                    return;
-                }
-
-                ArrayList<Preferencias> listaPreferencias = preferenciasDAO.read();
-                request.setAttribute("listaPreferencias", listaPreferencias);
-                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+                request.setAttribute("preferencia", preferencias);
+                request.getRequestDispatcher("/editar_preferencias.jsp").forward(request, response);
+                return;
             }
+
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                ArrayList<Preferencias> listaUsuarios = preferenciasDAO.readByIdUsuario(idUsuario);
+
+                request.setAttribute("listaPreferencias", listaUsuarios);
+                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+                return;
+            }
+
+            if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
+                ArrayList<Preferencias> listaPrecos = preferenciasDAO.readByPreco(faixaPrecoBusca.trim());
+
+                request.setAttribute("listaPreferencias", listaPrecos);
+                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+                return;
+            }
+
+            if (marcaBusca != null && !marcaBusca.isBlank()){
+                ArrayList<Preferencias> listaMarcas = preferenciasDAO.readByBrand(marcaBusca.trim());
+                request.setAttribute("listaPreferencias", listaMarcas);
+                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Preferencias> listaPreferencias = preferenciasDAO.read();
+            request.setAttribute("listaPreferencias", listaPreferencias);
+            request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/preferencias");
         } catch (SQLException sqle) {
@@ -117,6 +128,7 @@ public class PreferenciasServlet extends HttpServlet {
     }
 
     //update
+    @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -131,7 +143,7 @@ public class PreferenciasServlet extends HttpServlet {
             //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
             if (!json.has("idPreferencias") || !json.has("faixaPreco")
                     || !json.has("prefereVegano") || !json.has("restricoesDieta")
-                    || !json.has("categoriaPref") || !json.has("marca")) {
+                    || !json.has("categoriaPref") || !json.has("marcasFav")) {
 
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
@@ -164,6 +176,7 @@ public class PreferenciasServlet extends HttpServlet {
     }
 
     //delete
+    @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
