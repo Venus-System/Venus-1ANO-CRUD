@@ -1,0 +1,143 @@
+package com.exemplo.servlet;
+
+
+import com.exemplo.dao.ProdutoUsuarioDAO;
+import com.exemplo.model.ProdutoUsuario;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+@WebServlet("/produtoUsuarios")
+public class ProdutoUsuarioServlet extends HttpServlet {
+    private final ProdutoUsuarioDAO produtoUsuarioDAO = new ProdutoUsuarioDAO();
+
+    //create
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        String idProdutoTexto = request.getParameter("id_produto");
+        String idUsuarioTexto = request.getParameter("id_usuario");
+
+        if (idProdutoTexto == null || idProdutoTexto.isBlank() ||
+                idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
+            //Aqui o if barra se qualquer campo estiver vazio.
+
+            request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
+            request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+
+            return;
+        }
+
+        try {
+            int idProduto = Integer.parseInt(idProdutoTexto);
+            int idUsuario = Integer.parseInt(idUsuarioTexto);
+
+            ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
+
+            if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)) {
+                response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
+                //O getContextPath devolve o nome da aplicação (o nome do VENUS na URL).
+            } else {
+                request.setAttribute("erro", "Não foi possível cadastrar o produto do usuário.");
+                request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+            }
+        } catch (NumberFormatException nfe) {
+            request.setAttribute("erro", "Dados inválidos. Selecione o produto e o usuário e tente novamente.");
+            request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                request.setAttribute("erro", "Produto ou usuário não existe, ou o registro já está cadastrado.");
+                request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+                //se o erro for por causa dos dados informados, então a resposta voltará ao formulário cm uma mensagem.
+            } else {
+                throw new ServletException("Erro ao cadastrar produto do usuário.", sqle);
+                //aqui é qualquer outro erro com o banco, o que não for 'culpa' de quem preencheu o formulário
+            }
+        }
+    }
+
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String idUsuarioTexto = request.getParameter("idUsuario"); //aqui filtrará por usuário.
+
+        try {
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                ArrayList<ProdutoUsuario> listaUsuarios = produtoUsuarioDAO.readByIdUsuario(idUsuario);
+
+                request.setAttribute("produtosUsuarios", listaUsuarios);
+                request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+                return;
+                //Return serve para o código não continuar executando as linhas seguintes.
+            }
+
+            ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.read();
+            //Guarda todos os registros de produto_usuario em uma lista.
+            request.setAttribute("produtosUsuarios", listaProdutoUsuarios);
+            request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+            //o código guarda a lista com setAttribute e faz o forward para o JSP, que percorre ${produtosUsuarios} para montar a tabela.
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar produtos no usuário.", sqle);
+        }
+    }
+
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idProdutoTexto = request.getParameter("idProduto");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = produtoUsuarioDAO.deleteById(id);
+            } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                int idProduto = Integer.parseInt(idProdutoTexto);
+                linhas = produtoUsuarioDAO.deleteByIdProduto(idProduto);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = produtoUsuarioDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Registro não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir o produto do usuário.", sqle);
+        }
+
+    }
+
+}
