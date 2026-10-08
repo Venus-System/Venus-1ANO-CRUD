@@ -81,6 +81,32 @@ public class PreferenciasDAO {
         } return preferencias;
     }
 
+    public ArrayList<Preferencias> readByIdUsuario(int idUsuario) throws SQLException {
+        String sql = "select * from preferencias where id_usuario = ? order by id_preferencias";
+        ArrayList<Preferencias> listaUsuario = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idUsuario);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                while (rset.next()) {
+                    Preferencias pref1 = new Preferencias(
+                            rset.getInt("id_preferencias"),
+                            rset.getString("faixa_preco"),
+                            rset.getBoolean("prefere_vegano"),
+                            rset.getString("restricoes_dieta"),
+                            rset.getString("categorias_pref"),
+                            rset.getString("marcas_fav"),
+                            rset.getInt("id_usuario"));
+                    listaUsuario.add(pref1);
+                }
+            }
+        }
+        return listaUsuario;
+    }
+
     public ArrayList<Preferencias> readByPreco (String faixaPreco) throws SQLException{
         String sql = "select * from preferencias where faixa_preco like ?";
         ArrayList<Preferencias> listaPreferencias = new ArrayList<>();

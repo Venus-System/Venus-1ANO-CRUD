@@ -20,6 +20,24 @@ public class Preferencias {
         this.idUsuario = idUsuario;
     }
 
+    public Preferencias(String faixaPreco, Boolean prefereVegano, String restricoesDieta, String categoriaPref, String marcasFav, int idUsuario) {
+        this.faixaPreco = faixaPreco;
+        this.prefereVegano = prefereVegano;
+        this.restricoesDieta = restricoesDieta;
+        this.categoriaPref = categoriaPref;
+        this.marcasFav = marcasFav;
+        this.idUsuario = idUsuario;
+    }
+
+    public Preferencias(int idPreferencias, String faixaPreco, Boolean prefereVegano, String restricoesDieta, String categoriaPref, String marcasFav) {
+        this.idPreferencias = idPreferencias;
+        this.faixaPreco = faixaPreco;
+        this.prefereVegano = prefereVegano;
+        this.restricoesDieta = restricoesDieta;
+        this.categoriaPref = categoriaPref;
+        this.marcasFav = marcasFav;
+    }
+
     public int getIdPreferencias() {
         return idPreferencias;
     }
@@ -81,7 +99,7 @@ public class Preferencias {
         return "Id Preferências: " + getIdPreferencias() + "\n" +
                 "Faixa de Preço: " + getFaixaPreco() + "\n" +
                 "Prefere Vegano: " + getPrefereVegano() + "\n" +
-                "Restrições Diete: " + getRestricoesDieta() + "\n" +
+                "Restrições Dieta: " + getRestricoesDieta() + "\n" +
                 "Cateogira Favorita: "+getCategoriaPref()+"\n"+
                 "Marca Favorita: "+getMarcasFav()+"\n "+
                 "Id Usuário: " + getIdUsuario() + "\n";
