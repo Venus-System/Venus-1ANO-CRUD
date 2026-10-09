@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @WebServlet("/perfisCabelo")
-public class PerfilCabeloSevlet extends HttpServlet {
+public class PerfilCabeloServlet extends HttpServlet {
 
     private final PerfilCabeloDAO perfilCabeloDAO = new PerfilCabeloDAO();
 
@@ -39,7 +39,7 @@ public class PerfilCabeloSevlet extends HttpServlet {
                 idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
 
             request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/casdatro_perfil_cabelo.jsp").forward(request, response);
+            request.getRequestDispatcher("/cadastro_perfil_cabelo.jsp").forward(request, response);
             return;
         }
 
@@ -55,7 +55,7 @@ public class PerfilCabeloSevlet extends HttpServlet {
                 return;
             }
 
-            PerfilCabelo perfilCabelo = new PerfilCabelo(curvatura, oleosidade, espessura, idUsuario);
+            PerfilCabelo perfilCabelo = new PerfilCabelo(curvatura, oleosidade, espessura, idUsuario, 0);
 
             if (perfilCabeloDAO.cadastrarPerfilCabelo(perfilCabelo)) {
                 response.sendRedirect(request.getContextPath() + "/perfisCabelo");
@@ -154,7 +154,7 @@ public class PerfilCabeloSevlet extends HttpServlet {
             int oleosidade = Integer.parseInt(json.get("oleosidade").getAsString());
             int espessura = Integer.parseInt(json.get("espessura").getAsString());
 
-            PerfilCabelo perfilCabelo = new PerfilCabelo(curvatura, oleosidade, espessura, id);
+            PerfilCabelo perfilCabelo = new PerfilCabelo(id, curvatura, oleosidade, espessura);
 
             int linhas = perfilCabeloDAO.alterarValores(perfilCabelo);
 
@@ -167,8 +167,8 @@ public class PerfilCabeloSevlet extends HttpServlet {
         } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
-        } catch (SQLException slqe) {
-            throw new ServletException("Erro ao atualizar o perfil de cabelo.", slqe);
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao atualizar o perfil de cabelo.", sqle);
         }
     }
 
