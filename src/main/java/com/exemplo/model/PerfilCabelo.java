@@ -16,6 +16,13 @@ public class PerfilCabelo {
         this.idPerfilCabelo = idPerfilCabelo;
     }
 
+    public PerfilCabelo(int idPerfilCabelo, int curvatura, int oleosidade, int espessura) {
+        this.idPerfilCabelo = idPerfilCabelo;
+        this.curvatura = curvatura;
+        this.oleosidade = oleosidade;
+        this.espessura = espessura;
+    }
+
     public int getCurvatura() {
         return curvatura;
     }
