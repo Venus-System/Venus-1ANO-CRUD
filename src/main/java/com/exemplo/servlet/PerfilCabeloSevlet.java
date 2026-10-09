@@ -79,18 +79,18 @@ public class PerfilCabeloSevlet extends HttpServlet {
     //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException{
+            throws ServletException, IOException {
 
         String idTexto = request.getParameter("id");
         String idUsuarioTexto = request.getParameter("idUsuario");
 
         try {
-            if (idTexto != null && !idTexto.isBlank()){
+            if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 PerfilCabelo perfilCabelo = perfilCabeloDAO.readById(id);
 
-                if (perfilCabelo == null){
-                    response.sendRedirect(request.getContextPath()+"/perfisCabelo");
+                if (perfilCabelo == null) {
+                    response.sendRedirect(request.getContextPath() + "/perfisCabelo");
                     return;
                 }
 
@@ -99,13 +99,13 @@ public class PerfilCabeloSevlet extends HttpServlet {
                 return;
             }
 
-            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()){
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
 
                 PerfilCabelo perfilCabelo = perfilCabeloDAO.readByIdUsuario(idUsuario);
 
-                if (perfilCabelo == null){
-                    response.sendRedirect(request.getContextPath()+"/perfisCabelo");
+                if (perfilCabelo == null) {
+                    response.sendRedirect(request.getContextPath() + "/perfisCabelo");
                     return;
                 }
 
@@ -117,9 +117,9 @@ public class PerfilCabeloSevlet extends HttpServlet {
             ArrayList<PerfilCabelo> listaPerfisCabelo = perfilCabeloDAO.read();
             request.setAttribute("perfisCabelo", listaPerfisCabelo);
             request.getRequestDispatcher("/lista_perfil_cabelo.jsp").forward(request, response);
-        }catch (NumberFormatException nfe){
-            response.sendRedirect(request.getContextPath()+"/perfisCabelo");
-        }catch (SQLException sqle){
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/perfisCabelo");
+        } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar perfis de cabelo.", sqle);
         }
     }
@@ -127,7 +127,7 @@ public class PerfilCabeloSevlet extends HttpServlet {
     //update
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException{
+            throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -139,11 +139,13 @@ public class PerfilCabeloSevlet extends HttpServlet {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idPerfilCabelo") || !json.has("curvatura") ||
-                !json.has("oleosidade") || !json.has("espessura")){
+                    !json.has("oleosidade") || !json.has("espessura")) {
 
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
                 return;
+                //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
+
             }
 
 
@@ -156,17 +158,65 @@ public class PerfilCabeloSevlet extends HttpServlet {
 
             int linhas = perfilCabeloDAO.alterarValores(perfilCabelo);
 
-            if (linhas > 0){
+            if (linhas > 0) {
                 response.setStatus(200);
-            }else {
+            } else {
                 response.setStatus(404);
                 response.getWriter().write("Perfil de cabelo não encontrado.");
             }
-        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
-        }catch (SQLException slqe){
-            throw new ServletException("Erro ao atualizar o perfil de cabelo.",slqe);
+        } catch (SQLException slqe) {
+            throw new ServletException("Erro ao atualizar o perfil de cabelo.", slqe);
+        }
+    }
+
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = perfilCabeloDAO.deleteById(id);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = perfilCabeloDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+                //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
+
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Perfil de cabelo não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                //Conflict. Ele avisa que a requisição está correta, mas conflita com o estado atual dos dados no banco.
+                response.getWriter().write("Não é possível excluir: o perfil de cabelo está em uso.");
+            } else {
+                throw new ServletException("Erro ao excluir o perfil de cabelo.", sqle);
+            }
         }
     }
 }
