@@ -16,6 +16,20 @@ public class PerfilPele {
         this.idPerfilPele = idPerfilPele;
     }
 
+    public PerfilPele(int sensibilidade, String tipoPele, int nivelOleosidade, int idUsuario) {
+        this.sensibilidade = sensibilidade;
+        this.tipoPele = tipoPele;
+        this.nivelOleosidade = nivelOleosidade;
+        this.idUsuario = idUsuario;
+    }
+
+    public PerfilPele(int idPerfilPele, int sensibilidade, String tipoPele, int nivelOleosidade) {
+        this.idPerfilPele = idPerfilPele;
+        this.sensibilidade = sensibilidade;
+        this.tipoPele = tipoPele;
+        this.nivelOleosidade = nivelOleosidade;
+    }
+
     public int getSensibilidade() {
         return sensibilidade;
     }

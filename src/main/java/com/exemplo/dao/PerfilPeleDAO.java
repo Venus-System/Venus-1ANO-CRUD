@@ -133,21 +133,20 @@ public class PerfilPeleDAO {
 
 
     public boolean existePerfilParaUsuario(int idUsuario) throws SQLException {
-        Connection conexao = ConexaoBanco.conectar();
-
         String sql = "SELECT 1 FROM perfil_pele WHERE id_usuario = ?";
-        PreparedStatement comando = conexao.prepareStatement(sql);
 
-        comando.setInt(1, idUsuario);
 
-        ResultSet resultado = comando.executeQuery();
+        try (Connection conexao = ConexaoBanco.conectar();
+        PreparedStatement comando = conexao.prepareStatement(sql)) {
 
-        boolean existe = resultado.next();
+            comando.setInt(1, idUsuario);
 
-        resultado.close();
-        comando.close();
-        conexao.close();
+            try (ResultSet resultado = comando.executeQuery()){
 
-        return existe;
+                boolean existe = resultado.next();
+
+                return existe;
+            }
+        }
     }
 }
