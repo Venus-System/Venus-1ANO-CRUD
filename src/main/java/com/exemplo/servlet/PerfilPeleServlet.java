@@ -171,4 +171,44 @@ public class PerfilPeleServlet extends HttpServlet {
             throw new ServletException("Erro ao atualizar o perfil de pele.", sqle);
         }
     }
+
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = perfilPeleDAO.deleteById(id);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = perfilPeleDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Perfil de pele não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir o perfil de pele.", sqle);
+        }
+    }
 }
