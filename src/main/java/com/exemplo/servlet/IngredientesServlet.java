@@ -3,6 +3,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.IngredientesDAO;
 import com.exemplo.model.Ingredientes;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,6 +16,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @WebServlet("/ingredientes")
 public class IngredientesServlet extends HttpServlet {
@@ -90,6 +94,61 @@ public class IngredientesServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/ingredientes");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes.", sqle);
+        }
+    }
+
+    //update
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idIngrediente") || !json.has("nivelPerigo")
+                    || !json.has("tipo")) {
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idIngrediente").getAsString());
+            int nivelPerigo = Integer.parseInt(json.get("nivelPerigo").getAsString());
+            String tipo = json.get("tipo").getAsString();
+
+            if (tipo.isBlank()) {
+                response.setStatus(400);
+                response.getWriter().write("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            Ingredientes ingredientes = new Ingredientes(id, nivelPerigo, tipo.trim());
+
+            int linhas = ingredientesDAO.alterarValores(ingredientes);
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Ingrediente não encontrado.");
+            }
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
+            //UnsupportedOperationException -> Quando o Json traz null em algum campo.
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                response.getWriter().write("Os valores informados conflitam com outro ingrediente ou não são permitidos.");
+            } else {
+                throw new ServletException("Erro ao atualizar o ingrediente.", sqle);
+
+            }
         }
     }
 }
