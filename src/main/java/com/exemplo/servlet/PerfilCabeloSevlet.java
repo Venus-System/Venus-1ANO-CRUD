@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/perfisCabelo")
 public class PerfilCabeloSevlet extends HttpServlet {
@@ -68,6 +69,54 @@ public class PerfilCabeloSevlet extends HttpServlet {
             } else {
                 throw new ServletException("Erro ao cadastrar perfil de cabelo.", sqle);
             }
+        }
+    }
+
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException{
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()){
+                int id = Integer.parseInt(idTexto);
+                PerfilCabelo perfilCabelo = perfilCabeloDAO.readById(id);
+
+                if (perfilCabelo == null){
+                    response.sendRedirect(request.getContextPath()+"/perfisCabelo");
+                    return;
+                }
+
+                request.setAttribute("perfilCabelo", perfilCabelo);
+                request.getRequestDispatcher("/editar_perfil_cabelo.jsp").forward(request, response);
+                return;
+            }
+
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()){
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+
+                PerfilCabelo perfilCabelo = perfilCabeloDAO.readByIdUsuario(idUsuario);
+
+                if (perfilCabelo == null){
+                    response.sendRedirect(request.getContextPath()+"/perfisCabelo");
+                    return;
+                }
+
+                request.setAttribute("perfilCabelo", perfilCabelo);
+                request.getRequestDispatcher("/editar_perfil_cabelo.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<PerfilCabelo> listaPerfisCabelo = perfilCabeloDAO.read();
+            request.setAttribute("perfisCabelo", listaPerfisCabelo);
+            request.getRequestDispatcher("/lista_perfil_cabelo.jsp").forward(request, response);
+        }catch (NumberFormatException nfe){
+            response.sendRedirect(request.getContextPath()+"/perfisCabelo");
+        }catch (SQLException sqle){
+            throw new ServletException("Erro ao buscar perfis de cabelo.", sqle);
         }
     }
 }
