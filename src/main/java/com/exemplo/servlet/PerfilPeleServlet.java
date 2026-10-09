@@ -3,6 +3,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.PerfilPeleDAO;
 import com.exemplo.model.PerfilPele;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +17,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.reflect.InaccessibleObjectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @WebServlet("/perfisPele")
 public class PerfilPeleServlet extends HttpServlet {
@@ -23,7 +27,7 @@ public class PerfilPeleServlet extends HttpServlet {
     //create
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, InaccessibleObjectException {
+            throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
@@ -113,6 +117,58 @@ public class PerfilPeleServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/perfisPele");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar perfis de pele.", sqle);
+        }
+    }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idPerfilPele") || !json.has("sensibilidade") ||
+                    !json.has("tipoPele") || !json.has("nivelOleosidade")) {
+
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idPerfilPele").getAsString());
+            int sensibilidade = Integer.parseInt(json.get("sensibilidade").getAsString());
+            String tipoPele = json.get("tipoPele").getAsString();
+            int nivelOleosidade = Integer.parseInt(json.get("nivelOleosidade").getAsString());
+
+            if (tipoPele.isBlank()) {
+                response.setStatus(400);
+                response.getWriter().write("Informe o tipo de pele.");
+                return;
+            }
+
+            PerfilPele perfilPele = new PerfilPele(id, sensibilidade, tipoPele.trim(), nivelOleosidade);
+
+            int linhas = perfilPeleDAO.alterarValores(perfilPele);
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Perfil de pele não encontrado.");
+            }
+        } catch (JsonParseException | IllegalStateException
+                 | UnsupportedOperationException | NumberFormatException e) {
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao atualizar o perfil de pele.", sqle);
         }
     }
 }
