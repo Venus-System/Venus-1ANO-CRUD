@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @WebServlet("/ingredientes")
@@ -48,12 +47,12 @@ public class IngredientesServlet extends HttpServlet {
             if (ingredientesDAO.cadastrarIngredientes(ingredientes)) {
                 response.sendRedirect(request.getContextPath() + "/ingredientes");
             } else {
-                request.setAttribute("erro", "Não possível cadastrar o ingrediente.");
+                request.setAttribute("erro", "Não foi possível cadastrar o ingrediente.");
                 request.getRequestDispatcher("/cadastro_ingrediente.jsp").forward(request, response);
             }
         } catch (NumberFormatException nfe) {
             request.setAttribute("erro", "Nível de perigo inválido.");
-            request.getRequestDispatcher("/cadastro_ingredientes.jsp").forward(request, response);
+            request.getRequestDispatcher("/cadastro_ingrediente.jsp").forward(request, response);
         } catch (SQLException sqle) {
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "O ingrediente já está cadastrado ou os valores informados não são permitidos.");
@@ -98,6 +97,7 @@ public class IngredientesServlet extends HttpServlet {
     }
 
     //update
+    @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -113,7 +113,7 @@ public class IngredientesServlet extends HttpServlet {
             if (!json.has("idIngrediente") || !json.has("nivelPerigo")
                     || !json.has("tipo")) {
                 response.setStatus(400);
-                response.getWriter().write("Dados incompletos");
+                response.getWriter().write("Dados incompletos.");
                 return;
             }
 
@@ -175,7 +175,7 @@ public class IngredientesServlet extends HttpServlet {
             if (linhas > 0) {
                 response.setStatus(200);
             } else {
-                response.setStatus(400);
+                response.setStatus(404);
                 response.getWriter().write("Ingrediente não encontrado.");
             }
         } catch (NumberFormatException nfe) {
