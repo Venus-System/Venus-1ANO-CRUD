@@ -13,8 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.lang.ref.ReferenceQueue;
-import java.lang.reflect.InaccessibleObjectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 @WebServlet("/perfisPele")
 public class PerfilPeleServlet extends HttpServlet {
 
-    PerfilPeleDAO perfilPeleDAO = new PerfilPeleDAO();
+    private final PerfilPeleDAO perfilPeleDAO = new PerfilPeleDAO();
 
     //create
     @Override
@@ -50,9 +48,15 @@ public class PerfilPeleServlet extends HttpServlet {
             int nivelOleosidade = Integer.parseInt(nivelOleosidadeTexto.trim());
             int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
 
+            if (perfilPeleDAO.existePerfilParaUsuario(idUsuario)) {
+                request.setAttribute("erro", "Este usuário já possui um perfil de pele cadastrado.");
+                request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
+                return;
+            }
+
             PerfilPele perfilPele = new PerfilPele(sensibilidade, tipoPele.trim(), nivelOleosidade, idUsuario);
             if (perfilPeleDAO.cadastrarPerfilPele(perfilPele)) {
-                response.sendRedirect(request.getContextPath() + "/perfispele");
+                response.sendRedirect(request.getContextPath() + "/perfisPele");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o perfil de pele.");
                 request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
@@ -90,7 +94,7 @@ public class PerfilPeleServlet extends HttpServlet {
                     return;
                 }
 
-                request.setAttribute("perfisPele", perfilPele);
+                request.setAttribute("perfilPele", perfilPele);
                 request.getRequestDispatcher("/editar_perfil_pele.jsp").forward(request, response);
                 return;
             }
@@ -100,7 +104,7 @@ public class PerfilPeleServlet extends HttpServlet {
                 PerfilPele perfilPeleUsuario = perfilPeleDAO.readByIdUsuario(idUsuario);
 
                 ArrayList<PerfilPele> listaUsuarios = new ArrayList<>();
-                if (listaUsuarios != null) {
+                if (perfilPeleUsuario != null) {
                     listaUsuarios.add(perfilPeleUsuario);
                 }
 
@@ -111,7 +115,7 @@ public class PerfilPeleServlet extends HttpServlet {
 
             //aqui listará tudo.
             ArrayList<PerfilPele> listaPerfilPele = perfilPeleDAO.read();
-            request.setAttribute("perfisPeLe", listaPerfilPele);
+            request.setAttribute("perfisPele", listaPerfilPele);
             request.getRequestDispatcher("/lista_perfis_pele.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/perfisPele");
