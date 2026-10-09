@@ -151,4 +151,45 @@ public class IngredientesServlet extends HttpServlet {
             }
         }
     }
+
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+
+        if (idTexto == null || idTexto.isBlank()) {
+            response.setStatus(400);
+            response.getWriter().write("Id não informado.");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idTexto);
+            int linhas = ingredientesDAO.deleteById(id);
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Ingrediente não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                //Conflict. Outras tabelas (como os nomes do ingrediente) ainda referenciam este registro.
+                response.getWriter().write("Não é possível excluir: o ingrediente está em uso.");
+            } else {
+                throw new ServletException("Erro ao excluir o ingrediente.", sqle);
+            }
+        }
+    }
 }
+
