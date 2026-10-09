@@ -16,6 +16,17 @@ public class Ingredientes {
         this.dtAtualizacao = dtAtualizacao;
     }
 
+    public Ingredientes(int nivelPerigo, String tipo) {
+        this.nivelPerigo = nivelPerigo;
+        this.tipo = tipo;
+    }
+
+    public Ingredientes(int idIngrediente, int nivelPerigo, String tipo) {
+        this.idIngrediente = idIngrediente;
+        this.nivelPerigo = nivelPerigo;
+        this.tipo = tipo;
+    }
+
     public int getIdIngrediente() {
         return idIngrediente;
     }
