@@ -2,6 +2,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.PerfilCabeloDAO;
 import com.exemplo.model.PerfilCabelo;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @WebServlet("/perfisCabelo")
 public class PerfilCabeloSevlet extends HttpServlet {
@@ -117,6 +121,52 @@ public class PerfilCabeloSevlet extends HttpServlet {
             response.sendRedirect(request.getContextPath()+"/perfisCabelo");
         }catch (SQLException sqle){
             throw new ServletException("Erro ao buscar perfis de cabelo.", sqle);
+        }
+    }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException{
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idPerfilCabelo") || !json.has("curvatura") ||
+                !json.has("oleosidade") || !json.has("espessura")){
+
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos.");
+                return;
+            }
+
+
+            int id = Integer.parseInt(json.get("idPerfilCabelo").getAsString());
+            int curvatura = Integer.parseInt(json.get("curvatura").getAsString());
+            int oleosidade = Integer.parseInt(json.get("oleosidade").getAsString());
+            int espessura = Integer.parseInt(json.get("espessura").getAsString());
+
+            PerfilCabelo perfilCabelo = new PerfilCabelo(curvatura, oleosidade, espessura, id);
+
+            int linhas = perfilCabeloDAO.alterarValores(perfilCabelo);
+
+            if (linhas > 0){
+                response.setStatus(200);
+            }else {
+                response.setStatus(404);
+                response.getWriter().write("Perfil de cabelo não encontrado.");
+            }
+        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+        }catch (SQLException slqe){
+            throw new ServletException("Erro ao atualizar o perfil de cabelo.",slqe);
         }
     }
 }
