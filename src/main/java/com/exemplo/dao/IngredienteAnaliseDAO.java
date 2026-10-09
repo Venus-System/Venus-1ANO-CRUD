@@ -11,11 +11,12 @@ import java.util.ArrayList;
 public class IngredienteAnaliseDAO {
 
     public boolean cadastrarIngredienteAnalise(IngredienteAnalise ingredienteAnalise) throws SQLException {
-        String sql = "insert into ingrediente_analise(id_ingrediente) values (?)";
+        String sql = "insert into ingrediente_analise(id_ingrediente, id_analise) values (?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
+            pstmt.setInt(2, ingredienteAnalise.getIdIngrediente());
             return pstmt.executeUpdate() > 0;
         }
     }

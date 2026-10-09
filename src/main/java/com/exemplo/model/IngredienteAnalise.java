@@ -11,6 +11,11 @@ public class IngredienteAnalise {
         this.idAnalise = idAnalise;
     }
 
+    public IngredienteAnalise(int idIngrediente, int idAnalise) {
+        this.idIngrediente = idIngrediente;
+        this.idAnalise = idAnalise;
+    }
+
     public int getIdAnalise() {
         return idAnalise;
     }
