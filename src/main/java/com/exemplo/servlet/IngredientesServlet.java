@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 @WebServlet("/ingredientes")
@@ -57,6 +58,38 @@ public class IngredientesServlet extends HttpServlet {
                 throw new ServletException("Erro ao cadastrar ingrediente.", sqle);
 
             }
+        }
+    }
+
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String idTexto = request.getParameter("id");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                Ingredientes ingredientes = ingredientesDAO.readById(id);
+
+                if (ingredientes == null) {
+                    response.sendRedirect(request.getContextPath() + "/ingredientes");
+                    return;
+                }
+
+                request.setAttribute("ingrediente", ingredientes);
+                request.getRequestDispatcher("/editar_ingrediente.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Ingredientes> listaIngredientes = ingredientesDAO.read();
+            request.setAttribute("ingredientes", listaIngredientes);
+            request.getRequestDispatcher("/lista_ingredientes.jsp").forward(request, response);
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/ingredientes");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar ingredientes.", sqle);
         }
     }
 }
