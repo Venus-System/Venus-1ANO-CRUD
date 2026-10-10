@@ -2,6 +2,9 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.AnaliseDAO;
 import com.exemplo.model.Analise;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,6 +15,8 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.spi.ResourceBundleProvider;
+import java.util.stream.Collectors;
 
 @WebServlet("/analises")
 public class AnaliseServlet extends HttpServlet {
@@ -104,6 +109,55 @@ public class AnaliseServlet extends HttpServlet {
 
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar análises.", sqle);
+        }
+    }
+
+    //update
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String corpo = request.getReader().lines().collect(Collectors.joining());
+
+        try {
+            JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
+
+            if (!json.has("idAnalise") || !json.has("resumoResultado") ||
+                    !json.has("pontuacao")) {
+                response.setStatus(400);
+                response.getWriter().write("Dados incompletos");
+                return;
+            }
+
+            int id = Integer.parseInt(json.get("idAnalise").getAsString());
+            String resumoResultado = json.get("resumoResultado").getAsString();
+            int pontuacao = Integer.parseInt(json.get("pontuacao").getAsString());
+
+            if (resumoResultado.isBlank()) {
+                response.setStatus(400);
+                response.getWriter().write("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            Analise analise = new Analise(id, resumoResultado.trim(), pontuacao);
+
+            int linhas = analiseDAO.update(analise);
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Análise não encontrada.");
+            }
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao atualizar a análise.", sqle);
         }
     }
 }
