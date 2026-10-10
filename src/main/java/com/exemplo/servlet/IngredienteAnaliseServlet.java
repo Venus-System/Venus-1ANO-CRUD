@@ -72,7 +72,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         String idIngredienteTexto = request.getParameter("idIngrediente");
 
         try {
-            if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()){
+            if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()) {
                 int idAnalise = Integer.parseInt(idAnaliseTexto);
                 ArrayList<IngredienteAnalise> listaAnalises = ingredienteAnaliseDAO.readByIdAnalise(idAnalise);
 
@@ -80,7 +80,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
                 request.getRequestDispatcher("/lista_ingrediente_analise.jsp").forward(request, response);
                 return;
             }
-            if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()){
+            if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
                 ArrayList<IngredienteAnalise> listaIngredientes = ingredienteAnaliseDAO.readByIdIngrediente(idIngrediente);
 
@@ -92,12 +92,56 @@ public class IngredienteAnaliseServlet extends HttpServlet {
             ArrayList<IngredienteAnalise> listaIngredienteAnalises = ingredienteAnaliseDAO.read();
             request.setAttribute("ingredientesAnalises", listaIngredienteAnalises);
             request.getRequestDispatcher("/lista_ingrediente_analise.jsp").forward(request, response);
-        }catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/ingredienteAnalises");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes da análise.", sqle);
         }
     }
 
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idIngredienteTexto = request.getParameter("idIngrediente");
+        String idAnaliseTexto = request.getParameter("idAnalise");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = ingredienteAnaliseDAO.deleteById(id);
+            } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
+                int idIngrediente = Integer.parseInt(idIngredienteTexto);
+                linhas = ingredienteAnaliseDAO.deleteByIdIngrediente(idIngrediente);
+            } else if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()) {
+                int idAnalise = Integer.parseInt(idAnaliseTexto);
+                linhas = ingredienteAnaliseDAO.deleteByIdAnalise(idAnalise);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(404);
+                response.getWriter().write("Registro não encontrado.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao excluir o ingrediente da análise.", sqle);
+        }
+
     }
+}
 
