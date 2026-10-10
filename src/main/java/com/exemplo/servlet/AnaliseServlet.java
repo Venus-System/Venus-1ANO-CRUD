@@ -12,10 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.spi.ResourceBundleProvider;
 import java.util.stream.Collectors;
 
 @WebServlet("/analises")
@@ -129,7 +127,7 @@ public class AnaliseServlet extends HttpServlet {
             if (!json.has("idAnalise") || !json.has("resumoResultado") ||
                     !json.has("pontuacao")) {
                 response.setStatus(400);
-                response.getWriter().write("Dados incompletos");
+                response.getWriter().write("Dados incompletos.");
                 return;
             }
 
@@ -155,7 +153,7 @@ public class AnaliseServlet extends HttpServlet {
             }
         } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
-            response.getWriter().write("Dados inválidos");
+            response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao atualizar a análise.", sqle);
         }
@@ -190,7 +188,7 @@ public class AnaliseServlet extends HttpServlet {
             if (linhas > 0) {
                 response.setStatus(200);
             } else {
-                response.setStatus(200);
+                response.setStatus(404);
                 response.getWriter().write("Análise não encontrada.");
             }
         } catch (NumberFormatException nfe) {
