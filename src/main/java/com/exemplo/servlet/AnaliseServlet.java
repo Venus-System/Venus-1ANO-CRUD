@@ -160,4 +160,49 @@ public class AnaliseServlet extends HttpServlet {
             throw new ServletException("Erro ao atualizar a análise.", sqle);
         }
     }
+
+    //delete
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/plain");
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            int linhas;
+
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                linhas = analiseDAO.deleteById(id);
+            } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                linhas = analiseDAO.deleteByIdUsuario(idUsuario);
+            } else {
+                response.setStatus(400);
+                response.getWriter().write("Id não informado.");
+                return;
+            }
+
+            if (linhas > 0) {
+                response.setStatus(200);
+            } else {
+                response.setStatus(200);
+                response.getWriter().write("Análise não encontrada.");
+            }
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id inválido.");
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                response.getWriter().write("Não é possível excluir: a análise está em uso.");
+            } else {
+                throw new ServletException("Erro ao excluir a análise.", sqle);
+            }
+        }
+    }
 }
