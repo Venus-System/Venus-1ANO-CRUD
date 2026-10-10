@@ -1,0 +1,51 @@
+:root {
+  --cor-rosa-claro: #f7caff;
+  --cor-branco: #ffffff;
+  --cor-fundo-escuro: #0d0118;
+  --cor-botao-texto: #923167;
+  --gradiente-marca: linear-gradient(135deg, #5a0aa4 0%, #9e1462 100%);
+
+  --fonte-titulo: "Poppins", sans-serif;
+  --fonte-texto: "Plus Jakarta Sans", sans-serif;
+
+  --largura-maxima: 100rem;
+}
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+
+body {
+  font-family: var(--fonte-titulo);
+  line-height: 1.5;
+  color: var(--cor-branco);
+  background-color: var(--cor-fundo-escuro);
+}
+
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--fonte-texto);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0.9375rem;
+}
+
+.btn--primario {
+  color: var(--cor-botao-texto);
+  background-color: var(--cor-branco);
+}
