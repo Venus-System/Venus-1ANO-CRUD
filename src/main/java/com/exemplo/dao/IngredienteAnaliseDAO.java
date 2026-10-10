@@ -62,6 +62,51 @@ public class IngredienteAnaliseDAO {
         } return ingredienteAnalise;
     }
 
+
+    public ArrayList<IngredienteAnalise> readByIdAnalise(int idAnalise) throws SQLException {
+        String sql = "select * from ingrediente_analise where id_analise = ? order by id_ingrediente_analise";
+        ArrayList<IngredienteAnalise> lista = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idAnalise);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                while (rset.next()) {
+                    lista.add(new IngredienteAnalise(
+                            rset.getInt("id_ingrediente_analise"),
+                            rset.getInt("id_ingrediente"),
+                            rset.getInt("id_analise")
+                    ));
+                }
+            }
+        }
+        return lista;
+    }
+
+    public ArrayList<IngredienteAnalise> readByIdIngrediente(int idIngrediente) throws SQLException {
+        String sql = "select * from ingrediente_analise where id_ingrediente = ? order by id_ingrediente_analise";
+        ArrayList<IngredienteAnalise> lista = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idIngrediente);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                while (rset.next()) {
+                    lista.add(new IngredienteAnalise(
+                            rset.getInt("id_ingrediente_analise"),
+                            rset.getInt("id_ingrediente"),
+                            rset.getInt("id_analise")
+                    ));
+                }
+            }
+        }
+        return lista;
+    }
+
     public int deleteById(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente_analise = ?";
         try (Connection cnn = ConexaoBanco.conectar();
