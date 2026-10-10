@@ -19,6 +19,18 @@ public class Analise {
 
     }
 
+    public Analise(String resumoResultado, int pontuacao, int idUsuario) {
+        this.resumoResultado = resumoResultado;
+        this.pontuacao = pontuacao;
+        this.idUsuario = idUsuario;
+    }
+
+    public Analise(int idAnalise, String resumoResultado, int pontuacao) {
+        this.idAnalise = idAnalise;
+        this.resumoResultado = resumoResultado;
+        this.pontuacao = pontuacao;
+    }
+
     public int getIdAnalise() {
         return idAnalise;
     }

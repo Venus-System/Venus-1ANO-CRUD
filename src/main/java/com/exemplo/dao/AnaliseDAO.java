@@ -74,6 +74,30 @@ public class AnaliseDAO {
         } return analise;
     }
 
+    public ArrayList<Analise> readByIdUsuario(int idUsuario) throws SQLException {
+        String sql = "select * from analise where id_usuario = ? order by id_analise";
+        ArrayList<Analise> lista = new ArrayList<>();
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idUsuario);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                while (rset.next()) {
+                    lista.add(new Analise(
+                            rset.getInt("id_analise"),
+                            rset.getObject("dt_hr_analise", LocalDateTime.class),
+                            rset.getString("resumo_resultado"),
+                            rset.getInt("pontuacao"),
+                            rset.getInt("id_usuario")
+                    ));
+                }
+            }
+        }
+        return lista;
+    }
+
     public int update (Analise analise) throws SQLException {
         String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =?  where id_analise = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
