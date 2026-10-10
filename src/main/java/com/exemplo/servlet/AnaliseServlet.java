@@ -9,7 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @WebServlet("/analises")
 public class AnaliseServlet extends HttpServlet {
@@ -60,5 +62,48 @@ public class AnaliseServlet extends HttpServlet {
             }
         }
 
+    }
+
+    //read
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String idTexto = request.getParameter("id");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+
+        try {
+            if (idTexto != null && !idTexto.isBlank()) {
+                int id = Integer.parseInt(idTexto);
+                Analise analise = analiseDAO.readById(id);
+
+                if (analise == null) {
+                    response.sendRedirect(request.getContextPath() + "/analises");
+                    return;
+                }
+
+                request.setAttribute("analise", analise);
+                request.getRequestDispatcher("/editar_analise.jsp").forward(request, response);
+                return;
+            }
+
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                int idUsuario = Integer.parseInt(idUsuarioTexto);
+                ArrayList<Analise> listaUsuarios = analiseDAO.readByIdUsuario(idUsuario);
+
+                request.setAttribute("analises", listaUsuarios);
+                request.getRequestDispatcher("/lista_analises.jsp").forward(request, response);
+                return;
+            }
+
+            ArrayList<Analise> listaAnalises = analiseDAO.read();
+            request.setAttribute("analises", listaAnalises);
+            request.getRequestDispatcher("/lista_analises.jsp").forward(request, response);
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect(request.getContextPath() + "/analises");
+
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar análises.", sqle);
+        }
     }
 }
