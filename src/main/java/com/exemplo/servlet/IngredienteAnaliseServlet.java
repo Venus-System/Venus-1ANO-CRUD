@@ -8,12 +8,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import static java.lang.Integer.*;
 
 @WebServlet("/ingredienteAnalises")
 public class IngredienteAnaliseServlet extends HttpServlet {
@@ -39,7 +36,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         }
 
         try {
-            int idIngrediente = parseInt(idIngredienteTexto);
+            int idIngrediente = Integer.parseInt(idIngredienteTexto);
             int idAnalise = Integer.parseInt(idAnaliseTexto);
 
             IngredienteAnalise ingredienteAnalise = new IngredienteAnalise(idIngrediente, idAnalise);
