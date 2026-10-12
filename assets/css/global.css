@@ -3,12 +3,23 @@
   --cor-branco: #ffffff;
   --cor-fundo-escuro: #0d0118;
   --cor-botao-texto: #923167;
+  --cor-destaque: #8b3dff;
+  --cor-texto: #0d0118;
+  --cor-texto-suave: #6b6b78;
+  --cor-superficie: #f9f9fb;
+  --cor-borda: #ececf1;
+  --cor-icone-roxo: #f1e6fd;
+  --cor-icone-cinza: #f0f0f2;
+  --cor-icone-verde: #e5f5ea;
   --gradiente-marca: linear-gradient(135deg, #5a0aa4 0%, #9e1462 100%);
 
   --fonte-titulo: "Poppins", sans-serif;
   --fonte-texto: "Plus Jakarta Sans", sans-serif;
 
   --largura-maxima: 100rem;
+
+  --borda-arredondada: 1.25rem;
+  --borda-arredondada-pequena: 0.75rem;
 }
 
 
@@ -48,4 +59,9 @@ body {
 .btn--primario {
   color: var(--cor-botao-texto);
   background-color: var(--cor-branco);
+}
+
+
+.destaque {
+  color: var(--cor-destaque);
 }
