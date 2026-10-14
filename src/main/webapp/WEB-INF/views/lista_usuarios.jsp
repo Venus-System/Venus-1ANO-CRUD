@@ -7,7 +7,7 @@
     <title>Lista de usuários</title>
 </head>
 
-<p><a href="${pageContext.request.contextPath}/cadastro_usuario.jsp">Novo usuário</a></p>
+<p><a href="${pageContext.request.contextPath}/usuarios?acao=novo">Novo usuário</a></p>
 
 <script>
     async function excluir(id) {

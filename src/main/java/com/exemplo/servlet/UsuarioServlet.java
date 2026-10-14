@@ -48,7 +48,13 @@ public class UsuarioServlet extends HttpServlet {
                 dtNascimentoTexto == null || dtNascimentoTexto.isBlank()) {
 
             request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_usuario.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
+
+        if (senha.length() < 5) {
+            request.setAttribute("erro", "A senha deve ter pelo menos 5 caracteres.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
 
@@ -58,7 +64,7 @@ public class UsuarioServlet extends HttpServlet {
 
             if (usuarioDAO.existeEmail(email)) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
-                request.getRequestDispatcher("/cadastro_usuario.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
                 return;
                 // Sem o return o código continuaria e tentaria cadastrar, e depois fazer um segundo redirect.
             }
@@ -70,12 +76,12 @@ public class UsuarioServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/usuarios");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o usuário.");
-                request.getRequestDispatcher("/cadastro_usuario.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             }
 
         } catch (DateTimeParseException dtpe) {
             request.setAttribute("erro", "Data de nascimento inválida.");
-            request.getRequestDispatcher("/cadastro_usuario.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
         } catch (SQLException e) {
             throw new ServletException("Erro ao cadastrar usuário ", e);
         }
@@ -84,6 +90,11 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if ("novo".equals(request.getParameter("acao"))) {
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
 
         // Se a URL for /usuarios?id=5, vem "5". Se for só /usuarios, vem null.
         String idTexto = request.getParameter("id");
@@ -100,13 +111,13 @@ public class UsuarioServlet extends HttpServlet {
                 }
 
                 request.setAttribute("usuario", usuario);
-                request.getRequestDispatcher("/editar_usuario.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_usuario.jsp").forward(request, response);
                 return;
             }
 
             ArrayList<Usuario> listaUsuarios = usuarioDAO.read();
             request.setAttribute("usuarios", listaUsuarios);
-            request.getRequestDispatcher("/lista_usuarios.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_usuarios.jsp").forward(request, response);
 
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/usuarios");
