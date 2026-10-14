@@ -7,6 +7,7 @@
   --cor-texto: #0d0118;
   --cor-texto-suave: #6b6b78;
   --cor-superficie: #f9f9fb;
+  --cor-superficie-lilas: #f1edfb;
   --cor-borda: #ececf1;
   --cor-icone-roxo: #f1e6fd;
   --cor-icone-cinza: #f0f0f2;
@@ -65,3 +66,5 @@ body {
 .destaque {
   color: var(--cor-destaque);
 }
+ 
+
