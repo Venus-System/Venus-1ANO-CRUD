@@ -2,6 +2,7 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -51,8 +52,17 @@ public class UsuarioServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
-
-        if (senha.length() < 5) {
+        if (!Validador.emailValido(email)) {
+            request.setAttribute("erro", "E-mail inválido.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
+        if (!Validador.telefoneValido(telefone)) {
+            request.setAttribute("erro", "Telefone inválido. Use DDD e número.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
+        if (!Validador.senhaValida(senha)) {
             request.setAttribute("erro", "A senha deve ter pelo menos 5 caracteres.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
@@ -202,14 +212,14 @@ public class UsuarioServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException{
+            throws ServletException, IOException {
 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
         String idTexto = request.getParameter("id");
 
-        if (idTexto==null || idTexto.isBlank()){
+        if (idTexto == null || idTexto.isBlank()) {
             response.setStatus(400);
             response.getWriter().write("Id não informado.");
             return;
@@ -219,16 +229,16 @@ public class UsuarioServlet extends HttpServlet {
             int id = Integer.parseInt(idTexto);
             int linhas = usuarioDAO.deleteById(id);
 
-            if (linhas>0){
+            if (linhas > 0) {
                 response.setStatus(200);
-            }else {
+            } else {
                 response.setStatus(404);
                 response.getWriter().write("Usuário não encontrado.");
             }
-        }catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             response.setStatus(400);
             response.getWriter().write("Id inválido.");
-        }catch (SQLException sqle){
+        } catch (SQLException sqle) {
             throw new ServletException("Erro ao excluir o usuário.", sqle);
         }
 
