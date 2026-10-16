@@ -54,7 +54,7 @@ public class UsuarioServlet extends HttpServlet {
             return;
         }
 
-        email = email.trim();
+        email = email.trim().toLowerCase();
         //email em espaços extras.
         if (!Validador.emailValido(email)) {
             request.setAttribute("erro", "E-mail inválido.");
@@ -189,7 +189,7 @@ public class UsuarioServlet extends HttpServlet {
             int id = Integer.parseInt(json.get("idUsuario").getAsString());
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
-            String email = json.get("email").getAsString().trim();
+            String email = json.get("email").getAsString().trim().toLowerCase();
             String telefone = json.get("telefone").getAsString().trim();
             String dtNascimentoTexto = json.get("dt_nascimento").getAsString();
 

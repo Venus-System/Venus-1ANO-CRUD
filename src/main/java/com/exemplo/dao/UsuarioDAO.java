@@ -175,6 +175,7 @@ public class UsuarioDAO {
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, novaSenha);
+            //o valor recebido deve ser o hash.
             pstmt.setInt(2, idUsuario);
 
             int linhas = pstmt.executeUpdate();

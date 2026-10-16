@@ -104,7 +104,6 @@ public class Usuario {
                 "Nome Completo: " + getNomeCompleto() + "\n" +
                 "Gênero: " + getGenero() + "\n" +
                 "Email: " + getEmail() + "\n" +
-                "Senha: " + getSenha() + "\n" +
                 "Data Nascimento: " + getDtNascimento() + "\n" +
                 "Data Cadastro: " + getDtCadastro() + "\n";
     }
