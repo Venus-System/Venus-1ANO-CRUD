@@ -2,6 +2,7 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
+import com.exemplo.util.SenhaUtil;
 import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -80,7 +81,7 @@ public class UsuarioServlet extends HttpServlet {
             }
 
             //monta o objeto model com os dados.
-            Usuario usuario = new Usuario(nome, genero, email, senha, telefone, dtNascimento, dtCadastro);
+            Usuario usuario = new Usuario(nome, genero, email, SenhaUtil.gerarHash(senha), telefone, dtNascimento, dtCadastro);
 
             if (usuarioDAO.cadastrarUsuario(usuario)) {
                 response.sendRedirect(request.getContextPath() + "/usuarios");
