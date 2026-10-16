@@ -9,9 +9,18 @@ public class SenhaUtil {
         return BCrypt.hashpw(senhaPura, BCrypt.gensalt(12));
     }
 
+    private SenhaUtil(){}
+
     //aqui vai comparar a senha digitada com o hash (guardado no banco).
     public static boolean conferir(String senhaPura, String hash){
-        return BCrypt.checkpw(senhaPura, hash);
+        if (senhaPura == null  || hash == null){
+            return false;
+        }
+        try {
+            return BCrypt.checkpw(senhaPura, hash);
+        }catch (IllegalArgumentException e){
+            return false;
+        }
     }
 
 }

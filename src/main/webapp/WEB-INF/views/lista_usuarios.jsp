@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="tituloPagina" value="Usuários"/>
 <c:set var="paginaAtiva" value="usuarios"/>
 <%@ include file="/WEB-INF/views/topo.jspf" %>
@@ -66,10 +67,10 @@
                     <td data-data="${u.dtCadastro}">${u.dtCadastro}</td>
                     <td>
                         <div class="actions">
-                            <a class="icon-btn" href="${ctx}/usuarios?id=${u.idUsuario}" aria-label="Editar ${u.nomeCompleto}">
+                            <a class="icon-btn" href="${ctx}/usuarios?id=${u.idUsuario}" aria-label="Editar ${fn:escapeXml(u.nomeCompleto)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>
-                            <button class="icon-btn" type="button" data-excluir="${u.idUsuario}" aria-label="Excluir ${u.nomeCompleto}">
+                            <button class="icon-btn" type="button" data-excluir="${u.idUsuario}" aria-label="Excluir ${fn:escapeXml(u.nomeCompleto)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
                             </button>
                         </div>
@@ -107,8 +108,11 @@
         botao.addEventListener('click', async function () {
             if (!confirm('Excluir este usuário?')) return;
             var resp = await fetch('${ctx}/usuarios?id=' + botao.dataset.excluir, {method: 'DELETE'});
+
             if (resp.ok) {
                 location.reload();
+            } else if (resp.status >= 500) {
+                alert('Erro no servidor. Tente novamente.');
             } else {
                 alert(await resp.text());
             }

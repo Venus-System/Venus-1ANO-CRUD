@@ -53,18 +53,27 @@ public class UsuarioServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
+
+        email = email.trim();
+        //email em espaços extras.
         if (!Validador.emailValido(email)) {
             request.setAttribute("erro", "E-mail inválido.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
+
+        if (telefone != null) {
+            telefone = telefone.trim();
+            //email em espaços extras.
+        }
+
         if (!Validador.telefoneValido(telefone)) {
             request.setAttribute("erro", "Telefone inválido. Use DDD e número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
         if (!Validador.senhaValida(senha)) {
-            request.setAttribute("erro", "A senha deve ter pelo menos 5 caracteres.");
+            request.setAttribute("erro", "A senha deve ter pelo menos 6 caracteres.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
         }
@@ -72,6 +81,13 @@ public class UsuarioServlet extends HttpServlet {
         try {
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
             LocalDate dtCadastro = LocalDate.now();
+
+            if (dtNascimento.isAfter(LocalDate.now())) {
+                request.setAttribute("erro", "A data de nascimento não pode ser no futuro.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+                return;
+                //barrar datas de nascimento no futuro.
+            }
 
             if (usuarioDAO.existeEmail(email)) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
@@ -81,7 +97,7 @@ public class UsuarioServlet extends HttpServlet {
             }
 
             //monta o objeto model com os dados.
-            Usuario usuario = new Usuario(nome, genero, email, SenhaUtil.gerarHash(senha), telefone, dtNascimento, dtCadastro);
+            Usuario usuario = new Usuario(nome.trim(), genero, email, SenhaUtil.gerarHash(senha), telefone, dtNascimento, dtCadastro);
 
             if (usuarioDAO.cadastrarUsuario(usuario)) {
                 response.sendRedirect(request.getContextPath() + "/usuarios");
@@ -93,8 +109,13 @@ public class UsuarioServlet extends HttpServlet {
         } catch (DateTimeParseException dtpe) {
             request.setAttribute("erro", "Data de nascimento inválida.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
-        } catch (SQLException e) {
-            throw new ServletException("Erro ao cadastrar usuário ", e);
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                request.setAttribute("erro", "Este e-mail já está cadastrado.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            } else {
+                throw new ServletException("Erro ao cadastrar usuário.", sqle);
+            }
         }
     }
 
@@ -168,8 +189,8 @@ public class UsuarioServlet extends HttpServlet {
             int id = Integer.parseInt(json.get("idUsuario").getAsString());
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
-            String email = json.get("email").getAsString();
-            String telefone = json.get("telefone").getAsString();
+            String email = json.get("email").getAsString().trim();
+            String telefone = json.get("telefone").getAsString().trim();
             String dtNascimentoTexto = json.get("dt_nascimento").getAsString();
 
 
@@ -179,7 +200,26 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
+            //Aquil valida o e-mail e o telefone no servidor.
+            if (!Validador.emailValido(email)) {
+                response.setStatus(400);
+                response.getWriter().write("E-mail inválido.");
+                return;
+            }
+            if (!Validador.telefoneValido(telefone)) {
+                response.setStatus(400);
+                response.getWriter().write("Telefone inválido. Use DDD e número.");
+                return;
+            }
+
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
+
+            if (dtNascimento.isAfter(LocalDate.now())) {
+                response.setStatus(400);
+                response.getWriter().write("A data de nascimento não pode ser no futuro.");
+                return;
+                //para a data de nascimento não ser alterada para o futuro
+            }
 
             Usuario usuarioExistente = usuarioDAO.readByEmail(email);
 
@@ -189,7 +229,7 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
-            Usuario usuario = new Usuario(id, nome, genero, email, null, telefone, dtNascimento, null);
+            Usuario usuario = new Usuario(id, nome.trim(), genero, email, null, telefone, dtNascimento, null);
             //como o update não mexe em senha e dtCadastro, esses campos ficam null.
 
             int linhas = usuarioDAO.update(usuario);
@@ -200,14 +240,19 @@ public class UsuarioServlet extends HttpServlet {
                 response.setStatus(404); //se nenhum usuário tiver o id
                 response.getWriter().write("Usuário não encontrado.");
             }
-        } catch (JsonParseException | IllegalStateException | NumberFormatException e) {
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos");
         } catch (DateTimeParseException dtpe) {
             response.setStatus(400);
             response.getWriter().write("Data de nascimento inválida");
         } catch (SQLException sqle) {
-            throw new ServletException("Erro ao atualizar o usuário.", sqle);
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                response.getWriter().write("Este e-mail já pertence a outro usuário.");
+            } else {
+                throw new ServletException("Erro ao atualizar o usuário.", sqle);
+            }
         }
     }
 
@@ -240,7 +285,12 @@ public class UsuarioServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Id inválido.");
         } catch (SQLException sqle) {
-            throw new ServletException("Erro ao excluir o usuário.", sqle);
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(409);
+                response.getWriter().write("Não é possível excluir: o usuário possui registros vinculados.");
+            } else {
+                throw new ServletException("Erro ao excluir o usuário.", sqle);
+            }
         }
 
 
