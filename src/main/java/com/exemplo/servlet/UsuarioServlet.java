@@ -110,8 +110,16 @@ public class UsuarioServlet extends HttpServlet {
             request.setAttribute("erro", "Data de nascimento inválida.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
         } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+            getServletContext().log("Erro SQL ao cadastrar usuário. SQLState=" + sqle.getSQLState(), sqle);
+
+            String estado = sqle.getSQLState();
+            String detalhe = sqle.getMessage() == null ? "" : sqle.getMessage().toLowerCase();
+
+            if ("23505".equals(estado) && detalhe.contains("email")) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            } else if (estado != null && estado.startsWith("23")) {
+                request.setAttribute("erro", "Não foi possível cadastrar: os dados entram em conflito com as regras do banco.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             } else {
                 throw new ServletException("Erro ao cadastrar usuário.", sqle);
