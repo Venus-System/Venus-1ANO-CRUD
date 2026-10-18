@@ -1,0 +1,147 @@
+.cabecalho {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
+}
+
+.cabecalho__logo img {
+  width: auto;
+  height: 3.5rem;
+}
+
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  list-style: none;
+}
+
+.menu__link {
+  font-family: var(--fonte-texto);
+  font-size: 1.125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--cor-branco);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.menu__link:hover {
+  opacity: 0.8;
+}
+
+
+.inicio {
+  position: relative;
+  min-height: 100vh;
+  background: var(--gradiente-marca);
+}
+
+.inicio__fundo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url("../img/fundo.png") center / cover no-repeat;
+  opacity: 0.6;
+}
+
+.inicio__container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.5rem;
+  max-width: var(--largura-maxima);
+  margin: 0 auto;
+  padding: 22.5rem 1.25rem 4rem;
+}
+
+.inicio__conteudo {
+  max-width: 38.75rem;
+}
+
+.inicio__titulo {
+  margin-bottom: 1.75rem;
+  font-family: var(--fonte-titulo);
+  font-size: 4.5rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--cor-rosa-claro);
+}
+
+.inicio__subtitulo {
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: var(--cor-rosa-claro);
+}
+
+.inicio__midia {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.inicio__celular {
+  width: 100%;
+  max-width: 18.75rem;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.3));
+}
+
+
+@media (min-width: 1024px) {
+
+  .cabecalho {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 4rem;
+  }
+
+  .menu {
+    gap: 2.5rem;
+  }
+
+  .inicio__container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 100vh;
+    padding: 5.5rem 4rem;
+  }
+
+  .inicio__conteudo {
+    flex: 1;
+  }
+
+  .inicio__midia {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .inicio__titulo {
+    font-size: 6.25rem;
+  }
+
+  .inicio__subtitulo {
+    font-size: 2rem;
+  }
+
+  .inicio__celular {
+    max-width: 35rem;
+  }
+}

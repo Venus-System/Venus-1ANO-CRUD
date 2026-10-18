@@ -1,0 +1,68 @@
+<%-- Topo compartilhado: <head>, menu lateral e barra superior.
+     A página que inclui define antes: tituloPagina e paginaAtiva.
+     A página também precisa declarar o taglib c antes do include. --%>
+
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#32135b">
+    <title><c:out value="${tituloPagina}"/> · Venus</title>
+   <link rel="stylesheet" href="${ctx}/assets/css/venus.css">
+   </head>
+<body data-theme="light">
+<div class="layout">
+    <button class="mobile-backdrop" type="button" aria-label="Fechar menu"
+            onclick="document.body.classList.remove('menu-open')"></button>
+
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+        <a class="brand" href="${ctx}/">
+            <img src="${ctx}/assets/078ebca2-30e6-47de-a733-a970fff63ab4.svg" alt="Logo Venus">
+            <div><strong>Venus</strong><small>Painel Administrativo</small></div>
+        </a>
+
+        <%-- Um link por módulo. Ajuste as URLs conforme os servlets que você criar. --%>
+        <nav class="nav">
+            <a href="${ctx}/dashboard" class="${paginaAtiva == 'dashboard' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-dashboard" style="--icon-size:24px"><img src="${ctx}/assets/02d8851c-dfe2-4949-bde8-3d7875207bae.svg" alt="" style="transform:scaleY(-1)"></span>
+                <span>Dashboard</span>
+            </a>
+            <a href="${ctx}/usuarios" class="${paginaAtiva == 'usuarios' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-usuarios" style="--icon-size:24px"><img src="${ctx}/assets/02d53210-d5d3-4ce7-99f8-ce3d63bae56b.svg" alt=""></span>
+                <span>Usuários</span>
+            </a>
+            <a href="${ctx}/produtos" class="${paginaAtiva == 'produtos' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-produtos" style="--icon-size:24px"><img src="${ctx}/assets/05aba0f1-39fb-4d30-99f3-b24fe73a168e.svg" alt="" style="transform:scaleY(-1)"></span>
+                <span>Produtos</span>
+            </a>
+            <a href="${ctx}/ingredientes" class="${paginaAtiva == 'ingredientes' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-ingredientes" style="--icon-size:24px"><img src="${ctx}/assets/06674167-3eda-46c2-9bf0-936c7a0e02f9.svg" alt="" style="transform:scaleY(-1)"></span>
+                <span>Ingredientes</span>
+            </a>
+            <a href="${ctx}/analises" class="${paginaAtiva == 'analises' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-analises" style="--icon-size:24px"><img src="${ctx}/assets/04c0c585-6a6e-41f7-ab6d-c93069384a55.svg" alt=""></span>
+                <span>Análises</span>
+            </a>
+            <a href="${ctx}/configuracoes" class="${paginaAtiva == 'configuracoes' ? 'active' : ''}">
+                <span class="figma-icon" data-figma-icon="nav-configuracoes" style="--icon-size:24px"><img src="${ctx}/assets/0be0c4ea-2c1c-47df-b2f6-5e13b2bacf2a.svg" alt=""></span>
+                <span>Configurações</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="workspace">
+        <header class="topbar">
+            <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar"
+                    onclick="document.body.classList.toggle('menu-open')">Menu</button>
+            <div class="intro">
+                <p class="greeting">Olá, Administrador!</p>
+                <small>Aqui você gerencia os dados da plataforma.</small>
+            </div>
+            <div class="profile">
+                <img src="${ctx}/assets/155edb06-a3f3-4451-933a-96518d45898a.svg" alt="">
+                <span>Administrador<small>Admin</small></span>
+            </div>
+        </header>
+        <main class="content" id="main">
