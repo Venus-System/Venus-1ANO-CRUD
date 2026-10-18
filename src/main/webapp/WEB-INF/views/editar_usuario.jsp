@@ -52,7 +52,16 @@
 </section>
 
 <script>
+    // Só permite quem já tem 18 anos (usa a data local, não UTC)
+    var limite = new Date();
+    limite.setFullYear(limite.getFullYear() - 18);
+    document.getElementById('dt_nascimento').max =
+        limite.getFullYear() + '-' +
+        String(limite.getMonth() + 1).padStart(2, '0') + '-' +
+        String(limite.getDate()).padStart(2, '0');
+
     document.getElementById('formEditar').addEventListener('submit', async function (e) {
+
         e.preventDefault();
         var erro = document.getElementById('msg-erro');
         var botao = document.getElementById('btnSalvar');

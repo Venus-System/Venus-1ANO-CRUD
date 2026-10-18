@@ -59,8 +59,13 @@
 </section>
 
 <script>
-    // Não deixa escolher data de nascimento no futuro
-    document.getElementById('dt_nascimento').max = new Date().toISOString().slice(0, 10);
+    // Só permite quem já tem 18 anos (usa a data local)
+    var limite = new Date();
+    limite.setFullYear(limite.getFullYear() - 18);
+    document.getElementById('dt_nascimento').max =
+        limite.getFullYear() + '-' +
+        String(limite.getMonth() + 1).padStart(2, '0') + '-' +
+        String(limite.getDate()).padStart(2, '0');
 </script>
 
 <%@ include file="/WEB-INF/views/rodape.jspf" %>

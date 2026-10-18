@@ -1,5 +1,6 @@
 package com.exemplo.util;
 
+import java.time.LocalDate;
 import java.util.regex.Pattern;
 
 public class Validador {
@@ -12,18 +13,25 @@ public class Validador {
 
     private static final Pattern SENHA = Pattern.compile("^.{6,}$");
 
-    private Validador(){}
-
-        public static boolean emailValido(String email) {
-            return email != null && EMAIL.matcher(email).matches();
-        }
-
-        public static boolean telefoneValido(String telefone){
-            return telefone == null || telefone.isBlank() || TELEFONE.matcher(telefone).matches();
-        }
-
-        public static boolean senhaValida(String senha){
-            return senha != null && SENHA.matcher(senha).matches();
-        }
+    private Validador() {
     }
+
+    public static boolean emailValido(String email) {
+        return email != null && EMAIL.matcher(email).matches();
+    }
+
+    public static boolean telefoneValido(String telefone) {
+        return telefone == null || telefone.isBlank() || TELEFONE.matcher(telefone).matches();
+    }
+
+    public static boolean senhaValida(String senha) {
+        return senha != null && SENHA.matcher(senha).matches();
+
+    }
+
+    public static boolean idadeMinimaValida(LocalDate nascimento, int anos) {
+        return nascimento != null && !nascimento.isAfter(LocalDate.now().minusYears(anos));
+    }
+
+}
 

@@ -82,6 +82,12 @@ public class UsuarioServlet extends HttpServlet {
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
             LocalDate dtCadastro = LocalDate.now();
 
+            if (!Validador.idadeMinimaValida(dtNascimento, 18)) {
+                request.setAttribute("erro", "É necessário ter pelo menos 18 anos.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+                return;
+            }
+
             if (dtNascimento.isAfter(LocalDate.now())) {
                 request.setAttribute("erro", "A data de nascimento não pode ser no futuro.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
@@ -110,16 +116,10 @@ public class UsuarioServlet extends HttpServlet {
             request.setAttribute("erro", "Data de nascimento inválida.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
         } catch (SQLException sqle) {
-            getServletContext().log("Erro SQL ao cadastrar usuário. SQLState=" + sqle.getSQLState(), sqle);
+            getServletContext().log("Erro SQL ao cadastrar usuário", sqle);
 
-            String estado = sqle.getSQLState();
-            String detalhe = sqle.getMessage() == null ? "" : sqle.getMessage().toLowerCase();
-
-            if ("23505".equals(estado) && detalhe.contains("email")) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
-                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
-            } else if (estado != null && estado.startsWith("23")) {
-                request.setAttribute("erro", "Não foi possível cadastrar: os dados entram em conflito com as regras do banco.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             } else {
                 throw new ServletException("Erro ao cadastrar usuário.", sqle);
@@ -222,11 +222,10 @@ public class UsuarioServlet extends HttpServlet {
 
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
 
-            if (dtNascimento.isAfter(LocalDate.now())) {
+            if (!Validador.idadeMinimaValida(dtNascimento, 18)) {
                 response.setStatus(400);
-                response.getWriter().write("A data de nascimento não pode ser no futuro.");
+                response.getWriter().write("É necessário ter pelo menos 18 anos.");
                 return;
-                //para a data de nascimento não ser alterada para o futuro
             }
 
             Usuario usuarioExistente = usuarioDAO.readByEmail(email);
@@ -255,6 +254,8 @@ public class UsuarioServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Data de nascimento inválida");
         } catch (SQLException sqle) {
+            getServletContext().log("Erro SQL ao atualizar usuário", sqle);
+            //mostra a causa real no Tomcat caso apareça algum erro inesperado.
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 response.setStatus(409);
                 response.getWriter().write("Este e-mail já pertence a outro usuário.");
