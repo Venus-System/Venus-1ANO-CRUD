@@ -3,6 +3,7 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.AlergiaDAO;
 import com.exemplo.model.Alergia;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -33,7 +34,15 @@ public class AlergiaServlet extends HttpServlet {
 
         if (nome == null || nome.isBlank()) {
             request.setAttribute("erro", "Informe o nome da alergia.");
-            request.getRequestDispatcher("/cadastro_alergia.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_alergia.jsp").forward(request, response);
+            return;
+        }
+
+        nome = nome.trim();
+
+        if (!Validador.nomeAlergiaValido(nome)) {
+            request.setAttribute("erro", "Nome inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.getRequestDispatcher("src/main/webapp/WEB-INF/views/lista_usuarios.jsp").forward(request, response);
             return;
         }
 
@@ -44,12 +53,13 @@ public class AlergiaServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/alergias");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar a alergia.");
-                request.getRequestDispatcher("/cadastro_alergia.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_alergia.jsp").forward(request, response);
             }
         } catch (SQLException sqle) {
+            getServletContext().log("Erro SQL ao cadastrar alergia", sqle);   // no doPut: "Erro SQL ao atualizar alergia"
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Esta alergia já está cadastrada.");
-                request.getRequestDispatcher("/cadastro_alergia.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_alergia.jsp").forward(request, response);
                 //O insert falha e o Java lança um SQLException.
                 //23 significa violação de restrição.
             } else {
@@ -64,6 +74,12 @@ public class AlergiaServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String idTexto = request.getParameter("id");
+        String acao = request.getParameter("acao");
+
+        if ("novo".equals(acao)) {
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_alergia.jsp").forward(request, response);
+            return;                                           // 3) encerra o método aqui
+        }
 
         try {
             if (idTexto != null && !idTexto.isBlank()) {
@@ -76,13 +92,13 @@ public class AlergiaServlet extends HttpServlet {
                 }
 
                 request.setAttribute("alergia", alergia);
-                request.getRequestDispatcher("/editar_alergia.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_alergia.jsp").forward(request, response);
                 return;
             }
 
             ArrayList<Alergia> listaAlergias = alergiaDAO.read();
             request.setAttribute("alergias", listaAlergias);
-            request.getRequestDispatcher("/lista_alergias.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_alergias.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/alergias");
         } catch (SQLException sqle) {
@@ -137,6 +153,7 @@ public class AlergiaServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
+            getServletContext().log("Erro SQL ao cadastrar alergia", sqle);   // no doPut: "Erro SQL ao atualizar alergia"
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 //Confere se o código existe e se começa com 23
                 response.setStatus(409);
