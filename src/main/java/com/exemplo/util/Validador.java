@@ -33,5 +33,18 @@ public class Validador {
         return nascimento != null && !nascimento.isAfter(LocalDate.now().minusYears(anos));
     }
 
+    // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 100 caracteres)
+    private static final Pattern NOME_PRODUTO = Pattern.compile("^[\\p{L}\\d][\\p{L}\\d '()/.,&+%-]{1,59}$");
+    //o pattern é uma classe que guarda o regex já compilado. (o modelo de texto que eu quiser aceitar)
+    public static boolean nomeProdutoValido(String texto) {
+        return texto != null && NOME_PRODUTO.matcher(texto).matches();
+        //matcher é usado para validar.
+        //matches devolve true se o texto inteiro seguir o padrão.
+    }
+
+    public static boolean pontuacaoValida(int pontuacao) {
+        return pontuacao >= 0 && pontuacao <= 100;
+    }
+
 }
 

@@ -3,6 +3,7 @@ package com.exemplo.servlet;
 
 import com.exemplo.dao.ProdutoDAO;
 import com.exemplo.model.Produto;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -44,7 +45,30 @@ public class ProdutoServlet extends HttpServlet {
                 categoria == null || categoria.isBlank()) {
 
             request.setAttribute("erro", "Preencha nome, marca e categoria.");
-            request.getRequestDispatcher("/cadastro_produto.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
+            return;
+        }
+
+        //retira os espaços extras para não dar erro.
+        nome = nome.trim();
+        marca = marca.trim();
+        categoria = categoria.trim();
+        descricao = descricao == null ? "" : descricao.trim();
+        listaIngredientes = listaIngredientes == null ? "" : listaIngredientes.trim();
+
+        if (!Validador.nomeProdutoValido(nome)) {
+            request.setAttribute("erro", "Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
+            return;
+        }
+        if (!Validador.nomeProdutoValido(marca)) {
+            request.setAttribute("erro", "Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
+            return;
+        }
+        if (!Validador.nomeProdutoValido(categoria)) {
+            request.setAttribute("erro", "Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
 
@@ -58,22 +82,29 @@ public class ProdutoServlet extends HttpServlet {
                 pontuacao = Integer.parseInt(pontuacaoTexto.trim());
             }
 
+            //calcula a pontuação
+            if (!Validador.pontuacaoValida(pontuacao)) {
+                request.setAttribute("erro", "A pontuação deve ficar entre 0 e 100.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
+                return;
+            }
+
             Produto produto = new Produto(nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
 
             if (produtoDAO.cadastrarProduto(produto)) {
                 response.sendRedirect(request.getContextPath() + "/produtos");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o produto.");
-                request.getRequestDispatcher("/cadastro_produto.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             }
         } catch (NumberFormatException nfe) {
             request.setAttribute("erro", "Dados inválidos. Verifique a pontuação e tente novamente.");
-            request.getRequestDispatcher("/cadastro_produto.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
 
         } catch (SQLException sqle) {
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Este produto já está cadastrado ou algum dado não foi aceito.");
-                request.getRequestDispatcher("/cadastro_produto.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             } else {
                 throw new ServletException("Erro ao cadastrar produto.", sqle);
             }
@@ -84,6 +115,12 @@ public class ProdutoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        //como o JSP fica dentro de WEB-INF, o navegador não o abre direto: o link "novo" passa por aqui.
+        if ("novo".equals(request.getParameter("acao"))) {
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
+            return;
+        }
 
         String idTexto = request.getParameter("id");
         String nomeBusca = request.getParameter("nome");
@@ -100,7 +137,7 @@ public class ProdutoServlet extends HttpServlet {
                 }
 
                 request.setAttribute("produto", produto);
-                request.getRequestDispatcher("/editar_produto.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_produto.jsp").forward(request, response);
                 return;
             }
 
@@ -108,7 +145,7 @@ public class ProdutoServlet extends HttpServlet {
                 ArrayList<Produto> listaNomesProdutos = produtoDAO.readByName(nomeBusca.trim());
 
                 request.setAttribute("produtos", listaNomesProdutos);
-                request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
                 return;
             }
 
@@ -116,13 +153,13 @@ public class ProdutoServlet extends HttpServlet {
                 ArrayList<Produto> listaMarcasProdutos = produtoDAO.readByBrand(marcaBusca.trim());
 
                 request.setAttribute("produtos", listaMarcasProdutos);
-                request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
                 return;
             }
 
             ArrayList<Produto> listaProdutos = produtoDAO.read();
             request.setAttribute("produtos", listaProdutos);
-            request.getRequestDispatcher("/lista_produtos.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/produtos");
         } catch (SQLException sqle) {
@@ -159,14 +196,14 @@ public class ProdutoServlet extends HttpServlet {
             }
 
             int id = Integer.parseInt(json.get("idProduto").getAsString());
-            String nome = json.get("nome").getAsString();
-            String marca = json.get("marca").getAsString();
-            String categoria = json.get("categoria").getAsString();
-            String descricao = json.get("descricao").getAsString();
+            String nome = json.get("nome").getAsString().trim();
+            String marca = json.get("marca").getAsString().trim();
+            String categoria = json.get("categoria").getAsString().trim();
+            String descricao = json.get("descricao").getAsString().trim();
             boolean ehVegano = json.get("ehVegano").getAsBoolean();
             boolean ehCrueltyFree = json.get("ehCrueltyFree").getAsBoolean();
             int pontuacao = Integer.parseInt(json.get("pontuacao").getAsString());
-            String listaIngredientes = json.get("listaIngredientes").getAsString();
+            String listaIngredientes = json.get("listaIngredientes").getAsString().trim();
 
             if (nome.isBlank() || marca.isBlank() || categoria.isBlank()){
                 response.setStatus(400);
@@ -174,7 +211,29 @@ public class ProdutoServlet extends HttpServlet {
                 return;
             }
 
-            Produto produto = new Produto(id, nome.trim(), marca.trim(), categoria.trim(), descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
+            //aqui entram as validações.
+            if (!Validador.nomeProdutoValido(nome)) {
+                response.setStatus(400);
+                response.getWriter().write("Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+                return;
+            }
+            if (!Validador.nomeProdutoValido(marca)) {
+                response.setStatus(400);
+                response.getWriter().write("Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                return;
+            }
+            if (!Validador.nomeProdutoValido(categoria)) {
+                response.setStatus(400);
+                response.getWriter().write("Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                return;
+            }
+            if (!Validador.pontuacaoValida(pontuacao)) {
+                response.setStatus(400);
+                response.getWriter().write("A pontuação deve ficar entre 0 e 100.");
+                return;
+            }
+
+            Produto produto = new Produto(id, nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
             int linhas = produtoDAO.update(produto);
 
             if (linhas>0){
