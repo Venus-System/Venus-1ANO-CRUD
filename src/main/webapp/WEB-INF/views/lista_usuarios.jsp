@@ -11,8 +11,10 @@
         <p>Gerencie os usuários cadastrados na plataforma.</p>
     </div>
     <div class="heading-actions">
+        <a class="btn secondary" href="${ctx}/produtoUsuarios">Produtos dos usuários</a>
         <a class="btn primary" href="${ctx}/usuarios?acao=novo">
-            <span class="figma-icon" style="--icon-size:20px"><img src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
+            <span class="figma-icon" style="--icon-size:20px"><img
+                    src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
             Adicionar novo usuário
         </a>
     </div>
@@ -21,7 +23,8 @@
 <section class="stats" aria-label="Indicadores">
     <article class="stat" data-icon-kind="usuarios">
         <span class="bubble" aria-hidden="true">
-            <span class="figma-icon" style="--icon-size:33px"><img src="${ctx}/assets/114998ae-07f2-474e-a199-3038b9bbeb93.svg" alt=""></span>
+            <span class="figma-icon" style="--icon-size:33px"><img
+                    src="${ctx}/assets/114998ae-07f2-474e-a199-3038b9bbeb93.svg" alt=""></span>
         </span>
         <div>
             <span class="stat-label">Usuários totais</span>
@@ -32,7 +35,8 @@
 
 <div class="toolbar">
     <label class="search">
-        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
+        <span class="figma-icon" style="--icon-size:16px"><img
+                src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
         <input id="busca" type="search" aria-label="Buscar usuários" placeholder="Buscar por nome ou e-mail...">
     </label>
 </div>
@@ -70,6 +74,9 @@
                             <a class="icon-btn" href="${ctx}/usuarios?id=${u.idUsuario}" aria-label="Editar ${fn:escapeXml(u.nomeCompleto)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>
+                            <a class="icon-btn" style="padding:0 10px"
+                               href="${ctx}/produtoUsuarios?idUsuario=${u.idUsuario}"
+                               aria-label="Produtos de ${fn:escapeXml(u.nomeCompleto)}">Produtos</a>
                             <button class="icon-btn" type="button" data-excluir="${u.idUsuario}" aria-label="Excluir ${fn:escapeXml(u.nomeCompleto)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
                             </button>
@@ -78,7 +85,9 @@
                 </tr>
             </c:forEach>
             <c:if test="${empty usuarios}">
-                <tr><td colspan="7" class="empty">Nenhum usuário cadastrado.</td></tr>
+                <tr>
+                    <td colspan="7" class="empty">Nenhum usuário cadastrado.</td>
+                </tr>
             </c:if>
             </tbody>
         </table>

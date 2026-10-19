@@ -1,7 +1,7 @@
 package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
-import com.exemplo.model.*;
+import com.exemplo.model.ProdutoUsuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +10,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ProdutoUsuarioDAO {
+
+    public boolean existeVinculo(int idProduto, int idUsuario) throws SQLException {
+        String sql = "select 1 from produto_usuario where id_produto = ? and id_usuario = ?";
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstm = cnn.prepareStatement(sql)) {
+            pstm.setInt(1, idProduto);
+            pstm.setInt(2, idUsuario);
+
+            try (ResultSet rset = pstm.executeQuery()) {
+                return rset.next();
+                //true se achou alguma linha, ou seja, o vínculo já existe.
+            }
+        }
+    }
 
     public boolean inserirProdutoUsuario(ProdutoUsuario produtoUsuario) throws SQLException {
         String sql= "insert into produto_usuario (id_produto , id_usuario) values (?,?)";
@@ -61,7 +76,7 @@ public class ProdutoUsuarioDAO {
     }
 
     public ArrayList<ProdutoUsuario> readByIdUsuario(int idUsuario) throws SQLException{
-        String sql= "select * from produto_usuario where id_usuario = ?";
+        String sql= "select * from produto_usuario where id_usuario = ? order by id_produto_usuario";
         ArrayList<ProdutoUsuario> listaProdutoUsuario = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();

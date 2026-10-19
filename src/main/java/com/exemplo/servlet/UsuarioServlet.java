@@ -116,6 +116,7 @@ public class UsuarioServlet extends HttpServlet {
             request.setAttribute("erro", "Data de nascimento inválida.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
         } catch (SQLException sqle) {
+            //no console do Tomcat aparece a mensagem de erro. Quem usa o site não vê isso.
             getServletContext().log("Erro SQL ao cadastrar usuário", sqle);
 
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
