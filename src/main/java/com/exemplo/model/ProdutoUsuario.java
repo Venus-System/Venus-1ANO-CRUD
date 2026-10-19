@@ -6,6 +6,8 @@ public class ProdutoUsuario {
     private int idProdutoUsuario;
     private int idProduto;
     private int idUsuario;
+    private String nomeProduto;
+    private String nomeUsuario;
 
     public ProdutoUsuario(int idProdutoUsuario, int idProduto, int idUsuario) {
         this.idProdutoUsuario = idProdutoUsuario;
@@ -16,6 +18,14 @@ public class ProdutoUsuario {
     public ProdutoUsuario(int idProduto, int idUsuario) {
         this.idProduto = idProduto;
         this.idUsuario = idUsuario;
+    }
+
+    public ProdutoUsuario(int idProdutoUsuario, int idProduto, int idUsuario, String nomeProduto, String nomeUsuario) {
+        this.idProdutoUsuario = idProdutoUsuario;
+        this.idProduto = idProduto;
+        this.idUsuario = idUsuario;
+        this.nomeProduto = nomeProduto;
+        this.nomeUsuario = nomeUsuario;
     }
 
     public int getIdProdutoUsuario() {
@@ -40,6 +50,22 @@ public class ProdutoUsuario {
 
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
+    }
+
+    public String getNomeProduto() {
+        return nomeProduto;
+    }
+
+    public void setNomeProduto(String nomeProduto) {
+        this.nomeProduto = nomeProduto;
+    }
+
+    public String getNomeUsuario() {
+        return nomeUsuario;
+    }
+
+    public void setNomeUsuario(String nomeUsuario) {
+        this.nomeUsuario = nomeUsuario;
     }
 
     @Override
