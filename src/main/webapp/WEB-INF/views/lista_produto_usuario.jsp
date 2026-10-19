@@ -23,7 +23,7 @@
 <div class="toolbar">
     <label class="search">
         <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
-        <input id="busca" type="search" aria-label="Buscar vínculos" placeholder="Buscar por id...">
+        <input id="busca" type="search" aria-label="Buscar vínculos" placeholder="Buscar por produto ou usuário...">
     </label>
 </div>
 
@@ -32,18 +32,16 @@
         <table id="tabela-produto-usuario">
             <thead>
             <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Id do produto</th>
-                <th scope="col">Id do usuário</th>
+                <th scope="col">Produto</th>
+                <th scope="col">Usuário</th>
                 <th scope="col">Ações</th>
             </tr>
             </thead>
             <tbody>
             <c:forEach var="pu" items="${produtosUsuarios}">
                 <tr>
-                    <td>${pu.idProdutoUsuario}</td>
-                    <td>${pu.idProduto}</td>
-                    <td>${pu.idUsuario}</td>
+                    <td>${pu.nomeProduto}</td>
+                    <td>${pu.nomeUsuario}</td>
                     <td>
                         <div class="actions">
                             <button class="icon-btn" type="button" data-excluir="${pu.idProdutoUsuario}" aria-label="Excluir vínculo ${pu.idProdutoUsuario}">
@@ -54,8 +52,7 @@
                 </tr>
             </c:forEach>
             <c:if test="${empty produtosUsuarios}">
-                <tr><td colspan="4" class="empty">Nenhum produto vinculado encontrado.</td></tr>
-            </c:if>
+                <tr><td colspan="3" class="empty">Nenhum produto vinculado encontrado.</td></tr>            </c:if>
             </tbody>
         </table>
     </div>
