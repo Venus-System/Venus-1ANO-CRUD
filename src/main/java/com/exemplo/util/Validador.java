@@ -64,5 +64,12 @@ public class Validador {
         return tipo.matches("^[\\p{L}\\p{N}][\\p{L}\\p{N} .,'()/-]{1,99}$");
     }
 
+    private static final Pattern NOME_INGREDIENTE =
+            Pattern.compile("^[\\p{L}0-9][\\p{L}0-9 .,'()/%+\\-]{1,99}$");
+
+    public static boolean nomeIngredienteValido(String nome) {
+        return nome != null && NOME_INGREDIENTE.matcher(nome.trim()).matches();
+    }
+
 }
 
