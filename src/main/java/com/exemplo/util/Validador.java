@@ -46,5 +46,12 @@ public class Validador {
         return pontuacao >= 0 && pontuacao <= 100;
     }
 
+    private static final Pattern NOME_ALERGIA =
+            Pattern.compile("^[\\p{L}\\p{N}][\\p{L}\\p{N} '()/.,&+%\\-]{1,99}$");
+
+    public static boolean nomeAlergiaValido(String nome) {
+        return nome != null && NOME_ALERGIA.matcher(nome).matches();
+    }
+
 }
 

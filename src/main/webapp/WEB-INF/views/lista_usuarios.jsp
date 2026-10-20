@@ -12,6 +12,7 @@
     </div>
     <div class="heading-actions">
         <a class="btn secondary" href="${ctx}/produtoUsuarios">Produtos dos usuários</a>
+        <a class="btn secondary" href="${ctx}/alergias">Alergias</a>
         <a class="btn primary" href="${ctx}/usuarios?acao=novo">
             <span class="figma-icon" style="--icon-size:20px"><img
                     src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
