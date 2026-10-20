@@ -12,7 +12,7 @@
     </div>
     <div class="heading-actions">
         <a class="btn secondary" href="${ctx}/produtoUsuarios">Produtos dos usuários</a>
-        <a class="btn secondary" href="${ctx}/alergias">Alergias</a>
+        <a class="btn secondary" href="${ctx}/alergias">Catálogo de alergias</a>
         <a class="btn primary" href="${ctx}/usuarios?acao=novo">
             <span class="figma-icon" style="--icon-size:20px"><img
                     src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
@@ -75,6 +75,8 @@
                             <a class="icon-btn" href="${ctx}/usuarios?id=${u.idUsuario}" aria-label="Editar ${fn:escapeXml(u.nomeCompleto)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>
+                            <a class="btn secondary"
+                               href="${ctx}/usuarioAlergias?idUsuario=${u.idUsuario}">Alergias</a>
                             <a class="icon-btn" style="padding:0 10px"
                                href="${ctx}/produtoUsuarios?idUsuario=${u.idUsuario}"
                                aria-label="Produtos de ${fn:escapeXml(u.nomeCompleto)}">Produtos</a>

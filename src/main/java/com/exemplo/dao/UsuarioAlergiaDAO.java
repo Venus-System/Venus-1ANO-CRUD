@@ -66,7 +66,11 @@ public class UsuarioAlergiaDAO {
     }
 
     public ArrayList<UsuarioAlergia> readByIdUsuario(int id) throws SQLException{
-        String sql= "select*from usuario_alergia where id_usuario = ?";
+        String sql= "select ua.*, a.nome_alergia as nome_alergia " +
+                "from usuario_alergia ua " +
+                "join alergia a on a.id_alergia = ua.id_alergia " +
+                "where ua.id_usuario = ? " +
+                "order by a.nome_alergia";
         ArrayList<UsuarioAlergia> usuarioAlergia= new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -81,7 +85,7 @@ public class UsuarioAlergiaDAO {
                             rset.getInt("grau"),
                             rset.getInt("id_usuario"),
                             rset.getInt("id_alergia"));
-
+                    usAl1.setNomeAlergia(rset.getString("nome_alergia"));
                     usuarioAlergia.add(usAl1);
                 }
             }

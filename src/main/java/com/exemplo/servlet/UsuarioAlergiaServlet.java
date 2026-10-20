@@ -1,6 +1,7 @@
 package com.exemplo.servlet;
 
 
+import com.exemplo.dao.AlergiaDAO;
 import com.exemplo.dao.UsuarioAlergiaDAO;
 import com.exemplo.model.UsuarioAlergia;
 import com.google.gson.JsonObject;
@@ -21,8 +22,20 @@ import java.util.stream.Collectors;
 public class UsuarioAlergiaServlet extends HttpServlet {
 
     private final UsuarioAlergiaDAO usuarioAlergiaDAO = new UsuarioAlergiaDAO();
-
+    private final AlergiaDAO alergiaDAO = new AlergiaDAO();
     //create
+
+    //O SQLException do read() é tratado dentro do auxiliar.
+    private void mostrarFormulario(HttpServletRequest request, HttpServletResponse response, String erro)
+            throws ServletException, IOException {
+        try {
+            request.setAttribute("alergias", alergiaDAO.read());
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar alergias", sqle);
+        }
+        request.setAttribute("erro", erro);
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario_alergia.jsp").forward(request, response);
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -31,17 +44,17 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         String grauTexto = request.getParameter("grau");
-        String idUsuarioTexto = request.getParameter("id_usuario");
-        String idAlergiaTexto = request.getParameter("id_alergia");
+        String idUsuarioTexto = request.getParameter("idUsuario");
+        String idAlergiaTexto = request.getParameter("idAlergia");
 
         if (grauTexto == null || grauTexto.isBlank() ||
                 idUsuarioTexto == null || idUsuarioTexto.isBlank() ||
                 idAlergiaTexto == null || idAlergiaTexto.isBlank()) {
 
-            request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_usuario_alergia.jsp").forward(request, response);
+            mostrarFormulario(request, response, "Preencha todos os campos obrigatórios.");
             return;
         }
+        //a validação dos campos vazios ficou antes do try, que trata o SQLException.
 
         try {
             int grau = Integer.parseInt(grauTexto);
@@ -51,24 +64,30 @@ public class UsuarioAlergiaServlet extends HttpServlet {
             UsuarioAlergia usuarioAlergia = new UsuarioAlergia(grau, idUsuario, idAlergia);
 
             if (usuarioAlergiaDAO.inserirUsuarioAlergia(usuarioAlergia)) {
-                response.sendRedirect(request.getContextPath() + "/usuarioAlergias");
+                //a interrogação serve para o endereço dos parâmetros. Com o getParameter o servlet lê toda a informação extra.
+                //Depois de cadastrar, a pessoa volta para a lista do usuário em que estava.
+                response.sendRedirect(request.getContextPath() + "/usuarioAlergias?idUsuario=" + idUsuario);
             } else {
-                request.setAttribute("erro", "Não foi possível cadastrar a alergia do usuário.");
-                request.getRequestDispatcher("/cadastro_usuario_alergia.jsp").forward(request, response);
+                mostrarFormulario(request, response, "Não foi possível cadastrar a alergia do usuário.");
             }
         } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Dados inválidos. Verifique o grau informado e tente novamente.");
-            request.getRequestDispatcher("/cadastro_usuario_alergia.jsp").forward(request, response);
+            mostrarFormulario(request, response, "Dados inválidos. Verifique o grau informado e tente novamente.");
         } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                //o 'if' confere se o código existe, e pergunta se o código começa com "23" (que é a classe de erro "violação de restrição de integridade")
-                request.setAttribute("erro", "Usuário ou alergia não existe, ou o registro já está cadastrado.");
-                request.getRequestDispatcher("/cadastro_usuario_alergia.jsp").forward(request, response);
+            String estado = sqle.getSQLState();
+            //aqui significa que o vínculo já existe.
+            if ("23505".equals(estado)) {
+                mostrarFormulario(request, response, "Este usuário já possui essa alergia.");
+
+                //aqui significa que o usuário ou a alergia já existe.
+            } else if ("23503".equals(estado)) {
+                mostrarFormulario(request, response, "Usuário ou alergia não existe.");
             } else {
+                //aqui o throw também encerra o mehtodo.
                 throw new ServletException("Erro ao cadastrar alergia do usuário", sqle);
             }
         }
     }
+
 
     //read
     @Override
@@ -77,8 +96,15 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
         String idTexto = request.getParameter("id");
         String idUsuarioTexto = request.getParameter("idUsuario"); //aqui filtra por usuário
+        String acao = request.getParameter("acao");
 
         try {
+            if ("novo".equals(acao)) {
+                request.setAttribute("alergias", alergiaDAO.read());
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario_alergia.jsp").forward(request, response);
+                return;
+            }
+
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 UsuarioAlergia usuarioAlergia = usuarioAlergiaDAO.readById(id);
@@ -89,7 +115,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
                 }
 
                 request.setAttribute("usuarioAlergia", usuarioAlergia);
-                request.getRequestDispatcher("/editar_usuario_alergia.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_usuario_alergia.jsp").forward(request, response);
                 return;
             }
 
@@ -98,13 +124,13 @@ public class UsuarioAlergiaServlet extends HttpServlet {
                 ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.readByIdUsuario(idUsuario);
 
                 request.setAttribute("usuariosAlergias", listaUsuarioAlergia);
-                request.getRequestDispatcher("/lista_usuario_alergias.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/lista_usuario_alergias.jsp").forward(request, response);
                 return;
             }
 
             ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.read();
             request.setAttribute("usuariosAlergias", listaUsuarioAlergia);
-            request.getRequestDispatcher("/lista_usuario_alergias.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_usuario_alergias.jsp").forward(request, response);
 
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/usuarioAlergias");
