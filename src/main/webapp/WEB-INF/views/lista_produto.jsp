@@ -65,6 +65,7 @@
                             <a class="icon-btn" href="${ctx}/produtos?id=${p.idProduto}" aria-label="Editar ${fn:escapeXml(p.nome)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>
+                            <a class="btn" href="${pageContext.request.contextPath}/produtoIngredientes?idProduto=${p.idProduto}">Ingredientes</a>
                             <button class="icon-btn" type="button" data-excluir="${p.idProduto}" aria-label="Excluir ${fn:escapeXml(p.nome)}">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
                             </button>

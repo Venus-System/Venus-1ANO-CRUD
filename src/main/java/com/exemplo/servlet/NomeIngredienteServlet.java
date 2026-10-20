@@ -87,7 +87,7 @@ public class NomeIngredienteServlet extends HttpServlet {
                     return;
                 }
 
-                request.setAttribute("nomeIngrediente", nomeIngrediente);
+                request.setAttribute("nomeIngredientes", nomeIngrediente);
                 request.getRequestDispatcher("/editar_nome_ingrediente.jsp").forward(request, response);
                 return;
             }

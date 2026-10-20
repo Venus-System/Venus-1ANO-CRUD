@@ -17,33 +17,35 @@
     </div>
 </div>
 
-<div class="panel white">
-    <div id="erro" class="alert-erro" role="alert" hidden></div>
+<div id="erro" class="alert-erro" role="alert" hidden></div>
 
-    <c:choose>
-        <c:when test="${empty produtosIngredientes}">
-            <p>Nenhum ingrediente vinculado.</p>
-        </c:when>
-        <c:otherwise>
-            <table>
-                <thead>
-                <tr><th>Ingrediente</th><th>Ações</th></tr>
-                </thead>
-                <tbody>
-                <c:forEach items="${produtosIngredientes}" var="pi">
-                    <tr>
-                        <td><c:out value="${pi.nomeIngrediente}"/></td>
-                        <td>
-                            <button type="button" class="btn secondary"
-                                    onclick="excluir(${pi.idProdutoIngrediente})">Remover</button>
-                        </td>
-                    </tr>
-                </c:forEach>
-                </tbody>
-            </table>
-        </c:otherwise>
-    </c:choose>
-</div>
+<section class="table-panel">
+    <div class="table-scroll">
+        <table>
+            <thead>
+            <tr>
+                <th scope="col">Ingrediente</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Nível de perigo</th>
+                <th scope="col">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <c:forEach items="${produtosIngredientes}" var="pi">
+                <tr>
+                    <td><c:out value="${pi.nomeIngrediente}"/></td>
+                    <td><c:out value="${pi.tipo}"/></td>
+                    <td><span class="badge ${pi.nivelPerigo <= 2 ? 'green' : (pi.nivelPerigo == 3 ? 'yellow' : 'pink')}">${pi.nivelPerigo}/5</span></td>
+                    <td><div class="actions"><button type="button" class="btn secondary" onclick="excluir(${pi.idProdutoIngrediente})">Remover</button></div></td>
+                </tr>
+            </c:forEach>
+            <c:if test="${empty produtosIngredientes}">
+                <tr><td colspan="4" class="empty">Nenhum ingrediente vinculado a este produto.</td></tr>
+            </c:if>
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <script>
     var faixaErro = document.getElementById('erro');
