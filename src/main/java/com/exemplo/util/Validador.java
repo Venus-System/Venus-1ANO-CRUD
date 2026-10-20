@@ -53,5 +53,16 @@ public class Validador {
         return nome != null && NOME_ALERGIA.matcher(nome).matches();
     }
 
+    public static boolean nivelPerigoValido(int nivel) {
+        return nivel >= 1 && nivel <= 5;
+    }
+
+    public static boolean tipoIngredienteValido(String tipo) {
+        if (tipo == null) {
+            return false;
+        }
+        return tipo.matches("^[\\p{L}\\p{N}][\\p{L}\\p{N} .,'()/-]{1,99}$");
+    }
+
 }
 
