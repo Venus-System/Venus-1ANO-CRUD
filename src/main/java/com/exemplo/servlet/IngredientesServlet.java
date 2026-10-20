@@ -69,7 +69,10 @@ public class IngredientesServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
-            if ("23514".equals(estado)) {
+            if ("23505".equals(estado)) {
+                request.setAttribute("erro", "Já existe um ingrediente com esse tipo.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
+            } else if ("23514".equals(estado)) {
                 request.setAttribute("erro", "Os valores informados não são permitidos.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
             } else if ("23502".equals(estado)) {
