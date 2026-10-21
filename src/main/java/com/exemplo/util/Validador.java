@@ -78,5 +78,16 @@ public class Validador {
         return texto == null || texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches();
     }
 
+    private static final Pattern TIPO_PELE =
+            Pattern.compile("^\\p{L}[\\p{L} /\\-]{1,49}$");
+
+    public static boolean tipoPeleValido(String tipo) {
+        return tipo != null && TIPO_PELE.matcher(tipo.trim()).matches();
+    }
+
+    public static boolean escalaValida(int valor) {
+        return valor >= 1 && valor <= 10;
+    }
+
 }
 
