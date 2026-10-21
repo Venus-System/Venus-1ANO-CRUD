@@ -71,5 +71,12 @@ public class Validador {
         return nome != null && NOME_INGREDIENTE.matcher(nome.trim()).matches();
     }
 
+    private static final Pattern TEXTO_PREFERENCIA =
+            Pattern.compile("^[\\p{L}0-9][\\p{L}0-9 .,;:'()/%$&+\\-]{0,254}$");
+
+    public static boolean preferenciaOpcionalValida(String texto) {
+        return texto == null || texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches();
+    }
+
 }
 
