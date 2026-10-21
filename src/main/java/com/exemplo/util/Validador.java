@@ -89,5 +89,13 @@ public class Validador {
         return valor >= 1 && valor <= 10;
     }
 
+    public static boolean curvaturaValida(int valor) {
+        return valor >= 1 && valor <= 4;
+    }
+
+    public static boolean espessuraEOleosidadeValida(int valor) {
+        return valor >= 1 && valor <= 10;
+    }
+
 }
 
