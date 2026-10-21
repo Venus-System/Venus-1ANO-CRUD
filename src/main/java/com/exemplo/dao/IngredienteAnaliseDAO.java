@@ -16,13 +16,17 @@ public class IngredienteAnaliseDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredienteAnalise.getIdIngrediente());
-            pstmt.setInt(2, ingredienteAnalise.getIdIngrediente());
+            pstmt.setInt(2, ingredienteAnalise.getIdAnalise());
             return pstmt.executeUpdate() > 0;
         }
     }
 
     public ArrayList<IngredienteAnalise> read() throws SQLException {
-        String sql = "select * from ingrediente_analise order by id_ingrediente_analise";
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+                + "i.tipo, i.nivel_perigo "
+                + "from ingrediente_analise ia "
+                + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
+                + "order by ia.id_ingrediente_analise";
         ArrayList<IngredienteAnalise> ingredienteAnalise = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -32,7 +36,9 @@ public class IngredienteAnaliseDAO {
                 IngredienteAnalise ia1 = new IngredienteAnalise(
                         rset.getInt("id_ingrediente_analise"),
                         rset.getInt("id_ingrediente"),
-                        rset.getInt("id_analise")
+                        rset.getInt("id_analise"),
+                        rset.getString("tipo"),
+                        rset.getInt("nivel_perigo")
                 );
                 ingredienteAnalise.add(ia1);
             }
@@ -64,7 +70,12 @@ public class IngredienteAnaliseDAO {
 
 
     public ArrayList<IngredienteAnalise> readByIdAnalise(int idAnalise) throws SQLException {
-        String sql = "select * from ingrediente_analise where id_analise = ? order by id_ingrediente_analise";
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+                + "i.tipo, i.nivel_perigo "
+                + "from ingrediente_analise ia "
+                + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
+                + "where ia.id_analise = ? "
+                + "order by ia.id_ingrediente_analise";
         ArrayList<IngredienteAnalise> lista = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -77,7 +88,9 @@ public class IngredienteAnaliseDAO {
                     lista.add(new IngredienteAnalise(
                             rset.getInt("id_ingrediente_analise"),
                             rset.getInt("id_ingrediente"),
-                            rset.getInt("id_analise")
+                            rset.getInt("id_analise"),
+                            rset.getString("tipo"),
+                            rset.getInt("nivel_perigo")
                     ));
                 }
             }
@@ -86,7 +99,12 @@ public class IngredienteAnaliseDAO {
     }
 
     public ArrayList<IngredienteAnalise> readByIdIngrediente(int idIngrediente) throws SQLException {
-        String sql = "select * from ingrediente_analise where id_ingrediente = ? order by id_ingrediente_analise";
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+                + "i.tipo, i.nivel_perigo "
+                + "from ingrediente_analise ia "
+                + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
+                + "where ia.id_ingrediente = ? "
+                + "order by ia.id_ingrediente_analise";
         ArrayList<IngredienteAnalise> lista = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -99,7 +117,9 @@ public class IngredienteAnaliseDAO {
                     lista.add(new IngredienteAnalise(
                             rset.getInt("id_ingrediente_analise"),
                             rset.getInt("id_ingrediente"),
-                            rset.getInt("id_analise")
+                            rset.getInt("id_analise"),
+                            rset.getString("tipo"),
+                            rset.getInt("nivel_perigo")
                     ));
                 }
             }

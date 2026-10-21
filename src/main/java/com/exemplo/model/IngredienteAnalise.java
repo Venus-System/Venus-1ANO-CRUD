@@ -4,6 +4,8 @@ public class IngredienteAnalise {
     private int idIngredienteAnalise;
     private int idIngrediente;
     private int idAnalise;
+    private String tipo;
+    private int nivelPerigo;
 
     public IngredienteAnalise(int idIngredienteAnalise, int idIngrediente, int idAnalise) {
         this.idIngredienteAnalise = idIngredienteAnalise;
@@ -14,6 +16,15 @@ public class IngredienteAnalise {
     public IngredienteAnalise(int idIngrediente, int idAnalise) {
         this.idIngrediente = idIngrediente;
         this.idAnalise = idAnalise;
+    }
+
+    public IngredienteAnalise(int idIngredienteAnalise, int idIngrediente, int idAnalise,
+                              String tipo, int nivelPerigo) {
+        this.idIngredienteAnalise = idIngredienteAnalise;
+        this.idIngrediente = idIngrediente;
+        this.idAnalise = idAnalise;
+        this.tipo = tipo;
+        this.nivelPerigo = nivelPerigo;
     }
 
     public int getIdAnalise() {
@@ -38,6 +49,22 @@ public class IngredienteAnalise {
 
     public void setIdIngrediente(int idIngrediente) {
         this.idIngrediente = idIngrediente;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public int getNivelPerigo() {
+        return nivelPerigo;
+    }
+
+    public void setNivelPerigo(int nivelPerigo) {
+        this.nivelPerigo = nivelPerigo;
     }
 
     @Override

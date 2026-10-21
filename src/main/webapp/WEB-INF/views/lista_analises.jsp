@@ -13,6 +13,10 @@
         <c:if test="${not empty param.idUsuario}">
             <a class="btn secondary" href="${ctx}/usuarios">Voltar para usuários</a>
         </c:if>
+        <a class="btn secondary"
+           href="${pageContext.request.contextPath}/ingredienteAnalises?idAnalise=${a.idAnalise}">
+            Ingredientes
+        </a>
         <a class="btn primary" href="${ctx}/analises?acao=novo&idUsuario=${param.idUsuario}">Adicionar análise</a>
     </div>
 </div>
@@ -47,6 +51,10 @@
                     <td><span class="badge purple">${a.pontuacao}</span></td>
                     <td>
                         <div class="actions">
+                            <a class="btn secondary"
+                               href="${pageContext.request.contextPath}/ingredienteAnalises?idAnalise=${a.idAnalise}">
+                                Ingredientes
+                            </a>
                             <a class="icon-btn" href="${ctx}/analises?id=${a.idAnalise}" aria-label="Editar análise">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>

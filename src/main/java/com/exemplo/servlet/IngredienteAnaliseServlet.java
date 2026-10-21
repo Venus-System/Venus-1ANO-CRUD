@@ -1,6 +1,7 @@
 package com.exemplo.servlet;
 
 import com.exemplo.dao.IngredienteAnaliseDAO;
+import com.exemplo.dao.IngredientesDAO;
 import com.exemplo.model.IngredienteAnalise;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,8 +17,24 @@ import java.util.ArrayList;
 public class IngredienteAnaliseServlet extends HttpServlet {
 
     private final IngredienteAnaliseDAO ingredienteAnaliseDAO = new IngredienteAnaliseDAO();
+    private final IngredientesDAO ingredientesDAO = new IngredientesDAO();   // novo campo (+ import)
 
-    //create
+    // carrega os ingredientes para o <select> e abre o cadastro (único ponto de forward)
+    private void abrirCadastro(HttpServletRequest request, HttpServletResponse response, String erro)
+            throws ServletException, IOException {
+        try {
+            if (erro != null) {
+                request.setAttribute("erro", erro);
+            }
+            request.setAttribute("ingredientes", ingredientesDAO.read());
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente_analise.jsp")
+                    .forward(request, response);
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao carregar ingredientes.", sqle);
+        }
+    }
+
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -27,33 +44,38 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         String idIngredienteTexto = request.getParameter("idIngrediente");
         String idAnaliseTexto = request.getParameter("idAnalise");
 
-        if (idIngredienteTexto == null || idIngredienteTexto.isBlank() ||
-                idAnaliseTexto == null || idAnaliseTexto.isBlank()) {
-
-            request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_ingrediente_analise.jsp").forward(request, response);
-            return;
-        }
-
         try {
+            if (idIngredienteTexto == null || idIngredienteTexto.isBlank() ||
+                    idAnaliseTexto == null || idAnaliseTexto.isBlank()) {
+                abrirCadastro(request, response, "Selecione o ingrediente.");
+                return;
+            }
+
             int idIngrediente = Integer.parseInt(idIngredienteTexto);
             int idAnalise = Integer.parseInt(idAnaliseTexto);
 
-            IngredienteAnalise ingredienteAnalise = new IngredienteAnalise(idIngrediente, idAnalise);
+            if (idIngrediente <= 0 || idAnalise <= 0) {
+                abrirCadastro(request, response, "Dados inválidos. Selecione o ingrediente e tente novamente.");
+                return;
+            }
 
-            if (ingredienteAnaliseDAO.cadastrarIngredienteAnalise(ingredienteAnalise)) {
-                response.sendRedirect(request.getContextPath() + "/ingredienteAnalises");
+            IngredienteAnalise ia = new IngredienteAnalise(idIngrediente, idAnalise);
+
+            if (ingredienteAnaliseDAO.cadastrarIngredienteAnalise(ia)) {
+                response.sendRedirect(request.getContextPath() + "/ingredienteAnalises?idAnalise=" + idAnalise);
             } else {
-                request.setAttribute("erro", "Não foi possível cadastrar o ingrediente da análise.");
-                request.getRequestDispatcher("/cadastro_ingrediente_analise.jsp").forward(request, response);
+                abrirCadastro(request, response, "Não foi possível vincular o ingrediente à análise.");
             }
         } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Dados inválidos. Selecione o ingrediente e a análise e tente novamente.");
-            request.getRequestDispatcher("/cadastro_ingrediente_analise.jsp").forward(request, response);
+            abrirCadastro(request, response, "Dados inválidos. Selecione o ingrediente e tente novamente.");
         } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                request.setAttribute("erro", "Ingrediente ou análise não existe, ou o registro já está cadastrado.");
-                request.getRequestDispatcher("/cadastro_ingrediente_analise.jsp").forward(request, response);
+            String estado = sqle.getSQLState();
+            if ("23505".equals(estado)) {
+                abrirCadastro(request, response, "Esse ingrediente já está vinculado a esta análise.");
+            } else if ("23503".equals(estado)) {
+                abrirCadastro(request, response, "Ingrediente ou análise não existe.");
+            } else if ("23502".equals(estado)) {
+                abrirCadastro(request, response, "Preencha todos os campos obrigatórios.");
             } else {
                 throw new ServletException("Erro ao cadastrar ingrediente da análise.", sqle);
             }
@@ -69,27 +91,34 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         String idIngredienteTexto = request.getParameter("idIngrediente");
 
         try {
+            if ("novo".equals(request.getParameter("acao"))) {
+                abrirCadastro(request, response, null);
+                return;
+            }
+
             if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()) {
                 int idAnalise = Integer.parseInt(idAnaliseTexto);
                 ArrayList<IngredienteAnalise> listaAnalises = ingredienteAnaliseDAO.readByIdAnalise(idAnalise);
 
                 request.setAttribute("ingredientesAnalises", listaAnalises);
-                request.getRequestDispatcher("/lista_ingrediente_analise.jsp").forward(request, response);
-                return;
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
             }
             if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
                 ArrayList<IngredienteAnalise> listaIngredientes = ingredienteAnaliseDAO.readByIdIngrediente(idIngrediente);
 
                 request.setAttribute("ingredientesAnalises", listaIngredientes);
-                request.getRequestDispatcher("/lista_ingrediente_analise.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
+            }
+
+            if ("novo".equals(request.getParameter("acao"))) {
+                abrirCadastro(request, response, null);
                 return;
             }
 
             ArrayList<IngredienteAnalise> listaIngredienteAnalises = ingredienteAnaliseDAO.read();
             request.setAttribute("ingredientesAnalises", listaIngredienteAnalises);
-            request.getRequestDispatcher("/lista_ingrediente_analise.jsp").forward(request, response);
-        } catch (NumberFormatException nfe) {
+            request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);        } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/ingredienteAnalises");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes da análise.", sqle);
