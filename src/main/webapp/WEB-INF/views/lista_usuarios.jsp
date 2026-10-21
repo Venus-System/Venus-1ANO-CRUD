@@ -90,6 +90,9 @@
                             <a class="icon-btn" style="padding:0 10px"
                                href="${ctx}/perfisCabelo?idUsuario=${u.idUsuario}"
                                aria-label="Perfil de cabelo de ${fn:escapeXml(u.nomeCompleto)}">Perfil de cabelo</a>
+                            <a class="icon-btn" style="padding:0 10px"
+                               href="${ctx}/analises?idUsuario=${u.idUsuario}"
+                               aria-label="Análises de ${fn:escapeXml(u.nomeCompleto)}">Análises</a>
                             <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
                             </button>
                         </div>
