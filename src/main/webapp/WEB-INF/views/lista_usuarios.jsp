@@ -13,6 +13,7 @@
     <div class="heading-actions">
         <a class="btn secondary" href="${ctx}/produtoUsuarios">Produtos dos usuários</a>
         <a class="btn secondary" href="${ctx}/alergias">Catálogo de alergias</a>
+        <a class="btn secondary" href="${ctx}/preferencias?idUsuario=${u.idUsuario}">Preferências</a>
         <a class="btn primary" href="${ctx}/usuarios?acao=novo">
             <span class="figma-icon" style="--icon-size:20px"><img
                     src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
@@ -80,8 +81,9 @@
                             <a class="icon-btn" style="padding:0 10px"
                                href="${ctx}/produtoUsuarios?idUsuario=${u.idUsuario}"
                                aria-label="Produtos de ${fn:escapeXml(u.nomeCompleto)}">Produtos</a>
-                            <button class="icon-btn" type="button" data-excluir="${u.idUsuario}" aria-label="Excluir ${fn:escapeXml(u.nomeCompleto)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                            <a class="icon-btn" style="padding:0 10px"
+                               href="${ctx}/preferencias?idUsuario=${u.idUsuario}"
+                               aria-label="Preferências de ${fn:escapeXml(u.nomeCompleto)}">Preferências</a>                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
                             </button>
                         </div>
                     </td>
