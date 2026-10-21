@@ -1,7 +1,9 @@
 package com.exemplo.servlet;
 
 import com.exemplo.dao.PreferenciasDAO;
+import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Preferencias;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -20,6 +22,11 @@ import java.util.stream.Collectors;
 public class PreferenciasServlet extends HttpServlet {
 
     private final PreferenciasDAO preferenciasDAO = new PreferenciasDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    private String valor(String texto) {
+        return texto == null ? "" : texto.trim();
+    }
 
     //create
     @Override
@@ -28,43 +35,59 @@ public class PreferenciasServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        String faixaPreco = request.getParameter("faixa_preco");
-        String restricoesDieta = request.getParameter("restricoes_dieta");
-        String categoriaPref = request.getParameter("categoria_pref");
-        String marcasFav = request.getParameter("marcas_fav");
-        String idUsuarioTexto = request.getParameter("id_usuario");
+        String faixaPreco = request.getParameter("faixaPreco");
+        String restricoesDieta = request.getParameter("restricoesDieta");
+        String categoriaPref = request.getParameter("categoriaPref");
+        String marcasFav = request.getParameter("marcasFav");
+        String idUsuarioTexto = request.getParameter("idUsuario");
 
         //igual ao produto sobre ehVegano
-        boolean prefereVegano = request.getParameter("prefere_vegano") != null;
+        boolean prefereVegano = request.getParameter("preferevegano") != null;
+
+        String erro = null;
 
         if (idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
-            request.setAttribute("erro", "Informe o usuário das preferências.");
-            request.getRequestDispatcher("/cadastro_preferencias.jsp").forward(request, response);
-            return;
-        }
+            erro = "Selecione o usuário.";
+        } else if (!Validador.preferenciaOpcionalValida(faixaPreco) ||
+                !Validador.preferenciaOpcionalValida(restricoesDieta)
+                || !Validador.preferenciaOpcionalValida(categoriaPref)
+                || !Validador.preferenciaOpcionalValida(marcasFav)) {
+            erro = "Campo inválido. Use letras, números e . , ; : ' ( ) / % $ & + - (até 255 caracteres).";
+        } else {
 
-        try {
-            int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
+            try {
+                int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
 
-            Preferencias preferencias = new Preferencias(faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav, idUsuario);
+                Preferencias preferencias = new Preferencias(faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav, idUsuario);
 
-            if (preferenciasDAO.cadastrarPreferencias(preferencias)) {
-                response.sendRedirect(request.getContextPath() + "/preferencias");
-            } else {
-                request.setAttribute("erro", "Não foi possível cadastrar as preferências.");
-                request.getRequestDispatcher("/cadastro_preferencias.jsp").forward(request, response);
+                if (preferenciasDAO.cadastrarPreferencias(preferencias)) {
+                    response.sendRedirect(request.getContextPath() + "/preferencias");
+                    return;
+                }
+                erro = "Não foi possível cadastrar as preferências.";
+
+            } catch (NumberFormatException nfe) {
+                erro = "Usuário Inválido.";
+            } catch (SQLException sqle) {
+                String estado = sqle.getSQLState();
+                if ("23503".equals(estado)) {
+                    erro = "Usuário não existe.";
+                } else if ("23505".equals(estado)) {
+                    erro = "Esta preferência já está cadastrada para o usuário.";
+                } else {
+                    throw new ServletException("Erro ao cadastrar preferências.", sqle);
+                }
             }
-        } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Dados inválidos. Selecione o usuário e tente novamente.");
-            request.getRequestDispatcher("/cadastro_preferencias.jsp").forward(request, response);
-        } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                request.setAttribute("erro", "Usuário não existe ou já possui preferências cadastradas.");
-                request.getRequestDispatcher("/cadastro_preferencias.jsp").forward(request, response);
-            } else {
-                throw new ServletException("Erro ao cadastrar preferências.", sqle);
+
+            try {
+                request.setAttribute("usuarios", usuarioDAO.read());
+            } catch (SQLException sqle) {
+                throw new ServletException("Erro ao buscar usuários.", sqle);
             }
+
         }
+        request.setAttribute("erro", erro);
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_preferencias.jsp").forward(request, response);
     }
 
     //read
@@ -76,8 +99,15 @@ public class PreferenciasServlet extends HttpServlet {
         String idUsuarioTexto = request.getParameter("idUsuario");
         String faixaPrecoBusca = request.getParameter("faixaPreco");
         String marcaBusca = request.getParameter("marca");
+        String acao = request.getParameter("acao");
 
         try {
+            if ("novo".equals(acao)) {
+                request.setAttribute("usuarios", usuarioDAO.read());
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_preferencias.jsp").forward(request, response);
+                return;
+            }
+
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 Preferencias preferencias = preferenciasDAO.readById(id);
@@ -88,37 +118,23 @@ public class PreferenciasServlet extends HttpServlet {
                 }
 
                 request.setAttribute("preferencia", preferencias);
-                request.getRequestDispatcher("/editar_preferencias.jsp").forward(request, response);
-                return;
-            }
-
-            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int idUsuario = Integer.parseInt(idUsuarioTexto);
-                ArrayList<Preferencias> listaUsuarios = preferenciasDAO.readByIdUsuario(idUsuario);
-
-                request.setAttribute("listaPreferencias", listaUsuarios);
-                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
-                return;
-            }
-
-            if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
-                ArrayList<Preferencias> listaPrecos = preferenciasDAO.readByPreco(faixaPrecoBusca.trim());
-
-                request.setAttribute("listaPreferencias", listaPrecos);
-                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
-                return;
-            }
-
-            if (marcaBusca != null && !marcaBusca.isBlank()){
-                ArrayList<Preferencias> listaMarcas = preferenciasDAO.readByBrand(marcaBusca.trim());
-                request.setAttribute("listaPreferencias", listaMarcas);
-                request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_preferencias.jsp").forward(request, response);
                 return;
             }
 
             ArrayList<Preferencias> listaPreferencias = preferenciasDAO.read();
+            if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                listaPreferencias = preferenciasDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+            } else if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
+                listaPreferencias = preferenciasDAO.readByPreco(faixaPrecoBusca.trim());
+            } else if (marcaBusca != null && !marcaBusca.isBlank()) {
+                listaPreferencias = preferenciasDAO.readByBrand(marcaBusca.trim());
+            } else {
+                listaPreferencias = preferenciasDAO.read();
+            }
+
             request.setAttribute("listaPreferencias", listaPreferencias);
-            request.getRequestDispatcher("/lista_preferencias.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_preferencias.jsp").forward(request, response);
 
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/preferencias");
@@ -157,6 +173,15 @@ public class PreferenciasServlet extends HttpServlet {
             String categoriaPref = json.get("categoriaPref").getAsString();
             String marcasFav = json.get("marcasFav").getAsString();
 
+            if (!Validador.preferenciaOpcionalValida(faixaPreco)
+                    || !Validador.preferenciaOpcionalValida(restricoesDieta)
+                    || !Validador.preferenciaOpcionalValida(categoriaPref)
+                    || !Validador.preferenciaOpcionalValida(marcasFav)) {
+                response.setStatus(400);
+                response.getWriter().write("Campo inválido. Use letras, números e . , ; : ' ( ) / % $ & + - (até 255 caracteres).");
+                return;
+            }
+
             Preferencias preferencias = new Preferencias(id, faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav);
 
             int linhas = preferenciasDAO.update(preferencias);
@@ -171,7 +196,12 @@ public class PreferenciasServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
-            throw new ServletException("Erro ao atualizar as preferências.", sqle);
+            if ("23505".equals(sqle.getSQLState())) {
+                response.setStatus(409);
+                response.getWriter().write("Esta preferência já está cadastrada para o usuário.");
+            } else {
+                throw new ServletException("Erro ao atualizar as preferências.", sqle);
+            }
         }
     }
 
