@@ -69,10 +69,7 @@ public class IngredientesServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
-            if ("23505".equals(estado)) {
-                request.setAttribute("erro", "Já existe um ingrediente com esse tipo.");
-                request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
-            } else if ("23514".equals(estado)) {
+            if ("23514".equals(estado)) {
                 request.setAttribute("erro", "Os valores informados não são permitidos.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
             } else if ("23502".equals(estado)) {
@@ -145,8 +142,7 @@ public class IngredientesServlet extends HttpServlet {
 
             int id = Integer.parseInt(json.get("idIngrediente").getAsString());
             int nivelPerigo = Integer.parseInt(json.get("nivelPerigo").getAsString());
-            String tipo = json.get("tipo").getAsString();
-            String tipoLimpo = tipo.trim();
+            String tipoLimpo = json.get("tipo").getAsString().trim();
 
             if (!Validador.tipoIngredienteValido(tipoLimpo)) {
                 response.setStatus(400);
@@ -161,13 +157,6 @@ public class IngredientesServlet extends HttpServlet {
             }
 
             Ingredientes ingredientes = new Ingredientes(id, nivelPerigo, tipoLimpo);
-
-            if (tipo.isBlank()) {
-                response.setStatus(400);
-                response.getWriter().write("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
             int linhas = ingredientesDAO.alterarValores(ingredientes);
 
             if (linhas > 0) {
@@ -176,9 +165,21 @@ public class IngredientesServlet extends HttpServlet {
                 response.setStatus(404);
                 response.getWriter().write("Ingrediente não encontrado.");
             }
+
+        } catch (NumberFormatException nfe) {
+            response.setStatus(400);
+            response.getWriter().write("Id ou nível de perigo inválido.");
+
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException e) {
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
+
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
-            if ("23514".equals(estado) || "23502".equals(estado)) {
+            if ("23505".equals(estado)) {
+                response.setStatus(409);
+                response.getWriter().write("Já existe um ingrediente com esse tipo.");
+            } else if ("23514".equals(estado) || "23502".equals(estado)) {
                 response.setStatus(400);
                 response.getWriter().write("Os valores informados não são permitidos.");
             } else {
@@ -226,4 +227,3 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 }
-
