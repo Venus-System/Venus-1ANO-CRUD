@@ -36,6 +36,7 @@
                         <td>${i.nivelPerigo}</td>
                         <td>${i.dtAtualizacao}</td>
                         <td>
+                            <a class="btn" href="${ctx}/nomeIngredientes?idIngrediente=${i.idIngrediente}">Nomes</a>
                             <a class="btn secondary"
                                href="${ctx}/ingredientes?id=${i.idIngrediente}">Editar</a>
                             <button type="button" class="btn secondary"
