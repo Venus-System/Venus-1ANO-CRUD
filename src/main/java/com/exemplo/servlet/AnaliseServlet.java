@@ -1,7 +1,9 @@
 package com.exemplo.servlet;
 
 import com.exemplo.dao.AnaliseDAO;
+import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Analise;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -18,7 +20,12 @@ import java.util.stream.Collectors;
 
 @WebServlet("/analises")
 public class AnaliseServlet extends HttpServlet {
+
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    private static final String MSG_RESUMO_INVALIDO = "O resumo deve ter no máximo 500 caracteres.";
+    private static final String MSG_PONTUACAO_INVALIDA = "A pontuação deve ficar entre 0 e 100.";
 
     //create
     @Override
@@ -31,40 +38,53 @@ public class AnaliseServlet extends HttpServlet {
         String pontuacaoTexto = request.getParameter("pontuacao");
         String idUsuarioTexto = request.getParameter("idUsuario");
 
-        if (resumoResultado == null || resumoResultado.isBlank() ||
-                pontuacaoTexto == null || pontuacaoTexto.isBlank() ||
-                idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
+        String erro = null;
 
-            request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_analise.jsp").forward(request, response);
-            return;
+        if (idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
+            erro = "Selecione o usuário.";
+        } else if (resumoResultado == null || resumoResultado.isBlank()
+                || pontuacaoTexto == null || pontuacaoTexto.isBlank()) {
+            erro = "Preencha todos os campos obrigatórios.";
+        } else if (!Validador.resumoAnaliseValido(resumoResultado)) {
+            erro = MSG_RESUMO_INVALIDO;
+        } else {
+            try {
+                int pontuacao = Integer.parseInt(pontuacaoTexto.trim());
+                int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
+
+                if (!Validador.pontuacaoAnaliseValida(pontuacao)) {
+                    erro = MSG_PONTUACAO_INVALIDA;
+                } else {
+                    Analise analise = new Analise(resumoResultado.trim(), pontuacao, idUsuario);
+
+                    if (analiseDAO.cadastrarAnalise(analise)) {
+                        response.sendRedirect(request.getContextPath() + "/analises?idUsuario=" + idUsuario);
+                        return;
+                    }
+                    erro = "Não foi possível cadastrar a análise.";
+                }
+            } catch (NumberFormatException nfe) {
+                erro = "Dados inválidos. Verifique a pontuação e o usuário.";
+            } catch (SQLException sqle) {
+                String estado = sqle.getSQLState();
+                if ("23503".equals(estado)) {
+                    erro = "Usuário não existe.";
+                } else if (estado != null && estado.startsWith("23")) {
+                    erro = "Algum dado não foi aceito pelo banco.";
+                } else {
+                    throw new ServletException("Erro ao cadastrar a análise.", sqle);
+                }
+            }
         }
 
+        // único forward: só chega aqui quando houve erro
         try {
-            int pontuacao = Integer.parseInt(pontuacaoTexto);
-            int idUsuario = Integer.parseInt(idUsuarioTexto);
-
-            Analise analise = new Analise(resumoResultado.trim(), pontuacao, idUsuario);
-
-            if (analiseDAO.cadastrarAnalise(analise)) {
-                response.sendRedirect(request.getContextPath() + "/analises");
-            } else {
-                request.setAttribute("erro", "Não foi possível cadastrar a análise.");
-                request.getRequestDispatcher("/cadastro_analise.jsp").forward(request, response);
-            }
-        } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Dados inválidos. Verifique a pontuação e o usuário e tente novamente.");
-            request.getRequestDispatcher("/cadastro_analise.jsp").forward(request, response);
+            request.setAttribute("usuarios", usuarioDAO.read());
         } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                request.setAttribute("erro", "Usuário informado não existe ou os valores não são permitidos.");
-                request.getRequestDispatcher("/cadastro_analise.jsp").forward(request, response);
-            } else {
-
-                throw new ServletException("Erro ao cadastrar a análise.", sqle);
-            }
+            throw new ServletException("Erro ao buscar usuários.", sqle);
         }
-
+        request.setAttribute("erro", erro);
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_analise.jsp").forward(request, response);
     }
 
     //read
@@ -72,10 +92,17 @@ public class AnaliseServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String acao = request.getParameter("acao");
         String idTexto = request.getParameter("id");
         String idUsuarioTexto = request.getParameter("idUsuario");
 
         try {
+            if ("novo".equals(acao)) {
+                request.setAttribute("usuarios", usuarioDAO.read());
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_analise.jsp").forward(request, response);
+                return;
+            }
+
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 Analise analise = analiseDAO.readById(id);
@@ -86,25 +113,22 @@ public class AnaliseServlet extends HttpServlet {
                 }
 
                 request.setAttribute("analise", analise);
-                request.getRequestDispatcher("/editar_analise.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_analise.jsp").forward(request, response);
                 return;
             }
 
+            ArrayList<Analise> lista;
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int idUsuario = Integer.parseInt(idUsuarioTexto);
-                ArrayList<Analise> listaUsuarios = analiseDAO.readByIdUsuario(idUsuario);
-
-                request.setAttribute("analises", listaUsuarios);
-                request.getRequestDispatcher("/lista_analises.jsp").forward(request, response);
-                return;
+                lista = analiseDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+            } else {
+                lista = analiseDAO.read();
             }
 
-            ArrayList<Analise> listaAnalises = analiseDAO.read();
-            request.setAttribute("analises", listaAnalises);
-            request.getRequestDispatcher("/lista_analises.jsp").forward(request, response);
+            request.setAttribute("analises", lista);
+            request.getRequestDispatcher("/WEB-INF/views/lista_analises.jsp").forward(request, response);
+
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/analises");
-
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar análises.", sqle);
         }
@@ -124,8 +148,7 @@ public class AnaliseServlet extends HttpServlet {
         try {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
-            if (!json.has("idAnalise") || !json.has("resumoResultado") ||
-                    !json.has("pontuacao")) {
+            if (!json.has("idAnalise") || !json.has("resumoResultado") || !json.has("pontuacao")) {
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
                 return;
@@ -141,8 +164,19 @@ public class AnaliseServlet extends HttpServlet {
                 return;
             }
 
-            Analise analise = new Analise(id, resumoResultado.trim(), pontuacao);
+            if (!Validador.resumoAnaliseValido(resumoResultado)) {
+                response.setStatus(400);
+                response.getWriter().write(MSG_RESUMO_INVALIDO);
+                return;
+            }
 
+            if (!Validador.pontuacaoAnaliseValida(pontuacao)) {
+                response.setStatus(400);
+                response.getWriter().write(MSG_PONTUACAO_INVALIDA);
+                return;
+            }
+
+            Analise analise = new Analise(id, resumoResultado.trim(), pontuacao);
             int linhas = analiseDAO.update(analise);
 
             if (linhas > 0) {
@@ -155,7 +189,12 @@ public class AnaliseServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
-            throw new ServletException("Erro ao atualizar a análise.", sqle);
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(400);
+                response.getWriter().write("Algum dado não foi aceito pelo banco.");
+            } else {
+                throw new ServletException("Erro ao atualizar a análise.", sqle);
+            }
         }
     }
 
@@ -174,11 +213,9 @@ public class AnaliseServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                int id = Integer.parseInt(idTexto);
-                linhas = analiseDAO.deleteById(id);
+                linhas = analiseDAO.deleteById(Integer.parseInt(idTexto));
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int idUsuario = Integer.parseInt(idUsuarioTexto);
-                linhas = analiseDAO.deleteByIdUsuario(idUsuario);
+                linhas = analiseDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");
