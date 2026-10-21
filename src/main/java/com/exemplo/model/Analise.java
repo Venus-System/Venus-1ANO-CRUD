@@ -1,6 +1,7 @@
 package com.exemplo.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Analise {
 
@@ -71,6 +72,9 @@ public class Analise {
         this.idUsuario = idUsuario;
     }
 
+    public String getDtHrAnaliseFormatada() {
+        return dtHrAnalise == null ? "" : dtHrAnalise.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
     @Override
     public String toString() {
         return "Id Análise: " + getIdAnalise()+"\n"+

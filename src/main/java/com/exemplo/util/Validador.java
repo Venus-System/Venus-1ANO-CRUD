@@ -97,5 +97,13 @@ public class Validador {
         return valor >= 1 && valor <= 10;
     }
 
+    public static boolean resumoAnaliseValido(String resumo) {
+        return resumo != null && !resumo.isBlank() && resumo.trim().length() <= 255;
+    }
+
+    public static boolean pontuacaoAnaliseValida(int valor) {
+        return valor >= 0 && valor <= 100;
+    }
+
 }
 
