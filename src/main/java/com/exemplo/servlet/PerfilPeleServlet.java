@@ -1,8 +1,9 @@
 package com.exemplo.servlet;
 
-
 import com.exemplo.dao.PerfilPeleDAO;
+import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.PerfilPele;
+import com.exemplo.util.Validador;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -21,6 +22,16 @@ import java.util.stream.Collectors;
 public class PerfilPeleServlet extends HttpServlet {
 
     private final PerfilPeleDAO perfilPeleDAO = new PerfilPeleDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    private static final String MSG_TIPO_INVALIDO =
+            "Tipo de pele inválido. Use de 2 a 50 caracteres (letras, espaço, / e -).";
+    private static final String MSG_ESCALA_INVALIDA =
+            "Sensibilidade e oleosidade devem ficar entre 1 e 5.";
+
+    private String valor(String texto) {
+        return texto == null ? "" : texto.trim();
+    }
 
     //create
     @Override
@@ -30,50 +41,61 @@ public class PerfilPeleServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         String sensibilidadeTexto = request.getParameter("sensibilidade");
-        String tipoPele = request.getParameter("tipo_pele");
-        String nivelOleosidadeTexto = request.getParameter("nivel_oleosidade");
-        String idUsuarioTexto = request.getParameter("id_usuario");
+        String tipoPele = valor(request.getParameter("tipoPele"));
+        String nivelOleosidadeTexto = request.getParameter("nivelOleosidade");
+        String idUsuarioTexto = request.getParameter("idUsuario");
 
-        if (sensibilidadeTexto == null || sensibilidadeTexto.isBlank() ||
-                tipoPele == null || tipoPele.isBlank() ||
-                nivelOleosidadeTexto == null || nivelOleosidadeTexto.isBlank() ||
-                idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
+        String erro = null;
 
-            request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
-            return;
+        if (idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
+            erro = "Selecione o usuário.";
+        } else if (sensibilidadeTexto == null || sensibilidadeTexto.isBlank()
+                || tipoPele.isEmpty()
+                || nivelOleosidadeTexto == null || nivelOleosidadeTexto.isBlank()) {
+            erro = "Preencha todos os campos obrigatórios.";
+        } else if (!Validador.tipoPeleValido(tipoPele)) {
+            erro = MSG_TIPO_INVALIDO;
+        } else {
+            try {
+                int sensibilidade = Integer.parseInt(sensibilidadeTexto.trim());
+                int nivelOleosidade = Integer.parseInt(nivelOleosidadeTexto.trim());
+                int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
+
+                if (!Validador.escalaValida(sensibilidade) || !Validador.escalaValida(nivelOleosidade)) {
+                    erro = MSG_ESCALA_INVALIDA;
+                } else if (perfilPeleDAO.existePerfilParaUsuario(idUsuario)) {
+                    erro = "Este usuário já possui um perfil de pele cadastrado.";
+                } else {
+                    PerfilPele perfilPele = new PerfilPele(sensibilidade, tipoPele, nivelOleosidade, idUsuario);
+
+                    if (perfilPeleDAO.cadastrarPerfilPele(perfilPele)) {
+                        response.sendRedirect(request.getContextPath() + "/perfisPele?idUsuario=" + idUsuario);
+                        return;
+                    }
+                    erro = "Não foi possível cadastrar o perfil de pele.";
+                }
+            } catch (NumberFormatException nfe) {
+                erro = "Dados inválidos. Verifique sensibilidade, oleosidade e usuário.";
+            } catch (SQLException sqle) {
+                String estado = sqle.getSQLState();
+                if ("23503".equals(estado)) {
+                    erro = "Usuário não existe.";
+                } else if (estado != null && estado.startsWith("23")) {
+                    erro = "Algum dado não foi aceito pelo banco.";
+                } else {
+                    throw new ServletException("Erro ao cadastrar perfil de pele.", sqle);
+                }
+            }
         }
+
+        // único forward: só chega aqui quando houve erro
         try {
-            int sensibilidade = Integer.parseInt(sensibilidadeTexto.trim());
-            int nivelOleosidade = Integer.parseInt(nivelOleosidadeTexto.trim());
-            int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
-
-            if (perfilPeleDAO.existePerfilParaUsuario(idUsuario)) {
-                request.setAttribute("erro", "Este usuário já possui um perfil de pele cadastrado.");
-                request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
-                return;
-            }
-
-            PerfilPele perfilPele = new PerfilPele(sensibilidade, tipoPele.trim(), nivelOleosidade, idUsuario);
-            if (perfilPeleDAO.cadastrarPerfilPele(perfilPele)) {
-                response.sendRedirect(request.getContextPath() + "/perfisPele");
-            } else {
-                request.setAttribute("erro", "Não foi possível cadastrar o perfil de pele.");
-                request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
-            }
-        } catch (NumberFormatException nfe) {
-            request.setAttribute("erro", "Dados inválidos. Verifique sensibilidade, oleosidade e usuário e tente novamente.");
-            request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
+            request.setAttribute("usuarios", usuarioDAO.read());
         } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
-                //violação de restrição --------> 23. Igual aos outros.
-                request.setAttribute("erro", "Usuário não existe ou algum dado não foi aceito.");
-                request.getRequestDispatcher("/cadastro_perfil_pele.jsp").forward(request, response);
-            } else {
-                throw new ServletException("Erro ao cadastrar perfil de pele.", sqle);
-            }
+            throw new ServletException("Erro ao buscar usuários.", sqle);
         }
-
+        request.setAttribute("erro", erro);
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_pele.jsp").forward(request, response);
     }
 
     //read
@@ -81,10 +103,17 @@ public class PerfilPeleServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String acao = request.getParameter("acao");
         String idTexto = request.getParameter("id");
         String idUsuarioTexto = request.getParameter("idUsuario");
 
         try {
+            if ("novo".equals(acao)) {
+                request.setAttribute("usuarios", usuarioDAO.read());
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_pele.jsp").forward(request, response);
+                return;
+            }
+
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
                 PerfilPele perfilPele = perfilPeleDAO.readById(id);
@@ -95,28 +124,24 @@ public class PerfilPeleServlet extends HttpServlet {
                 }
 
                 request.setAttribute("perfilPele", perfilPele);
-                request.getRequestDispatcher("/editar_perfil_pele.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/editar_perfil_pele.jsp").forward(request, response);
                 return;
             }
+
+            ArrayList<PerfilPele> lista = new ArrayList<>();
 
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int idUsuario = Integer.parseInt(idUsuarioTexto);
-                PerfilPele perfilPeleUsuario = perfilPeleDAO.readByIdUsuario(idUsuario);
-
-                ArrayList<PerfilPele> listaUsuarios = new ArrayList<>();
-                if (perfilPeleUsuario != null) {
-                    listaUsuarios.add(perfilPeleUsuario);
+                PerfilPele perfilUsuario = perfilPeleDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                if (perfilUsuario != null) {
+                    lista.add(perfilUsuario);
                 }
-
-                request.setAttribute("perfisPele", listaUsuarios);
-                request.getRequestDispatcher("/lista_perfis_pele.jsp").forward(request, response);
-                return;
+            } else {
+                lista = perfilPeleDAO.read();
             }
 
-            //aqui listará tudo.
-            ArrayList<PerfilPele> listaPerfilPele = perfilPeleDAO.read();
-            request.setAttribute("perfisPele", listaPerfilPele);
-            request.getRequestDispatcher("/lista_perfis_pele.jsp").forward(request, response);
+            request.setAttribute("perfisPele", lista);
+            request.getRequestDispatcher("/WEB-INF/views/lista_perfis_pele.jsp").forward(request, response);
+
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/perfisPele");
         } catch (SQLException sqle) {
@@ -138,9 +163,8 @@ public class PerfilPeleServlet extends HttpServlet {
         try {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
-            if (!json.has("idPerfilPele") || !json.has("sensibilidade") ||
-                    !json.has("tipoPele") || !json.has("nivelOleosidade")) {
-
+            if (!json.has("idPerfilPele") || !json.has("sensibilidade")
+                    || !json.has("tipoPele") || !json.has("nivelOleosidade")) {
                 response.setStatus(400);
                 response.getWriter().write("Dados incompletos.");
                 return;
@@ -148,17 +172,28 @@ public class PerfilPeleServlet extends HttpServlet {
 
             int id = Integer.parseInt(json.get("idPerfilPele").getAsString());
             int sensibilidade = Integer.parseInt(json.get("sensibilidade").getAsString());
-            String tipoPele = json.get("tipoPele").getAsString();
+            String tipoPele = valor(json.get("tipoPele").getAsString());
             int nivelOleosidade = Integer.parseInt(json.get("nivelOleosidade").getAsString());
 
-            if (tipoPele.isBlank()) {
+            if (tipoPele.isEmpty()) {
                 response.setStatus(400);
                 response.getWriter().write("Informe o tipo de pele.");
                 return;
             }
 
-            PerfilPele perfilPele = new PerfilPele(id, sensibilidade, tipoPele.trim(), nivelOleosidade);
+            if (!Validador.tipoPeleValido(tipoPele)) {
+                response.setStatus(400);
+                response.getWriter().write(MSG_TIPO_INVALIDO);
+                return;
+            }
 
+            if (!Validador.escalaValida(sensibilidade) || !Validador.escalaValida(nivelOleosidade)) {
+                response.setStatus(400);
+                response.getWriter().write(MSG_ESCALA_INVALIDA);
+                return;
+            }
+
+            PerfilPele perfilPele = new PerfilPele(id, sensibilidade, tipoPele, nivelOleosidade);
             int linhas = perfilPeleDAO.alterarValores(perfilPele);
 
             if (linhas > 0) {
@@ -172,7 +207,12 @@ public class PerfilPeleServlet extends HttpServlet {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
-            throw new ServletException("Erro ao atualizar o perfil de pele.", sqle);
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(400);
+                response.getWriter().write("Algum dado não foi aceito pelo banco.");
+            } else {
+                throw new ServletException("Erro ao atualizar o perfil de pele.", sqle);
+            }
         }
     }
 
@@ -191,11 +231,9 @@ public class PerfilPeleServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                int id = Integer.parseInt(idTexto);
-                linhas = perfilPeleDAO.deleteById(id);
+                linhas = perfilPeleDAO.deleteById(Integer.parseInt(idTexto));
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                int idUsuario = Integer.parseInt(idUsuarioTexto);
-                linhas = perfilPeleDAO.deleteByIdUsuario(idUsuario);
+                linhas = perfilPeleDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");
