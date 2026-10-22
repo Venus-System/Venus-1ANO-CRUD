@@ -9,6 +9,7 @@ public class UsuarioAlergia {
     private int grau;
     private int idUsuario;
     private int idAlergia;
+    private String nomeAlergia;
 
     public UsuarioAlergia(int idUsuarioAlergia, LocalDate dtRegistro, int grau, int idUsuario, int idAlergia) {
         this.idUsuarioAlergia = idUsuarioAlergia;
@@ -67,6 +68,14 @@ public class UsuarioAlergia {
 
     public void setIdAlergia(int idAlergia) {
         this.idAlergia = idAlergia;
+    }
+
+    public String getNomeAlergia() {
+        return nomeAlergia;
+    }
+
+    public void setNomeAlergia(String nomeAlergia) {
+        this.nomeAlergia = nomeAlergia;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.exemplo.servlet;
 
 
+import com.exemplo.dao.ProdutoDAO;
 import com.exemplo.dao.ProdutoUsuarioDAO;
+import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.ProdutoUsuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +18,23 @@ import java.util.ArrayList;
 @WebServlet("/produtoUsuarios")
 public class ProdutoUsuarioServlet extends HttpServlet {
     private final ProdutoUsuarioDAO produtoUsuarioDAO = new ProdutoUsuarioDAO();
+
+    private final ProdutoDAO produtoDAO = new ProdutoDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    //os selects de produto e usuário precisam de listas: todos os produtos e todos os usário do banco.
+    //sem o abrir cadastro, as listas só chegam ao jsp se o servlet buscar no banco e guradar na requisição com o setAtribute.
+    //sem isso o jsp guarda algo que não existe, e os selects aparecem vazios.
+    private void abrirCadastro(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            request.setAttribute("produtos", produtoDAO.read());
+            request.setAttribute("usuarios", usuarioDAO.read());
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao carregar produtos e usuários para o formulário.", sqle);
+        }
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_usuario.jsp").forward(request, response);
+    }
 
     //create
     @Override
@@ -32,14 +51,19 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             //Aqui o if barra se qualquer campo estiver vazio.
 
             request.setAttribute("erro", "Preencha todos os campos obrigatórios.");
-            request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
-
+            abrirCadastro(request, response);
             return;
         }
 
         try {
             int idProduto = Integer.parseInt(idProdutoTexto);
             int idUsuario = Integer.parseInt(idUsuarioTexto);
+
+            if (produtoUsuarioDAO.existeVinculo(idProduto, idUsuario)) {
+                request.setAttribute("erro", "Este produto já está vinculado a este usuário.");
+                abrirCadastro(request, response);
+                return;
+            }
 
             ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
 
@@ -48,15 +72,16 @@ public class ProdutoUsuarioServlet extends HttpServlet {
                 //O getContextPath devolve o nome da aplicação (o nome do VENUS na URL).
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o produto do usuário.");
-                request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+                abrirCadastro(request, response);
+
             }
         } catch (NumberFormatException nfe) {
             request.setAttribute("erro", "Dados inválidos. Selecione o produto e o usuário e tente novamente.");
-            request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+            abrirCadastro(request, response);
         } catch (SQLException sqle) {
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Produto ou usuário não existe, ou o registro já está cadastrado.");
-                request.getRequestDispatcher("/cadastro_produto_usuario.jsp").forward(request, response);
+                abrirCadastro(request, response);
                 //se o erro for por causa dos dados informados, então a resposta voltará ao formulário cm uma mensagem.
             } else {
                 throw new ServletException("Erro ao cadastrar produto do usuário.", sqle);
@@ -70,15 +95,21 @@ public class ProdutoUsuarioServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        //abrir o formulário pelo servlet.
+        if ("novo".equals(request.getParameter("acao"))) {
+            abrirCadastro(request, response);
+            return;
+        }
+
         String idUsuarioTexto = request.getParameter("idUsuario"); //aqui filtrará por usuário.
 
         try {
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
-                ArrayList<ProdutoUsuario> listaUsuarios = produtoUsuarioDAO.readByIdUsuario(idUsuario);
+                ArrayList<ProdutoUsuario> listaDoUsuario = produtoUsuarioDAO.readByIdUsuario(idUsuario);
 
-                request.setAttribute("produtosUsuarios", listaUsuarios);
-                request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+                request.setAttribute("produtosUsuarios", listaDoUsuario);
+                request.getRequestDispatcher("/WEB-INF/views/lista_produto_usuario.jsp").forward(request, response);
                 return;
                 //Return serve para o código não continuar executando as linhas seguintes.
             }
@@ -86,7 +117,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.read();
             //Guarda todos os registros de produto_usuario em uma lista.
             request.setAttribute("produtosUsuarios", listaProdutoUsuarios);
-            request.getRequestDispatcher("/lista_produto_usuario.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/lista_produto_usuario.jsp").forward(request, response);
             //o código guarda a lista com setAttribute e faz o forward para o JSP, que percorre ${produtosUsuarios} para montar a tabela.
         } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
@@ -100,7 +131,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
         String idTexto = request.getParameter("id");
