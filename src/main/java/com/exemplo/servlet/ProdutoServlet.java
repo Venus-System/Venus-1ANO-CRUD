@@ -57,17 +57,17 @@ public class ProdutoServlet extends HttpServlet {
         listaIngredientes = listaIngredientes == null ? "" : listaIngredientes.trim();
 
         if (!Validador.nomeProdutoValido(nome)) {
-            request.setAttribute("erro", "Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.setAttribute("erro", "Nome do produto inválido. Use de 2 a 60 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
-        if (!Validador.nomeProdutoValido(marca)) {
-            request.setAttribute("erro", "Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+        if (!Validador.nomeProdutoValido(marca) || marca.length() > 50) {
+            request.setAttribute("erro", "Marca inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
-        if (!Validador.nomeProdutoValido(categoria)) {
-            request.setAttribute("erro", "Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+        if (!Validador.nomeProdutoValido(categoria) || categoria.length() > 50) {
+            request.setAttribute("erro", "Categoria inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
@@ -214,17 +214,17 @@ public class ProdutoServlet extends HttpServlet {
             //aqui entram as validações.
             if (!Validador.nomeProdutoValido(nome)) {
                 response.setStatus(400);
-                response.getWriter().write("Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Nome do produto inválido. Use de 2 a 60 caracteres, começando por letra ou número.");
                 return;
             }
-            if (!Validador.nomeProdutoValido(marca)) {
+            if (!Validador.nomeProdutoValido(marca) || marca.length() > 50) {
                 response.setStatus(400);
-                response.getWriter().write("Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Marca inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
                 return;
             }
-            if (!Validador.nomeProdutoValido(categoria)) {
+            if (!Validador.nomeProdutoValido(categoria) || categoria.length() > 50) {
                 response.setStatus(400);
-                response.getWriter().write("Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Categoria inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
                 return;
             }
             if (!Validador.pontuacaoValida(pontuacao)) {

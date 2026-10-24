@@ -23,7 +23,7 @@ public class ProdutoIngredienteDAO {
     }
 
     public ArrayList<ProdutoIngrediente> read() throws SQLException {
-        String sql = "select * from produto_ingrediente order by id_produto = ?";
+        String sql = "select * from produto_ingrediente order by id_produto";
         ArrayList<ProdutoIngrediente> produtosIngrediente = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();

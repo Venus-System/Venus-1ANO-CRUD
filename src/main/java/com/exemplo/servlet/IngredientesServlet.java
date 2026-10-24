@@ -148,6 +148,12 @@ public class IngredientesServlet extends HttpServlet {
             String tipo = json.get("tipo").getAsString();
             String tipoLimpo = tipo.trim();
 
+            if (tipoLimpo.isBlank()) {
+                response.setStatus(400);
+                response.getWriter().write("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
             if (!Validador.tipoIngredienteValido(tipoLimpo)) {
                 response.setStatus(400);
                 response.getWriter().write("Tipo inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
@@ -162,12 +168,6 @@ public class IngredientesServlet extends HttpServlet {
 
             Ingredientes ingredientes = new Ingredientes(id, nivelPerigo, tipoLimpo);
 
-            if (tipo.isBlank()) {
-                response.setStatus(400);
-                response.getWriter().write("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
             int linhas = ingredientesDAO.alterarValores(ingredientes);
 
             if (linhas > 0) {
@@ -176,6 +176,9 @@ public class IngredientesServlet extends HttpServlet {
                 response.setStatus(404);
                 response.getWriter().write("Ingrediente não encontrado.");
             }
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
+            response.setStatus(400);
+            response.getWriter().write("Dados inválidos.");
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
             if ("23514".equals(estado) || "23502".equals(estado)) {

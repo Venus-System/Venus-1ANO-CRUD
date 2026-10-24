@@ -1,0 +1,27 @@
+.titulo em {
+  font-style: normal;
+  color: #a81367;
+}
+
+.forca-senha {
+  font-size: 0.6875rem;
+  line-height: 1.125rem;
+  color: var(--cor-texto-lilas);
+}
+
+.forca-senha__barras {
+  display: flex;
+  gap: 0.3125rem;
+  margin-bottom: 0.25rem;
+}
+
+.forca-senha__barras i {
+  flex: 1;
+  height: 0.25rem;
+  background-color: #eee5f7;
+  border-radius: 0.1875rem;
+}
+
+.botao--cadastrar {
+  margin-top: 1.8125rem;
+}

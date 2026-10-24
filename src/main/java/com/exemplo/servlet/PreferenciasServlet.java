@@ -42,7 +42,7 @@ public class PreferenciasServlet extends HttpServlet {
         String idUsuarioTexto = request.getParameter("idUsuario");
 
         //igual ao produto sobre ehVegano
-        boolean prefereVegano = request.getParameter("preferevegano") != null;
+        boolean prefereVegano = request.getParameter("prefereVegano") != null;
 
         String erro = null;
 

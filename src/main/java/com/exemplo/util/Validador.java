@@ -9,7 +9,7 @@ public class Validador {
 
     private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
 
-    private static final Pattern TELEFONE = Pattern.compile("^\\(?\\d{2}\\)?\\s?9?\\d{4}-?\\d{4}$");
+    private static final Pattern TELEFONE = Pattern.compile("^\\d{10,13}$");
 
     private static final Pattern SENHA = Pattern.compile("^.{6,}$");
 
@@ -21,7 +21,20 @@ public class Validador {
     }
 
     public static boolean telefoneValido(String telefone) {
-        return telefone == null || telefone.isBlank() || TELEFONE.matcher(telefone).matches();
+        return telefone != null && TELEFONE.matcher(telefone).matches();
+    }
+
+    public static String somenteNumeros(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto.replaceAll("[^0-9]", "");
+    }
+
+    public static boolean generoValido(String genero) {
+        return genero == null || genero.isBlank()
+                || genero.equals("Feminino") || genero.equals("Masculino")
+                || genero.equals("Outro") || genero.equals("Prefiro não informar");
     }
 
     public static boolean senhaValida(String senha) {
@@ -33,7 +46,11 @@ public class Validador {
         return nascimento != null && !nascimento.isAfter(LocalDate.now().minusYears(anos));
     }
 
-    // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 100 caracteres)
+    public static boolean nascimentoDepoisDe1900(LocalDate nascimento) {
+        return nascimento != null && nascimento.isAfter(LocalDate.of(1900, 1, 1));
+    }
+
+    // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 60 caracteres)
     private static final Pattern NOME_PRODUTO = Pattern.compile("^[\\p{L}\\d][\\p{L}\\d '()/.,&+%-]{1,59}$");
     //o pattern é uma classe que guarda o regex já compilado. (o modelo de texto que eu quiser aceitar)
     public static boolean nomeProdutoValido(String texto) {
@@ -78,11 +95,13 @@ public class Validador {
         return texto == null || texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches();
     }
 
-    private static final Pattern TIPO_PELE =
-            Pattern.compile("^\\p{L}[\\p{L} /\\-]{1,49}$");
-
     public static boolean tipoPeleValido(String tipo) {
-        return tipo != null && TIPO_PELE.matcher(tipo.trim()).matches();
+        if (tipo == null) {
+            return false;
+        }
+        String t = tipo.trim();
+        return t.equals("Seca") || t.equals("Oleosa") || t.equals("Sensível")
+                || t.equals("Mista") || t.equals("Normal");
     }
 
     public static boolean escalaValida(int valor) {
@@ -102,7 +121,13 @@ public class Validador {
     }
 
     public static boolean pontuacaoAnaliseValida(int valor) {
-        return valor >= 0 && valor <= 100;
+        return valor >= 0 && valor <= 10;
+    }
+
+    private static final Pattern ID = Pattern.compile("^[1-9]\\d{0,8}$");
+
+    public static boolean idValido(String texto) {
+        return texto != null && ID.matcher(texto.trim()).matches();
     }
 
 }

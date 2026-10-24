@@ -3,49 +3,186 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="tituloPagina" value="Usuários"/>
 <c:set var="paginaAtiva" value="usuarios"/>
-<%@ include file="/WEB-INF/views/topo.jspf" %>
+<c:set var="descricaoTopo" value="Aqui você pode gerenciar as pessoas que usam a plataforma."/>
+<c:set var="visualNovo" value="true"/>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<c:set var="primeiroNome" value="${fn:substringBefore(sessionScope.usuarioLogado.nomeCompleto.concat(' '), ' ')}"/>
+<c:if test="${empty primeiroNome}"><c:set var="primeiroNome" value="Visitante"/></c:if>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><c:out value="${tituloPagina}"/> | Venus</title>
+    <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-<div class="page-heading">
-    <div>
-        <h1>Gerenciamento de usuários</h1>
-        <p>Gerencie os usuários cadastrados na plataforma.</p>
-    </div>
-    <div class="heading-actions">
-        <a class="btn secondary" href="${ctx}/produtoUsuarios">Produtos dos usuários</a>
-        <a class="btn secondary" href="${ctx}/alergias">Catálogo de alergias</a>
-        <a class="btn secondary" href="${ctx}/preferencias?idUsuario=${u.idUsuario}">Preferências</a>
-        <a class="btn primary" href="${ctx}/usuarios?acao=novo">
-            <span class="figma-icon" style="--icon-size:20px"><img
-                    src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
-            Adicionar novo usuário
+    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
+
+    <link rel="stylesheet" href="${ctx}/assets/css/global.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
+
+    <c:if test="${not empty cssPagina}">
+        <link rel="stylesheet" href="${ctx}/assets/css/paginas/${cssPagina}">
+    </c:if>
+
+    <c:if test="${visualNovo != 'true'}">
+        <link rel="stylesheet" href="${ctx}/assets/css/venus.css">
+    </c:if>
+
+    <script src="${ctx}/assets/js/painel.js" defer></script>
+</head>
+<body class="pagina-painel" data-usuario="${sessionScope.usuarioLogado.idUsuario}">
+<div id="layout">
+
+    <button class="menu-fundo" type="button" aria-label="Fechar menu" tabindex="-1"></button>
+
+    <aside id="menu-lateral">
+        <button class="fechar-menu" type="button">Fechar menu</button>
+
+        <a class="menu-lateral__marca" href="${ctx}/dashboard">
+            <img src="${ctx}/assets/img/icones-crud/logo-painel.svg" alt="" width="43" height="47">
+            <span>
+                <span class="menu-lateral__nome">Venus</span>
+                <span class="menu-lateral__subtitulo">Painel Administrativo</span>
+            </span>
         </a>
-    </div>
-</div>
 
-<section class="stats" aria-label="Indicadores">
-    <article class="stat" data-icon-kind="usuarios">
-        <span class="bubble" aria-hidden="true">
-            <span class="figma-icon" style="--icon-size:33px"><img
-                    src="${ctx}/assets/114998ae-07f2-474e-a199-3038b9bbeb93.svg" alt=""></span>
-        </span>
+        <nav aria-label="Menu do painel">
+            <ul class="menu-lateral__lista">
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/dashboard" ${paginaAtiva == 'dashboard' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-dashboard.svg" alt="">
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/usuarios" ${paginaAtiva == 'usuarios' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-usuarios.svg" alt="">
+                        Usuários
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/produtos" ${paginaAtiva == 'produtos' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-produtos.svg" alt="">
+                        Produtos
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/ingredientes" ${paginaAtiva == 'ingredientes' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-ingredientes.svg" alt="">
+                        Ingredientes
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/analises" ${paginaAtiva == 'analises' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/card-analises.svg" alt="">
+                        Análises
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/alergias" ${paginaAtiva == 'alergias' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/ingredientes-atencao.svg" alt="">
+                        Alergias
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
+                        Perfil
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <a class="menu-lateral__link menu-lateral__sair" href="${ctx}/sair">
+            <img src="${ctx}/assets/img/icones-crud/sair.svg" alt="">
+            Sair
+        </a>
+    </aside>
+
+    <div id="area-principal">
+        <header class="topo">
+            <button class="botao-hamburguer" type="button" aria-label="Abrir menu"
+                    aria-controls="menu-lateral" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="topo__texto">
+
+                <p class="topo__saudacao">Olá, <span data-perfil-nome="${fn:escapeXml(primeiroNome)}"><c:out value="${primeiroNome}"/></span>!</p>
+                <small class="topo__descricao">
+                    <c:out value="${empty descricaoTopo ? 'Aqui você gerencia os dados da plataforma.' : descricaoTopo}"/>
+                </small>
+            </div>
+
+            <a class="topo__perfil" href="${ctx}/perfil" aria-label="Abrir meu perfil">
+                <img class="topo__perfil-foto" src="${ctx}/assets/img/icones-crud/avatar.svg" alt="" width="34" height="34">
+                <span class="topo__perfil-nome">
+                    <span data-perfil-nome="${fn:escapeXml(primeiroNome)}"><c:out value="${primeiroNome}"/></span>
+                    <small class="topo__perfil-cargo">Admin</small>
+                </span>
+            </a>
+        </header>
+
+        <main id="conteudo">
+
+<c:set var="feminino" value="0"/>
+<c:set var="masculino" value="0"/>
+<c:forEach var="u" items="${usuarios}">
+    <c:if test="${u.genero == 'Feminino'}"><c:set var="feminino" value="${feminino + 1}"/></c:if>
+    <c:if test="${u.genero == 'Masculino'}"><c:set var="masculino" value="${masculino + 1}"/></c:if>
+</c:forEach>
+
+<section class="cabecalho-pagina">
+    <div>
+        <h1 class="cabecalho-pagina__titulo">Usuários</h1>
+        <p class="cabecalho-pagina__texto">Gerencie as pessoas cadastradas na plataforma.</p>
+    </div>
+    <a class="btn btn--painel btn--roxo" href="${ctx}/usuarios?acao=novo">
+        <img src="${ctx}/assets/img/icones-crud/adicionar-usuario.svg" alt="">
+        Adicionar usuário
+    </a>
+</section>
+
+<section class="resumo" aria-label="Resumo dos usuários">
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/usuarios-total.svg" alt=""></span>
         <div>
-            <span class="stat-label">Usuários totais</span>
-            <strong>${usuarios.size()}</strong>
+            <span class="resumo__rotulo">Usuários cadastrados</span>
+            <strong class="resumo__numero">${fn:length(usuarios)}</strong>
+        </div>
+    </article>
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt=""></span>
+        <div>
+            <span class="resumo__rotulo">Feminino</span>
+            <strong class="resumo__numero">${feminino}</strong>
+        </div>
+    </article>
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/usuarios-inativos.svg" alt=""></span>
+        <div>
+            <span class="resumo__rotulo">Masculino</span>
+            <strong class="resumo__numero">${masculino}</strong>
         </div>
     </article>
 </section>
 
-<div class="toolbar">
-    <label class="search">
-        <span class="figma-icon" style="--icon-size:16px"><img
-                src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
-        <input id="busca" type="search" aria-label="Buscar usuários" placeholder="Buscar por nome ou e-mail...">
+<div class="filtros">
+    <label class="busca">
+        <img src="${ctx}/assets/img/icones-crud/buscar.svg" alt="">
+        <input type="search" data-busca="tabela-usuarios" aria-label="Buscar usuários"
+               placeholder="Buscar por nome, e-mail ou telefone...">
     </label>
 </div>
 
-<section class="table-panel">
-    <div class="table-scroll" role="region" aria-label="Tabela de usuários" tabindex="0">
-        <table id="tabela-usuarios">
+<section class="tabela-painel">
+    <div class="tabela-painel__rolagem">
+        <table class="tabela" id="tabela-usuarios">
+            <caption class="sr-only">Lista de usuários</caption>
             <thead>
             <tr>
                 <th scope="col">Usuário</th>
@@ -61,39 +198,29 @@
             <c:forEach var="u" items="${usuarios}">
                 <tr>
                     <td>
-                        <div class="user-cell">
-                            <img src="${ctx}/assets/155edb06-a3f3-4451-933a-96518d45898a.svg" alt="">
-                            <span><c:out value="${u.nomeCompleto}"/></span>
+                        <div class="celula-foto">
+                            <img src="${ctx}/assets/img/icones-crud/avatar.svg" alt="">
+
+                            <a class="link-usuario" href="${ctx}/usuarioDetalhe?id=${u.idUsuario}">
+                                <c:out value="${u.nomeCompleto}"/>
+                                <span class="link-usuario__detalhe">Ver detalhes →</span>
+                            </a>
                         </div>
                     </td>
                     <td><c:out value="${u.email}"/></td>
-                    <td><c:out value="${u.genero}"/></td>
+                    <td><c:out value="${empty u.genero ? '—' : u.genero}"/></td>
                     <td><c:out value="${u.telefone}"/></td>
                     <td data-data="${u.dtNascimento}">${u.dtNascimento}</td>
                     <td data-data="${u.dtCadastro}">${u.dtCadastro}</td>
                     <td>
-                        <div class="actions">
-                            <a class="icon-btn" href="${ctx}/usuarios?id=${u.idUsuario}" aria-label="Editar ${fn:escapeXml(u.nomeCompleto)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
+                        <div class="acoes">
+                            <a class="botao-icone" href="${ctx}/usuarios?id=${u.idUsuario}" title="Editar">
+                                <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="Editar ${fn:escapeXml(u.nomeCompleto)}">
                             </a>
-                            <a class="btn secondary"
-                               href="${ctx}/usuarioAlergias?idUsuario=${u.idUsuario}">Alergias</a>
-                            <a class="icon-btn" style="padding:0 10px"
-                               href="${ctx}/produtoUsuarios?idUsuario=${u.idUsuario}"
-                               aria-label="Produtos de ${fn:escapeXml(u.nomeCompleto)}">Produtos</a>
-                            <a class="icon-btn" style="padding:0 10px"
-                               href="${ctx}/preferencias?idUsuario=${u.idUsuario}"
-                               aria-label="Preferências de ${fn:escapeXml(u.nomeCompleto)}">Preferências</a>
-                            <a class="icon-btn" style="padding:0 10px"
-                               href="${ctx}/perfisPele?idUsuario=${u.idUsuario}"
-                               aria-label="Perfil de pele de ${fn:escapeXml(u.nomeCompleto)}">Perfil de pele</a>
-                            <a class="icon-btn" style="padding:0 10px"
-                               href="${ctx}/perfisCabelo?idUsuario=${u.idUsuario}"
-                               aria-label="Perfil de cabelo de ${fn:escapeXml(u.nomeCompleto)}">Perfil de cabelo</a>
-                            <a class="icon-btn" style="padding:0 10px"
-                               href="${ctx}/analises?idUsuario=${u.idUsuario}"
-                               aria-label="Análises de ${fn:escapeXml(u.nomeCompleto)}">Análises</a>
-                            <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                            <button class="botao-icone botao-icone--excluir" type="button" title="Excluir"
+                                    data-excluir-url="${ctx}/usuarios?id=${u.idUsuario}"
+                                    data-excluir-nome="${fn:escapeXml(u.nomeCompleto)}">
+                                <img src="${ctx}/assets/img/icones-crud/excluir.svg" alt="Excluir ${fn:escapeXml(u.nomeCompleto)}">
                             </button>
                         </div>
                     </td>
@@ -101,7 +228,7 @@
             </c:forEach>
             <c:if test="${empty usuarios}">
                 <tr>
-                    <td colspan="7" class="empty">Nenhum usuário cadastrado.</td>
+                    <td colspan="7" class="tabela__vazia">Nenhum usuário cadastrado.</td>
                 </tr>
             </c:if>
             </tbody>
@@ -109,39 +236,43 @@
     </div>
 </section>
 
-<script>
-    // Datas ISO (2026-10-14) -> 14/10/2026
-    document.querySelectorAll('[data-data]').forEach(function (td) {
-        var iso = td.getAttribute('data-data');
-        if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
-            td.textContent = new Intl.DateTimeFormat('pt-BR').format(new Date(iso + 'T12:00:00'));
-        }
-    });
+<dialog id="popup-excluir" class="popup" aria-labelledby="titulo-excluir">
+    <header class="popup__topo">
+        <h2 id="titulo-excluir" class="popup__titulo">Excluir registro?</h2>
+        <button class="popup__fechar" type="button" aria-label="Fechar janela" data-fechar-popup>
+            <img src="${ctx}/assets/img/icones-crud/fechar.svg" alt="">
+        </button>
+    </header>
 
-    // Busca na própria página (nome, e-mail, etc.)
-    document.getElementById('busca').addEventListener('input', function (e) {
-        var termo = e.target.value.toLowerCase();
-        document.querySelectorAll('#tabela-usuarios tbody tr').forEach(function (tr) {
-            if (tr.querySelector('.empty')) return;
-            tr.style.display = tr.textContent.toLowerCase().indexOf(termo) >= 0 ? '' : 'none';
-        });
-    });
+    <p class="registro-selecionado"></p>
+    <p class="popup__texto">Essa ação não pode ser desfeita.</p>
 
-    // Exclusão: chama o doDelete do UsuarioServlet
-    document.querySelectorAll('[data-excluir]').forEach(function (botao) {
-        botao.addEventListener('click', async function () {
-            if (!confirm('Excluir este usuário?')) return;
-            var resp = await fetch('${ctx}/usuarios?id=' + botao.dataset.excluir, {method: 'DELETE'});
+    <p class="popup__erro" role="alert" hidden></p>
 
-            if (resp.ok) {
-                location.reload();
-            } else if (resp.status >= 500) {
-                alert('Erro no servidor. Tente novamente.');
-            } else {
-                alert(await resp.text());
-            }
-        });
-    });
-</script>
+    <div class="popup__botoes">
+        <button class="btn btn--painel" type="button" data-fechar-popup>Cancelar</button>
+        <button class="btn btn--painel btn--perigo" type="button" data-confirmar-exclusao>Sim, excluir</button>
+    </div>
+</dialog>
+        </main>
 
-<%@ include file="/WEB-INF/views/rodape.jspf" %>
+        <footer class="rodape-painel">
+            &copy; 2026 Venus · Painel administrativo
+        </footer>
+    </div>
+</div>
+
+<dialog id="popup-erro" class="popup" aria-labelledby="titulo-erro">
+    <header class="popup__topo">
+        <h2 id="titulo-erro" class="popup__titulo">Algo deu errado</h2>
+        <button class="popup__fechar" type="button" aria-label="Fechar janela" data-fechar-popup>
+            <img src="${ctx}/assets/img/icones-crud/fechar.svg" alt="">
+        </button>
+    </header>
+    <p id="texto-erro" class="popup__texto"></p>
+    <div class="popup__botoes">
+        <button class="btn btn--painel btn--roxo" type="button" data-fechar-popup>Entendi</button>
+    </div>
+</dialog>
+</body>
+</html>

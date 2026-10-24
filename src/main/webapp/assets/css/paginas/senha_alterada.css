@@ -1,0 +1,35 @@
+.conteudo {
+  width: 36.25rem;
+  max-width: none;
+  padding-top: 15rem;
+}
+
+.titulo {
+  margin: 0.9375rem 0 1.875rem;
+}
+
+.titulo span {
+  color: #640bb3;
+}
+
+.texto-intro {
+  font-size: 0.75rem;
+  color: var(--cor-texto-lilas);
+}
+
+.botao--principal {
+  width: 26.875rem;
+  max-width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .conteudo {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .conteudo {
+    padding-top: 3.125rem;
+  }
+}

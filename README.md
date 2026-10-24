@@ -29,6 +29,20 @@ O código é organizado separando responsabilidades em pacotes:
 - `dao/` — camada de acesso a dados (Data Access Object), responsável pela comunicação com o PostgreSQL via JDBC
 - `model/` — classes que representam as entidades do banco de dados
 
+Telas e arquivos do site:
+
+- `banco/venus.sql` — cria as tabelas e coloca os dados de exemplo (PostgreSQL)
+- `src/main/webapp/index.html` — landing page
+- `src/main/webapp/WEB-INF/views/` — telas do painel (JSP), abertas pelos Servlets
+- `src/main/webapp/assets/` — CSS, imagens e JavaScript (mesmo visual na landing e no painel)
+
+## ▶️ Como rodar
+
+1. No PostgreSQL, crie um banco vazio (ex.: `venus`) e rode o arquivo `banco/venus.sql` inteiro.
+2. Copie `.env.example` para `.env` e coloque o endereço, o usuário e a senha do seu banco.
+3. Rode o projeto no IntelliJ com o **Tomcat 11** (o projeto usa Servlet 6.1).
+4. Abra `http://localhost:8080/venus/` → landing. O botão **Login** abre a tela de login (`/login`); depois de entrar com e-mail e senha da tabela `usuario`, abre o Dashboard.
+
 ## ✅ Funcionalidades
 
 - CRUD completo em pelo menos três tabelas do banco de dados

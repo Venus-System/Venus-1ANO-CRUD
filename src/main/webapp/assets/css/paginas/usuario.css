@@ -1,0 +1,128 @@
+.link-voltar {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  color: #8c50db;
+}
+
+.perfil-usuario {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.perfil-usuario__foto {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.perfil-usuario__dados {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.perfil-usuario__nome {
+  margin-bottom: 0.35rem;
+  font-size: 1.15rem;
+}
+
+.perfil-usuario__info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  font-size: 0.75rem;
+  color: var(--painel-texto-suave);
+}
+
+.abas {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  color: var(--painel-texto);
+  background-color: var(--painel-superficie);
+  border: 1px solid var(--painel-borda);
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.aba:hover {
+  border-color: #8c50db;
+}
+
+.aba[aria-selected="true"] {
+  color: #ffffff;
+  background-color: #8c50db;
+  border-color: #8c50db;
+}
+
+.aba__total {
+  min-width: 1.4rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-align: center;
+  color: #8655bd;
+  background-color: #eadffb;
+  border-radius: 1rem;
+}
+
+.aba[aria-selected="true"] .aba__total {
+  color: #8c50db;
+  background-color: #ffffff;
+}
+
+.cartoes-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.cartao-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid var(--painel-borda);
+  border-radius: 0.75rem;
+}
+
+.cartao-info__rotulo {
+  font-size: 0.6875rem;
+  color: var(--painel-texto-suave);
+}
+
+.cartao-info__valor {
+  font-size: 1.1rem;
+}
+
+.aba-vazia {
+  padding: 1.5rem 0;
+  font-size: 0.8125rem;
+  text-align: center;
+  color: var(--painel-texto-suave);
+}
+
+@media (min-width: 48rem) {
+  .abas {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .cartoes-info {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

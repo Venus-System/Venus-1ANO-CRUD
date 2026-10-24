@@ -62,15 +62,21 @@ public class UsuarioServlet extends HttpServlet {
             return;
         }
 
-        if (telefone != null) {
-            telefone = telefone.trim();
-            //email em espaços extras.
-        }
+        telefone = Validador.somenteNumeros(telefone);
 
         if (!Validador.telefoneValido(telefone)) {
-            request.setAttribute("erro", "Telefone inválido. Use DDD e número.");
+            request.setAttribute("erro", "Telefone inválido. Use DDD e número (10 a 13 dígitos).");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
+        }
+
+        if (!Validador.generoValido(genero)) {
+            request.setAttribute("erro", "Gênero inválido.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
+        if (genero != null && genero.isBlank()) {
+            genero = null;
         }
         if (!Validador.senhaValida(senha)) {
             request.setAttribute("erro", "A senha deve ter pelo menos 6 caracteres.");
@@ -82,6 +88,11 @@ public class UsuarioServlet extends HttpServlet {
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
             LocalDate dtCadastro = LocalDate.now();
 
+            if (!Validador.nascimentoDepoisDe1900(dtNascimento)) {
+                request.setAttribute("erro", "Data de nascimento inválida. Use uma data depois de 01/01/1900.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+                return;
+            }
             if (!Validador.idadeMinimaValida(dtNascimento, 18)) {
                 request.setAttribute("erro", "É necessário ter pelo menos 18 anos.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
@@ -119,8 +130,11 @@ public class UsuarioServlet extends HttpServlet {
             //no console do Tomcat aparece a mensagem de erro. Quem usa o site não vê isso.
             getServletContext().log("Erro SQL ao cadastrar usuário", sqle);
 
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+            if ("23505".equals(sqle.getSQLState())) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
+                request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            } else if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                request.setAttribute("erro", "O banco não aceitou algum dado. Confira telefone, gênero e data de nascimento.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             } else {
                 throw new ServletException("Erro ao cadastrar usuário.", sqle);
@@ -199,7 +213,7 @@ public class UsuarioServlet extends HttpServlet {
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
             String email = json.get("email").getAsString().trim().toLowerCase();
-            String telefone = json.get("telefone").getAsString().trim();
+            String telefone = Validador.somenteNumeros(json.get("telefone").getAsString());
             String dtNascimentoTexto = json.get("dt_nascimento").getAsString();
 
 
@@ -217,12 +231,25 @@ public class UsuarioServlet extends HttpServlet {
             }
             if (!Validador.telefoneValido(telefone)) {
                 response.setStatus(400);
-                response.getWriter().write("Telefone inválido. Use DDD e número.");
+                response.getWriter().write("Telefone inválido. Use DDD e número (10 a 13 dígitos).");
                 return;
+            }
+            if (!Validador.generoValido(genero)) {
+                response.setStatus(400);
+                response.getWriter().write("Gênero inválido.");
+                return;
+            }
+            if (genero.isBlank()) {
+                genero = null;
             }
 
             LocalDate dtNascimento = LocalDate.parse(dtNascimentoTexto);
 
+            if (!Validador.nascimentoDepoisDe1900(dtNascimento)) {
+                response.setStatus(400);
+                response.getWriter().write("Data de nascimento inválida. Use uma data depois de 01/01/1900.");
+                return;
+            }
             if (!Validador.idadeMinimaValida(dtNascimento, 18)) {
                 response.setStatus(400);
                 response.getWriter().write("É necessário ter pelo menos 18 anos.");
@@ -257,9 +284,12 @@ public class UsuarioServlet extends HttpServlet {
         } catch (SQLException sqle) {
             getServletContext().log("Erro SQL ao atualizar usuário", sqle);
             //mostra a causa real no Tomcat caso apareça algum erro inesperado.
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+            if ("23505".equals(sqle.getSQLState())) {
                 response.setStatus(409);
                 response.getWriter().write("Este e-mail já pertence a outro usuário.");
+            } else if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+                response.setStatus(400);
+                response.getWriter().write("O banco não aceitou algum dado. Confira telefone, gênero e data de nascimento.");
             } else {
                 throw new ServletException("Erro ao atualizar o usuário.", sqle);
             }

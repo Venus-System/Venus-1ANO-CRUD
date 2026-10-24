@@ -3,43 +3,193 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="tituloPagina" value="Produtos"/>
 <c:set var="paginaAtiva" value="produtos"/>
-<%@ include file="/WEB-INF/views/topo.jspf" %>
+<c:set var="descricaoTopo" value="Aqui você pode gerenciar os produtos cadastrados na plataforma."/>
+<c:set var="visualNovo" value="true"/>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<c:set var="primeiroNome" value="${fn:substringBefore(sessionScope.usuarioLogado.nomeCompleto.concat(' '), ' ')}"/>
+<c:if test="${empty primeiroNome}"><c:set var="primeiroNome" value="Visitante"/></c:if>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><c:out value="${tituloPagina}"/> | Venus</title>
+    <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-<div class="page-heading">
-    <div>
-        <h1>Gerenciamento de produtos</h1>
-        <p>Gerencie os produtos cadastrados na plataforma.</p>
-    </div>
-    <div class="heading-actions">
-        <a class="btn primary" href="${ctx}/produtos?acao=novo">
-            <span class="figma-icon" style="--icon-size:20px"><img src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
-            Adicionar novo produto
+    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
+
+    <link rel="stylesheet" href="${ctx}/assets/css/global.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
+
+    <c:if test="${not empty cssPagina}">
+        <link rel="stylesheet" href="${ctx}/assets/css/paginas/${cssPagina}">
+    </c:if>
+
+    <c:if test="${visualNovo != 'true'}">
+        <link rel="stylesheet" href="${ctx}/assets/css/venus.css">
+    </c:if>
+
+    <script src="${ctx}/assets/js/painel.js" defer></script>
+</head>
+<body class="pagina-painel" data-usuario="${sessionScope.usuarioLogado.idUsuario}">
+<div id="layout">
+
+    <button class="menu-fundo" type="button" aria-label="Fechar menu" tabindex="-1"></button>
+
+    <aside id="menu-lateral">
+        <button class="fechar-menu" type="button">Fechar menu</button>
+
+        <a class="menu-lateral__marca" href="${ctx}/dashboard">
+            <img src="${ctx}/assets/img/icones-crud/logo-painel.svg" alt="" width="43" height="47">
+            <span>
+                <span class="menu-lateral__nome">Venus</span>
+                <span class="menu-lateral__subtitulo">Painel Administrativo</span>
+            </span>
         </a>
-    </div>
-</div>
 
-<section class="stats" aria-label="Indicadores">
-    <article class="stat" data-icon-kind="usuarios">
-        <span class="bubble" aria-hidden="true">
-            <span class="figma-icon" style="--icon-size:33px"><img src="${ctx}/assets/114998ae-07f2-474e-a199-3038b9bbeb93.svg" alt=""></span>
-        </span>
+        <nav aria-label="Menu do painel">
+            <ul class="menu-lateral__lista">
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/dashboard" ${paginaAtiva == 'dashboard' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-dashboard.svg" alt="">
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/usuarios" ${paginaAtiva == 'usuarios' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-usuarios.svg" alt="">
+                        Usuários
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/produtos" ${paginaAtiva == 'produtos' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-produtos.svg" alt="">
+                        Produtos
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/ingredientes" ${paginaAtiva == 'ingredientes' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/menu-ingredientes.svg" alt="">
+                        Ingredientes
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/analises" ${paginaAtiva == 'analises' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/card-analises.svg" alt="">
+                        Análises
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/alergias" ${paginaAtiva == 'alergias' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/ingredientes-atencao.svg" alt="">
+                        Alergias
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
+                        Perfil
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <a class="menu-lateral__link menu-lateral__sair" href="${ctx}/sair">
+            <img src="${ctx}/assets/img/icones-crud/sair.svg" alt="">
+            Sair
+        </a>
+    </aside>
+
+    <div id="area-principal">
+        <header class="topo">
+            <button class="botao-hamburguer" type="button" aria-label="Abrir menu"
+                    aria-controls="menu-lateral" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="topo__texto">
+
+                <p class="topo__saudacao">Olá, <span data-perfil-nome="${fn:escapeXml(primeiroNome)}"><c:out value="${primeiroNome}"/></span>!</p>
+                <small class="topo__descricao">
+                    <c:out value="${empty descricaoTopo ? 'Aqui você gerencia os dados da plataforma.' : descricaoTopo}"/>
+                </small>
+            </div>
+
+            <a class="topo__perfil" href="${ctx}/perfil" aria-label="Abrir meu perfil">
+                <img class="topo__perfil-foto" src="${ctx}/assets/img/icones-crud/avatar.svg" alt="" width="34" height="34">
+                <span class="topo__perfil-nome">
+                    <span data-perfil-nome="${fn:escapeXml(primeiroNome)}"><c:out value="${primeiroNome}"/></span>
+                    <small class="topo__perfil-cargo">Admin</small>
+                </span>
+            </a>
+        </header>
+
+        <main id="conteudo">
+
+<c:set var="veganos" value="0"/>
+<c:set var="crueltyFree" value="0"/>
+<c:forEach var="p" items="${produtos}">
+    <c:if test="${p.ehVegano}"><c:set var="veganos" value="${veganos + 1}"/></c:if>
+    <c:if test="${p.ehCrueltyFree}"><c:set var="crueltyFree" value="${crueltyFree + 1}"/></c:if>
+</c:forEach>
+
+<section class="cabecalho-pagina">
+    <div>
+        <h1 class="cabecalho-pagina__titulo">Produtos</h1>
+        <p class="cabecalho-pagina__texto">Gerencie os produtos cadastrados na plataforma.</p>
+    </div>
+    <a class="btn btn--painel btn--roxo" href="${ctx}/produtos?acao=novo">
+        <img src="${ctx}/assets/img/icones-crud/mais.svg" alt="">
+        Adicionar produto
+    </a>
+</section>
+
+<section class="resumo" aria-label="Resumo dos produtos">
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/produtos-total.svg" alt=""></span>
         <div>
-            <span class="stat-label">Produtos totais</span>
-            <strong>${produtos.size()}</strong>
+            <span class="resumo__rotulo">Produtos encontrados</span>
+            <strong class="resumo__numero">${fn:length(produtos)}</strong>
+        </div>
+    </article>
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/produtos-ativos.svg" alt=""></span>
+        <div>
+            <span class="resumo__rotulo">Veganos</span>
+            <strong class="resumo__numero">${veganos}</strong>
+        </div>
+    </article>
+    <article class="resumo__card">
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/produtos-categorias.svg" alt=""></span>
+        <div>
+            <span class="resumo__rotulo">Cruelty free</span>
+            <strong class="resumo__numero">${crueltyFree}</strong>
         </div>
     </article>
 </section>
 
-<div class="toolbar">
-    <label class="search">
-        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
-        <input id="busca" type="search" aria-label="Buscar produtos" placeholder="Buscar por nome, marca ou categoria...">
+<form class="filtros" method="get" action="${ctx}/produtos">
+    <label class="busca">
+        <img src="${ctx}/assets/img/icones-crud/buscar.svg" alt="">
+        <input type="search" name="nome" aria-label="Buscar por nome do produto"
+               placeholder="Buscar por nome do produto..." value="<c:out value='${param.nome}'/>">
     </label>
-</div>
+    <label class="busca">
+        <img src="${ctx}/assets/img/icones-crud/buscar.svg" alt="">
+        <input type="search" name="marca" aria-label="Buscar por marca"
+               placeholder="Ou buscar por marca..." value="<c:out value='${param.marca}'/>">
+    </label>
+    <button class="btn btn--painel btn--roxo" type="submit">Buscar</button>
+    <a class="btn btn--painel" href="${ctx}/produtos">Limpar</a>
+</form>
 
-<section class="table-panel">
-    <div class="table-scroll" role="region" aria-label="Tabela de produtos" tabindex="0">
-        <table id="tabela-produtos">
+<section class="tabela-painel">
+    <div class="tabela-painel__rolagem">
+        <table class="tabela">
+            <caption class="sr-only">Lista de produtos</caption>
             <thead>
             <tr>
                 <th scope="col">Produto</th>
@@ -54,64 +204,88 @@
             <tbody>
             <c:forEach var="p" items="${produtos}">
                 <tr>
-                    <td><c:out value="${p.nome}"/></td>
+                    <td>
+                        <div class="celula-foto">
+                            <img src="${ctx}/assets/img/icones-crud/produto-recente.svg" alt="">
+                            <span>
+                                <c:out value="${p.nome}"/>
+                                <small class="celula-detalhe">Código: #${p.idProduto}</small>
+                                <span class="links-relacionados">
+                                    <a href="${ctx}/produtoIngredientes?idProduto=${p.idProduto}">Ingredientes do produto</a>
+                                </span>
+                            </span>
+                        </div>
+                    </td>
                     <td><c:out value="${p.marca}"/></td>
                     <td><c:out value="${p.categoria}"/></td>
-                    <td>${p.ehVegano ? 'Sim' : 'Não'}</td>
-                    <td>${p.ehCrueltyFree ? 'Sim' : 'Não'}</td>
+                    <td>
+                        <span class="etiqueta ${p.ehVegano ? 'etiqueta--verde' : ''}">${p.ehVegano ? 'Sim' : 'Não'}</span>
+                    </td>
+                    <td>
+                        <span class="etiqueta ${p.ehCrueltyFree ? 'etiqueta--verde' : ''}">${p.ehCrueltyFree ? 'Sim' : 'Não'}</span>
+                    </td>
                     <td>${p.pontuacao}</td>
                     <td>
-                        <div class="actions">
-                            <a class="icon-btn" href="${ctx}/produtos?id=${p.idProduto}" aria-label="Editar ${fn:escapeXml(p.nome)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
+                        <div class="acoes">
+                            <a class="botao-icone" href="${ctx}/produtos?id=${p.idProduto}" title="Editar">
+                                <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="Editar ${fn:escapeXml(p.nome)}">
                             </a>
-                            <a class="btn" href="${pageContext.request.contextPath}/produtoIngredientes?idProduto=${p.idProduto}">Ingredientes</a>
-                            <button class="icon-btn" type="button" data-excluir="${p.idProduto}" aria-label="Excluir ${fn:escapeXml(p.nome)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                            <button class="botao-icone botao-icone--excluir" type="button" title="Excluir"
+                                    data-excluir-url="${ctx}/produtos?id=${p.idProduto}"
+                                    data-excluir-nome="${fn:escapeXml(p.nome)}">
+                                <img src="${ctx}/assets/img/icones-crud/excluir.svg" alt="Excluir ${fn:escapeXml(p.nome)}">
                             </button>
                         </div>
                     </td>
                 </tr>
             </c:forEach>
             <c:if test="${empty produtos}">
-                <tr><td colspan="7" class="empty">Nenhum produto cadastrado.</td></tr>
+                <tr>
+                    <td colspan="7" class="tabela__vazia">Nenhum produto encontrado.</td>
+                </tr>
             </c:if>
             </tbody>
         </table>
     </div>
 </section>
 
-<script>
-    // Busca na própria página (nome, marca, categoria...)
-    document.getElementById('busca').addEventListener('input', function (e) {
-        var termo = e.target.value.toLowerCase();
-        document.querySelectorAll('#tabela-produtos tbody tr').forEach(function (tr) {
-            if (tr.querySelector('.empty')) return;
-            tr.style.display = tr.textContent.toLowerCase().indexOf(termo) >= 0 ? '' : 'none';
-        });
-    });
+<dialog id="popup-excluir" class="popup" aria-labelledby="titulo-excluir">
+    <header class="popup__topo">
+        <h2 id="titulo-excluir" class="popup__titulo">Excluir registro?</h2>
+        <button class="popup__fechar" type="button" aria-label="Fechar janela" data-fechar-popup>
+            <img src="${ctx}/assets/img/icones-crud/fechar.svg" alt="">
+        </button>
+    </header>
 
-    // Exclusão: chama o doDelete do ProdutoServlet
-    document.querySelectorAll('[data-excluir]').forEach(function (botao) {
-        botao.addEventListener('click', async function () {
-            if (!confirm('Excluir este produto?')) return;
+    <p class="registro-selecionado"></p>
+    <p class="popup__texto">Essa ação não pode ser desfeita.</p>
 
-            try {
-                var resp = await fetch('${ctx}/produtos?id=' + botao.dataset.excluir, {method: 'DELETE'});
+    <p class="popup__erro" role="alert" hidden></p>
 
-                if (resp.ok) {
-                    location.reload();
-                } else if (resp.status >= 500) {
-                    alert('Erro no servidor. Tente novamente.');
-                } else {
-                    // 400, 404, 409 (produto vinculado): o servlet mandou uma frase curta
-                    alert(await resp.text());
-                }
-            } catch (err) {
-                alert('Não foi possível conectar ao servidor.');
-            }
-        });
-    });
-</script>
+    <div class="popup__botoes">
+        <button class="btn btn--painel" type="button" data-fechar-popup>Cancelar</button>
+        <button class="btn btn--painel btn--perigo" type="button" data-confirmar-exclusao>Sim, excluir</button>
+    </div>
+</dialog>
+        </main>
 
-<%@ include file="/WEB-INF/views/rodape.jspf" %>
+        <footer class="rodape-painel">
+            &copy; 2026 Venus · Painel administrativo
+        </footer>
+    </div>
+</div>
+
+<dialog id="popup-erro" class="popup" aria-labelledby="titulo-erro">
+    <header class="popup__topo">
+        <h2 id="titulo-erro" class="popup__titulo">Algo deu errado</h2>
+        <button class="popup__fechar" type="button" aria-label="Fechar janela" data-fechar-popup>
+            <img src="${ctx}/assets/img/icones-crud/fechar.svg" alt="">
+        </button>
+    </header>
+    <p id="texto-erro" class="popup__texto"></p>
+    <div class="popup__botoes">
+        <button class="btn btn--painel btn--roxo" type="button" data-fechar-popup>Entendi</button>
+    </div>
+</dialog>
+</body>
+</html>
