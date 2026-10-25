@@ -1,4 +1,4 @@
-package com.exemplo.paginas;
+package com.exemplo.servlet;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
