@@ -137,15 +137,25 @@
 }
 
 .paginacao__botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 2rem;
   height: 2rem;
-  font-size: 1.1rem;
-  line-height: 1;
+  padding: 0;
   color: #68429c;
   background-color: #f4effc;
   border: 0;
   border-radius: 50%;
   cursor: pointer;
+}
+
+.paginacao__botao svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .paginacao__botao:hover {
@@ -157,14 +167,41 @@
   cursor: default;
 }
 
+.medidor__progresso {
+  appearance: none;
+  border: 0;
+  border-radius: 0.5rem;
+  background-color: #ebe5f3;
+  overflow: hidden;
+}
+
+.medidor__progresso::-webkit-progress-bar {
+  background-color: #ebe5f3;
+  border-radius: 0.5rem;
+}
+
+.medidor__progresso::-webkit-progress-value {
+  background-color: var(--cor-barra, #6043e9);
+  border-radius: 0.5rem;
+}
+
+.medidor__progresso::-moz-progress-bar {
+  background-color: var(--cor-barra, #6043e9);
+  border-radius: 0.5rem;
+}
+
 .medidor__progresso--verde {
-  accent-color: #4faf89;
+  --cor-barra: #4faf89;
 }
 
 .medidor__progresso--amarela {
-  accent-color: #e0b23a;
+  --cor-barra: #e0b23a;
 }
 
 .medidor__progresso--vermelha {
-  accent-color: #d45d79;
+  --cor-barra: #d45d79;
+}
+
+.popup__fechar {
+  border: 0;
 }

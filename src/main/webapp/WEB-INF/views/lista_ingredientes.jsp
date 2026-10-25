@@ -207,9 +207,6 @@
                 <tr>
                     <td>
                         <c:out value="${i.tipo}"/>
-                        <span class="links-relacionados">
-                            <a href="${ctx}/nomeIngredientes?idIngrediente=${i.idIngrediente}">Nomes do ingrediente</a>
-                        </span>
                     </td>
                     <td>
 
@@ -228,6 +225,7 @@
                     <td data-data="${i.dtAtualizacao}">${i.dtAtualizacao}</td>
                     <td>
                         <div class="acoes">
+                            <a class="botao-detalhes" href="${ctx}/nomeIngredientes?idIngrediente=${i.idIngrediente}">+ detalhes</a>
                             <a class="botao-icone" href="${ctx}/ingredientes?id=${i.idIngrediente}" title="Editar">
                                 <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="Editar ${fn:escapeXml(i.tipo)}">
                             </a>

@@ -272,9 +272,11 @@ document.querySelectorAll('#conteudo table').forEach(function (tabela) {
   const caixa = document.createElement('div');
   caixa.className = 'paginacao';
   caixa.innerHTML =
-    '<button class="paginacao__botao" type="button" aria-label="Página anterior">&lsaquo;</button>' +
+    '<button class="paginacao__botao" type="button" aria-label="Página anterior">' +
+    '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 6l-6 6l6 6"/></svg></button>' +
     '<span class="paginacao__texto"></span>' +
-    '<button class="paginacao__botao" type="button" aria-label="Próxima página">&rsaquo;</button>';
+    '<button class="paginacao__botao" type="button" aria-label="Próxima página">' +
+    '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 6l6 6l-6 6"/></svg></button>';
   tabela.parentElement.after(caixa);
 
   const botaoAnterior = caixa.querySelectorAll('.paginacao__botao')[0];

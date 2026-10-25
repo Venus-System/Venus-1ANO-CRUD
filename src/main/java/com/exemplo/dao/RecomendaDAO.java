@@ -110,6 +110,35 @@ public class RecomendaDAO {
         }
     }
 
+    //apaga as recomendações do usuário e escolhe de novo os 5 produtos com maior pontuação
+    //que combinam com as preferências dele (categoria ou marca favorita; se prefere vegano, só veganos).
+    public int recomendarPelasPreferencias(int idUsuario) throws SQLException {
+        String sqlApagar = "delete from recomenda where id_usuario = ?";
+        String sqlInserir = "insert into recomenda (id_produto, id_usuario) "
+                + "select id_produto, ? from ( "
+                + "  select distinct pr.id_produto, pr.pontuacao "
+                + "  from produto pr "
+                + "  join preferencias pf on pf.id_usuario = ? "
+                + "  where ((pf.categorias_pref <> '' and (pr.categoria ilike '%' || pf.categorias_pref || '%' "
+                + "                                     or pf.categorias_pref ilike '%' || pr.categoria || '%')) "
+                + "      or (pf.marcas_fav <> '' and pr.marca ilike pf.marcas_fav)) "
+                + "    and (pf.prefere_vegano = false or pr.eh_vegano = true) "
+                + "  order by pr.pontuacao desc "
+                + "  limit 5 "
+                + ") escolhidos";
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement apagar = cnn.prepareStatement(sqlApagar);
+             PreparedStatement inserir = cnn.prepareStatement(sqlInserir)) {
+            apagar.setInt(1, idUsuario);
+            apagar.executeUpdate();
+
+            inserir.setInt(1, idUsuario);
+            inserir.setInt(2, idUsuario);
+            return inserir.executeUpdate();
+        }
+    }
+
     private Recomenda montar(ResultSet rset) throws SQLException {
         Recomenda recomenda = new Recomenda(rset.getInt("id_produto"), rset.getInt("id_usuario"));
         recomenda.setNomeProduto(rset.getString("nome"));

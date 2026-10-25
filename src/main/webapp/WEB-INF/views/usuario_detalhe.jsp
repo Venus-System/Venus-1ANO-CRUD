@@ -262,7 +262,7 @@
     </div>
     <c:choose>
         <c:when test="${empty recomendas}">
-            <p class="aba-vazia">Nenhum produto recomendado para este usuário.</p>
+            <p class="aba-vazia">Nenhum produto recomendado. As recomendações são feitas a partir das preferências do usuário.</p>
         </c:when>
         <c:otherwise>
             <div class="tabela-painel__rolagem">

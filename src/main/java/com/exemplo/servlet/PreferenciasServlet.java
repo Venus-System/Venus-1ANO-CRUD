@@ -1,6 +1,7 @@
 package com.exemplo.servlet;
 
 import com.exemplo.dao.PreferenciasDAO;
+import com.exemplo.dao.RecomendaDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Preferencias;
 import com.exemplo.util.Validador;
@@ -23,6 +24,7 @@ public class PreferenciasServlet extends HttpServlet {
 
     private final PreferenciasDAO preferenciasDAO = new PreferenciasDAO();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final RecomendaDAO recomendaDAO = new RecomendaDAO();
 
     private String valor(String texto) {
         return texto == null ? "" : texto.trim();
@@ -61,6 +63,7 @@ public class PreferenciasServlet extends HttpServlet {
                 Preferencias preferencias = new Preferencias(faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav, idUsuario);
 
                 if (preferenciasDAO.cadastrarPreferencias(preferencias)) {
+                    recomendaDAO.recomendarPelasPreferencias(idUsuario);
                     response.sendRedirect(request.getContextPath() + "/preferencias");
                     return;
                 }
@@ -187,6 +190,7 @@ public class PreferenciasServlet extends HttpServlet {
             int linhas = preferenciasDAO.update(preferencias);
 
             if (linhas > 0) {
+                recomendaDAO.recomendarPelasPreferencias(preferenciasDAO.readById(id).getIdUsuario());
                 response.setStatus(200);
             } else {
                 response.setStatus(404);
@@ -221,10 +225,15 @@ public class PreferenciasServlet extends HttpServlet {
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
+                Preferencias preferencias = preferenciasDAO.readById(id);
                 linhas = preferenciasDAO.deleteById(id);
+                if (preferencias != null) {
+                    recomendaDAO.recomendarPelasPreferencias(preferencias.getIdUsuario());
+                }
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
                 linhas = preferenciasDAO.deleteByIdUsuario(idUsuario);
+                recomendaDAO.recomendarPelasPreferencias(idUsuario);
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");
