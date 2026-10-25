@@ -68,6 +68,10 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
 
             if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)) {
+                if ("1".equals(request.getParameter("fixo"))) {
+                    response.sendRedirect(request.getContextPath() + "/usuarioDetalhe?id=" + idUsuario + "#produtos");
+                    return;
+                }
                 response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
                 //O getContextPath devolve o nome da aplicação (o nome do VENUS na URL).
             } else {

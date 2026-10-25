@@ -98,3 +98,73 @@
   background: var(--painel-roxo);
   border-color: var(--painel-roxo);
 }
+
+.botao-detalhes {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: #68429c;
+  text-decoration: none;
+  background-color: #f4effc;
+  border: 0;
+  border-radius: 1.25rem;
+  cursor: pointer;
+}
+
+.botao-detalhes:hover {
+  background-color: #e5d8f7;
+}
+
+.fora-da-pagina {
+  display: none;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  font-size: 0.75rem;
+  color: #7f6b9b;
+}
+
+.paginacao[hidden] {
+  display: none;
+}
+
+.paginacao__botao {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #68429c;
+  background-color: #f4effc;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.paginacao__botao:hover {
+  background-color: #e5d8f7;
+}
+
+.paginacao__botao:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.medidor__progresso--verde {
+  accent-color: #4faf89;
+}
+
+.medidor__progresso--amarela {
+  accent-color: #e0b23a;
+}
+
+.medidor__progresso--vermelha {
+  accent-color: #d45d79;
+}

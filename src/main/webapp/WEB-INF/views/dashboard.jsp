@@ -181,21 +181,21 @@
                     <span>Seguros (1 e 2)</span>
                     <span class="legenda__valor">${ingredientesSeguros}</span>
                 </p>
-                <progress class="medidor__progresso" value="${ingredientesSeguros}" max="${totalIngredientes}"></progress>
+                <progress class="medidor__progresso medidor__progresso--verde" value="${ingredientesSeguros}" max="${totalIngredientes}"></progress>
             </li>
             <li class="medidor">
                 <p class="medidor__texto">
                     <span>Em atenção (3)</span>
                     <span class="legenda__valor">${ingredientesAtencao}</span>
                 </p>
-                <progress class="medidor__progresso" value="${ingredientesAtencao}" max="${totalIngredientes}"></progress>
+                <progress class="medidor__progresso medidor__progresso--amarela" value="${ingredientesAtencao}" max="${totalIngredientes}"></progress>
             </li>
             <li class="medidor">
                 <p class="medidor__texto">
                     <span>Alto risco (4 e 5)</span>
                     <span class="legenda__valor">${ingredientesAltoRisco}</span>
                 </p>
-                <progress class="medidor__progresso" value="${ingredientesAltoRisco}" max="${totalIngredientes}"></progress>
+                <progress class="medidor__progresso medidor__progresso--vermelha" value="${ingredientesAltoRisco}" max="${totalIngredientes}"></progress>
             </li>
         </ul>
     </section>
@@ -214,7 +214,7 @@
                         <c:out value="${p.nome}"/>
                         <small class="celula-detalhe"><c:out value="${p.marca}"/> · <c:out value="${p.categoria}"/></small>
                     </span>
-                    <span class="etiqueta etiqueta--roxa">Nota ${p.pontuacao}</span>
+                    <span class="etiqueta ${p.pontuacao >= 80 ? 'etiqueta--verde' : (p.pontuacao >= 35 ? 'etiqueta--amarela' : 'etiqueta--rosa')}">Nota ${p.pontuacao}</span>
                 </li>
             </c:forEach>
             <c:if test="${empty ultimosProdutos}">

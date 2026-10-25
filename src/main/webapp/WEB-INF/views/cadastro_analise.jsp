@@ -157,8 +157,8 @@
         </label>
 
         <label class="form-field">
-            Pontuação (0 a 10)
-            <input type="number" name="pontuacao" min="0" max="10" required
+            Pontuação (0 a 100)
+            <input type="number" name="pontuacao" min="0" max="100" required
                    value="<c:out value='${param.pontuacao}'/>">
         </label>
 

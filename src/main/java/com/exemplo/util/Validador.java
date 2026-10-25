@@ -121,7 +121,7 @@ public class Validador {
     }
 
     public static boolean pontuacaoAnaliseValida(int valor) {
-        return valor >= 0 && valor <= 10;
+        return valor >= 0 && valor <= 100;
     }
 
     private static final Pattern ID = Pattern.compile("^[1-9]\\d{0,8}$");

@@ -140,7 +140,6 @@
     </c:if>
 
     <form method="post" action="${ctx}/produtoIngredientes">
-        <input type="hidden" name="idProduto" value="${param.idProduto}">
         <input type="hidden" name="idProduto" value="<c:out value='${param.idProduto}'/>">
 
         <div class="form-field">

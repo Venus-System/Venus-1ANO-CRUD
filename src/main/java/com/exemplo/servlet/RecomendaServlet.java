@@ -62,6 +62,10 @@ public class RecomendaServlet extends HttpServlet {
                 return;
             }
             recomendaDAO.cadastrarRecomenda(new Recomenda(idProduto, idUsuario));
+            if ("1".equals(request.getParameter("fixo"))) {
+                response.sendRedirect(request.getContextPath() + "/usuarioDetalhe?id=" + idUsuario + "#recomendacoes");
+                return;
+            }
             response.sendRedirect(request.getContextPath() + "/recomendas?idUsuario=" + idUsuario);
         } catch (SQLException sqle) {
             if ("23505".equals(sqle.getSQLState())) {

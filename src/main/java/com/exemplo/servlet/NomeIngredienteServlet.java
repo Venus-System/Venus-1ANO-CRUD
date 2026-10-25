@@ -48,7 +48,7 @@ public class NomeIngredienteServlet extends HttpServlet {
                 NomeIngrediente nomeIngrediente = new NomeIngrediente(nome.trim(), idIngrediente);
 
                 if (nomeIngredienteDAO.cadastrarNomeIngrediente(nomeIngrediente)) {
-                    response.sendRedirect(request.getContextPath() + "/nomeIngredientes");
+                    response.sendRedirect(request.getContextPath() + "/nomeIngredientes?idIngrediente=" + idIngrediente);
                     //sendRedirect --> O navegador faz uma nova requsição para a URL. É usado o doPost depois de cadastrar para o usuário não reenviar o formulário ao atualizar a página.
                     // request.getContextPath --> Devolve o PREFIXO da URL (/Venus2). é necessário no sendRedirect porque o redirect é feito pelo navegador. que interpreta /usuarios como URL sem o nome Venus (app). Com o ContextPath, fica correto.
                     return;

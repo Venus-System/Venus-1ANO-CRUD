@@ -201,10 +201,7 @@
                         <div class="celula-foto">
                             <img src="${ctx}/assets/img/icones-crud/avatar.svg" alt="">
 
-                            <a class="link-usuario" href="${ctx}/usuarioDetalhe?id=${u.idUsuario}">
-                                <c:out value="${u.nomeCompleto}"/>
-                                <span class="link-usuario__detalhe">Ver detalhes →</span>
-                            </a>
+                            <span><c:out value="${u.nomeCompleto}"/></span>
                         </div>
                     </td>
                     <td><c:out value="${u.email}"/></td>
@@ -214,6 +211,7 @@
                     <td data-data="${u.dtCadastro}">${u.dtCadastro}</td>
                     <td>
                         <div class="acoes">
+                            <a class="botao-detalhes" href="${ctx}/usuarioDetalhe?id=${u.idUsuario}">+ detalhes</a>
                             <a class="botao-icone" href="${ctx}/usuarios?id=${u.idUsuario}" title="Editar">
                                 <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="Editar ${fn:escapeXml(u.nomeCompleto)}">
                             </a>

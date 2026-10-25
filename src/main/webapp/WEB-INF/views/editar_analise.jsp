@@ -144,8 +144,8 @@
         </label>
 
         <label class="form-field">
-            Pontuação (0 a 10)
-            <input id="pontuacao" type="number" min="0" max="10" required value="${analise.pontuacao}">
+            Pontuação (0 a 100)
+            <input id="pontuacao" type="number" min="0" max="100" required value="${analise.pontuacao}">
         </label>
 
         <div class="form-actions">

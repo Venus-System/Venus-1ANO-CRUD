@@ -42,7 +42,7 @@ public class AlergiaServlet extends HttpServlet {
 
         if (!Validador.nomeAlergiaValido(nome)) {
             request.setAttribute("erro", "Nome inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
-            request.getRequestDispatcher("src/main/webapp/WEB-INF/views/lista_usuarios.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_alergia.jsp").forward(request, response);
             return;
         }
 

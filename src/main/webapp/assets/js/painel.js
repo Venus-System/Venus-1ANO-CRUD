@@ -256,3 +256,72 @@ document.querySelectorAll('.alerta-erro, .alert-erro').forEach(function (aviso) 
     abrirPopupErro(mensagem);
   }
 });
+
+const LINHAS_POR_PAGINA = 10;
+
+function linhaPassaNaBusca(linha) {
+  return !linha.hidden && linha.style.display !== 'none';
+}
+
+document.querySelectorAll('#conteudo table').forEach(function (tabela) {
+  const corpo = tabela.querySelector('tbody');
+  if (!corpo) {
+    return;
+  }
+
+  const caixa = document.createElement('div');
+  caixa.className = 'paginacao';
+  caixa.innerHTML =
+    '<button class="paginacao__botao" type="button" aria-label="Página anterior">&lsaquo;</button>' +
+    '<span class="paginacao__texto"></span>' +
+    '<button class="paginacao__botao" type="button" aria-label="Próxima página">&rsaquo;</button>';
+  tabela.parentElement.after(caixa);
+
+  const botaoAnterior = caixa.querySelectorAll('.paginacao__botao')[0];
+  const botaoProxima = caixa.querySelectorAll('.paginacao__botao')[1];
+  const texto = caixa.querySelector('.paginacao__texto');
+  let pagina = 1;
+
+  function atualizar() {
+    const linhas = Array.from(corpo.rows).filter(function (linha) {
+      return !linha.querySelector('.tabela__vazia, .empty');
+    });
+    const linhasDaBusca = linhas.filter(linhaPassaNaBusca);
+    const totalDePaginas = Math.max(1, Math.ceil(linhasDaBusca.length / LINHAS_POR_PAGINA));
+
+    if (pagina > totalDePaginas) {
+      pagina = totalDePaginas;
+    }
+
+    linhas.forEach(function (linha) {
+      linha.classList.add('fora-da-pagina');
+    });
+    linhasDaBusca.forEach(function (linha, posicao) {
+      if (Math.floor(posicao / LINHAS_POR_PAGINA) === pagina - 1) {
+        linha.classList.remove('fora-da-pagina');
+      }
+    });
+
+    texto.textContent = 'Página ' + pagina + ' de ' + totalDePaginas;
+    botaoAnterior.disabled = pagina === 1;
+    botaoProxima.disabled = pagina === totalDePaginas;
+    caixa.hidden = linhasDaBusca.length <= LINHAS_POR_PAGINA;
+  }
+
+  botaoAnterior.addEventListener('click', function () {
+    pagina = pagina - 1;
+    atualizar();
+  });
+
+  botaoProxima.addEventListener('click', function () {
+    pagina = pagina + 1;
+    atualizar();
+  });
+
+  document.addEventListener('input', function () {
+    pagina = 1;
+    atualizar();
+  });
+
+  atualizar();
+});

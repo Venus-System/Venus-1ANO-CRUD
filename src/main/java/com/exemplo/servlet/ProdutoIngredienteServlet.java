@@ -46,16 +46,14 @@ public class ProdutoIngredienteServlet extends HttpServlet {
                 ProdutoIngrediente produtoIngrediente = new ProdutoIngrediente(idIngrediente, idProduto);
 
                 if (produtoIngredienteDAO.cadastrarProdutoIngrediente(produtoIngrediente)) {
-                    response.sendRedirect(request.getContextPath() + "/produtoIngredientes");
+                    response.sendRedirect(request.getContextPath() + "/produtoIngredientes?idProduto=" + idProduto);
                     return;
                 }
                 erro = "Não foi possível cadastrar o ingrediente do produto.";
 
             } catch (NumberFormatException nfe) {
-                request.setAttribute("erro", "Dados inválidos. Selecione o produto e o ingrediente e tente novamente.");
-                request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
+                erro = "Dados inválidos. Selecione o produto e o ingrediente e tente novamente.";
             } catch (SQLException sqle) {
-                sqle.printStackTrace();
                 String estado = sqle.getSQLState();
                 if ("23505".equals(estado)) {
                     erro = "Este produto já possui esse ingrediente.";
@@ -65,15 +63,15 @@ public class ProdutoIngredienteServlet extends HttpServlet {
                     throw new ServletException("Erro ao cadastrar ingrediente do produto.", sqle);
                 }
             }
-
-            try {
-                request.setAttribute("ingredientes", ingredientesDAO.read());
-            } catch (SQLException sqle) {
-                throw new ServletException("Erro ao buscar ingredientes", sqle);
-            }
-            request.setAttribute("erro", erro);
-            request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
         }
+
+        try {
+            request.setAttribute("ingredientes", ingredientesDAO.read());
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar ingredientes", sqle);
+        }
+        request.setAttribute("erro", erro);
+        request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
     }
 
 

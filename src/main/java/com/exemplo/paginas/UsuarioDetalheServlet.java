@@ -5,6 +5,7 @@ import com.exemplo.dao.PerfilCabeloDAO;
 import com.exemplo.dao.PerfilPeleDAO;
 import com.exemplo.dao.PreferenciasDAO;
 import com.exemplo.dao.ProdutoUsuarioDAO;
+import com.exemplo.dao.RecomendaDAO;
 import com.exemplo.dao.UsuarioAlergiaDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
@@ -27,6 +28,7 @@ public class UsuarioDetalheServlet extends HttpServlet {
     private final PerfilPeleDAO perfilPeleDAO = new PerfilPeleDAO();
     private final PerfilCabeloDAO perfilCabeloDAO = new PerfilCabeloDAO();
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
+    private final RecomendaDAO recomendaDAO = new RecomendaDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -50,6 +52,7 @@ public class UsuarioDetalheServlet extends HttpServlet {
             request.setAttribute("usuario", usuario);
             request.setAttribute("alergias", usuarioAlergiaDAO.readByIdUsuario(id));
             request.setAttribute("produtos", produtoUsuarioDAO.readByIdUsuario(id));
+            request.setAttribute("recomendas", recomendaDAO.readByIdUsuario(id));
             request.setAttribute("preferencias", preferenciasDAO.readByIdUsuario(id));
             request.setAttribute("perfilPele", perfilPeleDAO.readByIdUsuario(id));
             request.setAttribute("perfilCabelo", perfilCabeloDAO.readByIdUsuario(id));

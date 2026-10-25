@@ -143,17 +143,33 @@
 
     <form method="post" action="${ctx}/recomendas">
         <div class="campos-linha">
-            <label class="campo">
-                Usuário *
-                <select name="idUsuario" required>
-                    <option value="">Selecione...</option>
-                    <c:forEach var="u" items="${usuarios}">
-                        <option value="${u.idUsuario}" ${param.idUsuario == u.idUsuario.toString() ? 'selected' : ''}>
-                            <c:out value="${u.nomeCompleto}"/>
-                        </option>
-                    </c:forEach>
-                </select>
-            </label>
+            <c:choose>
+                <c:when test="${param.fixo == '1'}">
+                    <input type="hidden" name="fixo" value="1">
+                    <input type="hidden" name="idUsuario" value="<c:out value='${param.idUsuario}'/>">
+                    <label class="campo">
+                        Usuário
+                        <c:forEach var="u" items="${usuarios}">
+                            <c:if test="${param.idUsuario == u.idUsuario.toString()}">
+                                <input type="text" value="<c:out value='${u.nomeCompleto}'/>" readonly>
+                            </c:if>
+                        </c:forEach>
+                    </label>
+                </c:when>
+                <c:otherwise>
+                    <label class="campo">
+                        Usuário *
+                        <select name="idUsuario" required>
+                            <option value="">Selecione...</option>
+                            <c:forEach var="u" items="${usuarios}">
+                                <option value="${u.idUsuario}" ${param.idUsuario == u.idUsuario.toString() ? 'selected' : ''}>
+                                    <c:out value="${u.nomeCompleto}"/>
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </label>
+                </c:otherwise>
+            </c:choose>
             <label class="campo">
                 Produto *
                 <select name="idProduto" required>
@@ -168,7 +184,14 @@
         </div>
 
         <div class="formulario__botoes">
-            <a class="btn btn--painel" href="${ctx}/recomendas${not empty param.idUsuario ? '?idUsuario='.concat(fn:escapeXml(param.idUsuario)) : ''}">Cancelar</a>
+            <c:choose>
+                <c:when test="${param.fixo == '1'}">
+                    <a class="btn btn--painel" href="${ctx}/usuarioDetalhe?id=${fn:escapeXml(param.idUsuario)}#recomendacoes">Cancelar</a>
+                </c:when>
+                <c:otherwise>
+                    <a class="btn btn--painel" href="${ctx}/recomendas${not empty param.idUsuario ? '?idUsuario='.concat(fn:escapeXml(param.idUsuario)) : ''}">Cancelar</a>
+                </c:otherwise>
+            </c:choose>
             <button class="btn btn--painel btn--roxo" type="submit">Salvar</button>
         </div>
     </form>

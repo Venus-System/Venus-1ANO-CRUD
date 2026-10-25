@@ -55,7 +55,7 @@ CREATE TABLE analise (
     resumo_resultado VARCHAR(255),
     pontuacao INT,
     id_usuario INT REFERENCES usuario(id_usuario),
-    CHECK (pontuacao BETWEEN 0 AND 10));
+    CHECK (pontuacao BETWEEN 0 AND 100));
 
 CREATE TABLE ingrediente_analise (
     id_ingrediente_analise SERIAL PRIMARY KEY,
@@ -905,6 +905,11 @@ SELECT setval(pg_get_serial_sequence('perfil_cabelo', 'id_perfil_cabelo'), (SELE
 SELECT setval(pg_get_serial_sequence('nome_ingrediente', 'id_nome'), (SELECT MAX(id_nome) FROM nome_ingrediente));
 SELECT setval(pg_get_serial_sequence('ingrediente_analise', 'id_ingrediente_analise'), (SELECT MAX(id_ingrediente_analise) FROM ingrediente_analise));
 SELECT setval(pg_get_serial_sequence('produto_ingrediente', 'id_produto_ingrediente'), (SELECT MAX(id_produto_ingrediente) FROM produto_ingrediente));
+SELECT setval(pg_get_serial_sequence('produto_usuario', 'id_produto_usuario'), (SELECT MAX(id_produto_usuario) FROM produto_usuario));
+SELECT setval(pg_get_serial_sequence('usuario_alergia', 'id_usuario_alergia'), (SELECT MAX(id_usuario_alergia) FROM usuario_alergia));
+
+UPDATE produto SET pontuacao = pontuacao * 10 WHERE pontuacao <= 10;
+UPDATE analise SET pontuacao = pontuacao * 10 WHERE pontuacao <= 10;
 
 ALTER TABLE alergia ADD UNIQUE (nome_alergia);
 

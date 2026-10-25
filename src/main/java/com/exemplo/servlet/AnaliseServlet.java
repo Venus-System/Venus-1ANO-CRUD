@@ -25,7 +25,7 @@ public class AnaliseServlet extends HttpServlet {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     private static final String MSG_RESUMO_INVALIDO = "O resumo deve ter no máximo 500 caracteres.";
-    private static final String MSG_PONTUACAO_INVALIDA = "A pontuação deve ficar entre 0 e 10.";
+    private static final String MSG_PONTUACAO_INVALIDA = "A pontuação deve ficar entre 0 e 100.";
 
     //create
     @Override

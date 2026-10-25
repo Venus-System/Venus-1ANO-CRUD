@@ -210,9 +210,6 @@
                             <span>
                                 <c:out value="${p.nome}"/>
                                 <small class="celula-detalhe">Código: #${p.idProduto}</small>
-                                <span class="links-relacionados">
-                                    <a href="${ctx}/produtoIngredientes?idProduto=${p.idProduto}">Ingredientes do produto</a>
-                                </span>
                             </span>
                         </div>
                     </td>
@@ -224,9 +221,10 @@
                     <td>
                         <span class="etiqueta ${p.ehCrueltyFree ? 'etiqueta--verde' : ''}">${p.ehCrueltyFree ? 'Sim' : 'Não'}</span>
                     </td>
-                    <td>${p.pontuacao}</td>
+                    <td><span class="etiqueta ${p.pontuacao >= 80 ? 'etiqueta--verde' : (p.pontuacao >= 35 ? 'etiqueta--amarela' : 'etiqueta--rosa')}">${p.pontuacao}</span></td>
                     <td>
                         <div class="acoes">
+                            <a class="botao-detalhes" href="${ctx}/produtoIngredientes?idProduto=${p.idProduto}">+ detalhes</a>
                             <a class="botao-icone" href="${ctx}/produtos?id=${p.idProduto}" title="Editar">
                                 <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="Editar ${fn:escapeXml(p.nome)}">
                             </a>

@@ -170,14 +170,10 @@
                     <td>${a.dtHrAnaliseFormatada}</td>
                     <td>${a.idUsuario}</td>
                     <td><c:out value="${a.resumoResultado}"/></td>
-                    <td><span class="badge purple">${a.pontuacao}</span></td>
+                    <td><span class="badge ${a.pontuacao >= 80 ? 'green' : (a.pontuacao >= 35 ? 'yellow' : 'pink')}">${a.pontuacao}</span></td>
                     <td>
                         <div class="actions">
-                            <a class="btn secondary"
-                               href="${pageContext.request.contextPath}/ingredienteAnalises?idAnalise=${a.idAnalise}">
-                                Ingredientes
-                            </a>
-                            <a class="btn secondary" href="${ctx}/identificas?idAnalise=${a.idAnalise}">Identificados</a>
+                            <button class="btn secondary" type="button" onclick="abrirDetalhes(${a.idAnalise})">+ detalhes</button>
                             <a class="icon-btn" href="${ctx}/analises?id=${a.idAnalise}" aria-label="Editar análise">
                                 <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
                             </a>
@@ -212,6 +208,13 @@
         });
     });
 
+    function abrirDetalhes(id) {
+        document.getElementById('detalhe-ingredientes').href = '${ctx}/ingredienteAnalises?idAnalise=' + id;
+        document.getElementById('detalhe-identificados').href = '${ctx}/identificas?idAnalise=' + id;
+        document.getElementById('titulo-detalhes').textContent = 'Análise #' + id;
+        document.getElementById('popup-detalhes').showModal();
+    }
+
     async function excluir(id) {
         if (!confirm('Excluir esta análise?')) return;
         faixaErro.hidden = true;
@@ -239,6 +242,20 @@
         </footer>
     </div>
 </div>
+
+<dialog id="popup-detalhes" class="popup" aria-labelledby="titulo-detalhes">
+    <header class="popup__topo">
+        <h2 id="titulo-detalhes" class="popup__titulo">Análise</h2>
+        <button class="popup__fechar" type="button" aria-label="Fechar janela" data-fechar-popup>
+            <img src="${ctx}/assets/img/icones-crud/fechar.svg" alt="">
+        </button>
+    </header>
+    <p class="popup__texto">O que você quer ver desta análise?</p>
+    <div class="popup__botoes">
+        <a id="detalhe-ingredientes" class="btn secondary" href="#">Ingredientes da análise</a>
+        <a id="detalhe-identificados" class="btn primary" href="#">Ingredientes identificados</a>
+    </div>
+</dialog>
 
 <dialog id="popup-erro" class="popup" aria-labelledby="titulo-erro">
     <header class="popup__topo">

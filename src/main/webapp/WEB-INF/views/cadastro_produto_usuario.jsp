@@ -152,20 +152,43 @@
             </select>
         </div>
 
-        <div class="form-field">
-            <label for="id_usuario">Usuário</label>
-            <select id="id_usuario" name="id_usuario" required>
-                <option value="">Selecione um usuário</option>
-                <c:forEach var="u" items="${usuarios}">
-                    <option value="${u.idUsuario}" ${param.id_usuario eq u.idUsuario ? 'selected' : ''}>
-                        <c:out value="${u.nomeCompleto}"/>
-                    </option>
-                </c:forEach>
-            </select>
-        </div>
+        <c:choose>
+            <c:when test="${param.fixo == '1'}">
+                <input type="hidden" name="fixo" value="1">
+                <input type="hidden" name="id_usuario" value="<c:out value='${param.id_usuario}'/>">
+                <div class="form-field">
+                    <label for="usuario-fixo">Usuário</label>
+                    <c:forEach var="u" items="${usuarios}">
+                        <c:if test="${param.id_usuario == u.idUsuario.toString()}">
+                            <input id="usuario-fixo" type="text" value="<c:out value='${u.nomeCompleto}'/>" readonly>
+                        </c:if>
+                    </c:forEach>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="form-field">
+                    <label for="id_usuario">Usuário</label>
+                    <select id="id_usuario" name="id_usuario" required>
+                        <option value="">Selecione um usuário</option>
+                        <c:forEach var="u" items="${usuarios}">
+                            <option value="${u.idUsuario}" ${param.id_usuario eq u.idUsuario ? 'selected' : ''}>
+                                <c:out value="${u.nomeCompleto}"/>
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+            </c:otherwise>
+        </c:choose>
 
         <div class="form-actions">
-            <a class="btn secondary" href="${ctx}/produtoUsuarios">Cancelar</a>
+            <c:choose>
+                <c:when test="${param.fixo == '1'}">
+                    <a class="btn secondary" href="${ctx}/usuarioDetalhe?id=${fn:escapeXml(param.id_usuario)}#produtos">Cancelar</a>
+                </c:when>
+                <c:otherwise>
+                    <a class="btn secondary" href="${ctx}/produtoUsuarios">Cancelar</a>
+                </c:otherwise>
+            </c:choose>
             <button type="submit" class="btn primary">Cadastrar</button>
         </div>
     </form>

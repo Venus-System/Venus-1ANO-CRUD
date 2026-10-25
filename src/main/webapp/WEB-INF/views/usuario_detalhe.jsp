@@ -150,9 +150,6 @@
         <img src="${ctx}/assets/img/icones-crud/editar.svg" alt="">
         Editar usuário
     </a>
-    <a class="btn btn--painel" href="${ctx}/recomendas?idUsuario=${usuario.idUsuario}">
-        Recomendações
-    </a>
 </section>
 
 <div class="abas" role="tablist" aria-label="Dados do usuário">
@@ -161,6 +158,9 @@
     </button>
     <button class="aba" type="button" role="tab" data-aba="produtos">
         Produtos <span class="aba__total">${fn:length(produtos)}</span>
+    </button>
+    <button class="aba" type="button" role="tab" data-aba="recomendacoes">
+        Recomendações <span class="aba__total">${fn:length(recomendas)}</span>
     </button>
     <button class="aba" type="button" role="tab" data-aba="preferencias">
         Preferências <span class="aba__total">${fn:length(preferencias)}</span>
@@ -221,7 +221,7 @@
 <section class="conteudo-aba painel" id="aba-produtos" role="tabpanel" hidden>
     <div class="painel__cabecalho">
         <h2 class="painel__titulo">Produtos (${fn:length(produtos)})</h2>
-        <a class="btn btn--painel btn--roxo" href="${ctx}/produtoUsuarios?acao=novo">Vincular produto</a>
+        <a class="btn btn--painel btn--roxo" href="${ctx}/produtoUsuarios?acao=novo&id_usuario=${usuario.idUsuario}&fixo=1">Vincular produto</a>
     </div>
     <c:choose>
         <c:when test="${empty produtos}">
@@ -242,6 +242,44 @@
                                     <button class="botao-icone botao-icone--excluir" type="button" title="Excluir"
                                             data-excluir-url="${ctx}/produtoUsuarios?id=${p.idProdutoUsuario}"
                                             data-excluir-nome="${fn:escapeXml(p.nomeProduto)}">
+                                        <img src="${ctx}/assets/img/icones-crud/excluir.svg" alt="Excluir">
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </c:otherwise>
+    </c:choose>
+</section>
+
+<section class="conteudo-aba painel" id="aba-recomendacoes" role="tabpanel" hidden>
+    <div class="painel__cabecalho">
+        <h2 class="painel__titulo">Recomendações (${fn:length(recomendas)})</h2>
+        <a class="btn btn--painel btn--roxo" href="${ctx}/recomendas?acao=novo&idUsuario=${usuario.idUsuario}&fixo=1">Recomendar produto</a>
+    </div>
+    <c:choose>
+        <c:when test="${empty recomendas}">
+            <p class="aba-vazia">Nenhum produto recomendado para este usuário.</p>
+        </c:when>
+        <c:otherwise>
+            <div class="tabela-painel__rolagem">
+                <table class="tabela">
+                    <thead>
+                    <tr><th scope="col">Produto</th><th scope="col">Marca</th><th scope="col">Ações</th></tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="r" items="${recomendas}">
+                        <tr>
+                            <td><c:out value="${r.nomeProduto}"/></td>
+                            <td><c:out value="${r.marcaProduto}"/></td>
+                            <td>
+                                <div class="acoes">
+                                    <button class="botao-icone botao-icone--excluir" type="button" title="Excluir"
+                                            data-excluir-url="${ctx}/recomendas?idUsuario=${usuario.idUsuario}&idProduto=${r.idProduto}"
+                                            data-excluir-nome="${fn:escapeXml(r.nomeProduto)}">
                                         <img src="${ctx}/assets/img/icones-crud/excluir.svg" alt="Excluir">
                                     </button>
                                 </div>
@@ -410,7 +448,7 @@
                         <tr>
 
                             <td data-data="${fn:substring(a.dtHrAnalise, 0, 10)}">${a.dtHrAnalise}</td>
-                            <td><span class="etiqueta etiqueta--roxa">${a.pontuacao} / 10</span></td>
+                            <td><span class="etiqueta ${a.pontuacao >= 80 ? 'etiqueta--verde' : (a.pontuacao >= 35 ? 'etiqueta--amarela' : 'etiqueta--rosa')}">${a.pontuacao} / 100</span></td>
                             <td><c:out value="${a.resumoResultado}"/></td>
                             <td>
                                 <div class="acoes">
