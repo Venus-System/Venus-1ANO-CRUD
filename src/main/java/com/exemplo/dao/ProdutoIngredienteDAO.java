@@ -22,8 +22,16 @@ public class ProdutoIngredienteDAO {
         }
     }
 
+    // Agrupa os nomes do ingrediente para manter uma linha por vínculo com o produto.
     public ArrayList<ProdutoIngrediente> read() throws SQLException {
-        String sql = "select * from produto_ingrediente order by id_produto = ?";
+        String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
+                + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "
+                + "       i.nivel_perigo, i.tipo "
+                + "FROM produto_ingrediente pi "
+                + "JOIN ingredientes i ON i.id_ingrediente = pi.id_ingrediente "
+                + "LEFT JOIN nome_ingrediente ni ON ni.id_ingrediente = i.id_ingrediente "
+                + "GROUP BY pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, i.nivel_perigo, i.tipo "
+                + "ORDER BY pi.id_produto, pi.id_produto_ingrediente";
         ArrayList<ProdutoIngrediente> produtosIngrediente = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -32,9 +40,11 @@ public class ProdutoIngredienteDAO {
             while (rset.next()) {
                 ProdutoIngrediente pi1 = new ProdutoIngrediente(
                         rset.getInt("id_produto_ingrediente"),
+                        rset.getInt("id_produto"),
                         rset.getInt("id_ingrediente"),
-                        rset.getInt("id_produto")
-                );
+                        rset.getString("nome_ingrediente"),
+                        rset.getInt("nivel_perigo"),
+                        rset.getString("tipo"));
                 produtosIngrediente.add(pi1);
             }
         }
@@ -42,6 +52,7 @@ public class ProdutoIngredienteDAO {
 
     }
 
+    // Mantém uma linha por vínculo, reunindo os nomes ou exibindo "(sem nome)".
     public ArrayList<ProdutoIngrediente> readByIdProduto(int id) throws SQLException {
         String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
                 + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "

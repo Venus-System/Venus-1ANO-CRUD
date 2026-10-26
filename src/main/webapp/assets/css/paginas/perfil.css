@@ -1,0 +1,37 @@
+#grade-perfil {
+  max-width: 44rem;
+}
+
+.titulo-secao {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.foto-perfil {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.foto-perfil__imagem {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+
+.botoes-perfil {
+  max-width: 44rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.aviso-foto:empty {
+  display: none;
+}

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Venus: escaneie o rótulo do seu cosmético, entenda os ingredientes e receba recomendações para a sua pele.">
+  <title>Venus | Análise de cosméticos</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap">
+
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header id="cabecalho" class="cabecalho">
+    <a href="#inicio" class="cabecalho__logo">
+      <img src="assets/img/logo.png" alt="" width="179" height="194">
+      <span class="cabecalho__nome">Venus</span>
+    </a>
+
+    <input type="checkbox" id="menu-celular" class="cabecalho__toggle checkbox-escondido">
+
+    <nav id="menu-principal" class="cabecalho__nav">
+      <ul class="menu">
+        <li><a class="menu__link" href="#inicio">Início</a></li>
+        <li><a class="menu__link" href="#como-funciona">Como funciona</a></li>
+        <li><a class="menu__link" href="#planos">Planos</a></li>
+        <li><a class="menu__link" href="#sobre-nos">Sobre nós</a></li>
+      </ul>
+    </nav>
+
+    <a href="login" id="btn-login" class="btn btn--primario cabecalho__login">Login</a>
+
+    <label for="menu-celular" class="cabecalho__botao-menu" aria-label="Abrir menu">☰</label>
+  </header>
+
+  <main id="conteudo">
+
+    <section id="inicio" class="inicio">
+      <div class="inicio__fundo"></div>
+
+      <div class="inicio__container">
+        <div class="inicio__conteudo">
+          <h1 id="titulo-inicio" class="inicio__titulo">Venus</h1>
+          <p class="inicio__subtitulo">Escaneie. Analise.<br>Escolha com<br>confiança.</p>
+        </div>
+
+        <div class="inicio__midia">
+          <img class="inicio__celular" src="assets/img/celular.png" alt="Aplicativo Venus mostrando a tela inicial de análise de cosméticos" width="591" height="693">
+        </div>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="como-funciona">
+      <div class="como-funciona__container">
+        <h2 id="titulo-como-funciona" class="como-funciona__titulo">Como <span class="destaque">funciona</span></h2>
+
+        <div class="como-funciona__grade">
+
+          <div class="etapa">
+            <div class="etapa__icone">
+              <img src="assets/img/icones-landing/camera.svg" alt="" width="24" height="24">
+            </div>
+            <h3 class="etapa__titulo">Escaneie<br>seu produto</h3>
+            <p class="etapa__texto">Use a câmera do seu celular para escanear o rótulo do cosmético com tecnologia OCR avançada.</p>
+          </div>
+
+          <div class="etapa">
+            <div class="etapa__icone">
+              <img src="assets/img/icones-landing/rosto-feliz.svg" alt="" width="24" height="24">
+            </div>
+            <h3 class="etapa__titulo">Conheça<br>sua pele</h3>
+            <p class="etapa__texto">Informe seu tipo de pele, sensibilidades, objetivos e preferências para uma análise personalizada.</p>
+          </div>
+
+          <div class="etapa">
+            <div class="etapa__icone">
+              <img src="assets/img/icones-landing/cerebro.svg" alt="" width="24" height="24">
+            </div>
+            <h3 class="etapa__titulo">Receba<br>recomendações</h3>
+            <p class="etapa__texto">Nossa IA analisa ingredientes, compara com seu perfil e gera recomendações inteligentes para você.</p>
+          </div>
+
+          <div class="etapa">
+            <div class="etapa__icone">
+              <img src="assets/img/icones-landing/folha.svg" alt="" width="24" height="24">
+            </div>
+            <h3 class="etapa__titulo">Escolhas<br>conscientes</h3>
+            <p class="etapa__texto">Entenda mais sobre seus produtos e faça escolhas melhores para você.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="tecnologia" class="tecnologia">
+      <div class="tecnologia__container">
+
+        <div class="tecnologia__conteudo">
+          <h2 id="titulo-tecnologia" class="tecnologia__titulo">Tecnologia que<br>trabalha por <span class="destaque">você</span></h2>
+          <p class="tecnologia__texto">Unimos ciência de dados, inteligência artificial e um banco de ingredientes atualizado para entregar análises precisas e confiáveis.</p>
+        </div>
+
+        <div class="diagrama">
+          <img class="diagrama__imagem" src="assets/img/fluxo.png" alt="Fluxo da tecnologia Venus: Perfil, OCR, Análise, Recomendação e Chatbot" width="2549" height="1374">
+        </div>
+
+      </div>
+    </section>
+
+    <section id="beneficios" class="beneficios">
+      <div class="beneficios__container">
+        <h2 id="titulo-beneficios" class="beneficios__titulo">Benefícios do <span class="destaque">Venus</span></h2>
+
+        <div class="beneficios__grade">
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/seguranca.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Mais segurança</h3>
+              <p class="beneficio__texto">Saiba exatamente o que você está aplicando na sua pele.</p>
+            </div>
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/folha.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Consciência ambiental</h3>
+              <p class="beneficio__texto">Entenda o impacto dos ingredientes no meio ambiente e faça escolhas mais sustentáveis.</p>
+            </div>
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/personalizados.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Produtos personalizados</h3>
+              <p class="beneficio__texto">Recomendações feitas especialmente para o seu perfil único.</p>
+            </div>
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/conhecimento.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Conhecimento dos ingredientes</h3>
+              <p class="beneficio__texto">Saiba o impacto que cada ingrediente possui.</p>
+            </div>
+          </div>
+
+          <div class="beneficios__celular">
+            <img src="assets/img/celular-beneficios.png" alt="Tela do aplicativo Venus para escanear um produto" width="1824" height="1916">
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/ia.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Tecnologia de IA</h3>
+              <p class="beneficio__texto">Algoritmos avançados e aprendizado contínuo para análises precisas.</p>
+            </div>
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/praticidade.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Praticidade</h3>
+              <p class="beneficio__texto">Tenha recomendações rápidas e fáceis para cuidar da sua pele.</p>
+            </div>
+          </div>
+
+          <div class="beneficio">
+            <div class="beneficio__icone">
+              <img src="assets/img/icones-landing/chatbot.svg" alt="" width="24" height="24">
+            </div>
+            <div>
+              <h3 class="beneficio__titulo">Chatbot inteligente</h3>
+              <p class="beneficio__texto">Tire dúvidas e entenda cada ingrediente com linguagem simples.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="chamada" class="chamada">
+          <img class="chamada__imagem" src="assets/img/comecar-analise.png" alt="Sua pele. Suas escolhas. Sua tecnologia." width="2484" height="500">
+          <a href="login" id="btn-comecar-analise" class="btn btn--primario chamada__botao">
+            Começar análise
+            <img class="chamada__seta" src="assets/img/icones-landing/seta.svg" alt="" width="24" height="24">
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="planos" class="planos">
+      <div class="planos__container">
+        <h2 id="titulo-planos" class="planos__titulo">Um plano, <span class="destaque">tudo incluso</span></h2>
+        <p class="planos__subtitulo">Sem planos confusos: você assina o Venus Plus<br>e libera todas as funções do app.</p>
+
+        <div class="planos__grade">
+
+          <div id="plano-mensal" class="plano plano--claro">
+            <div class="plano__topo">
+              <h3 class="plano__nome">Venus Plus</h3>
+              <span class="plano__selo">Tudo incluso</span>
+            </div>
+            <p class="plano__descricao">Tudo o que o Venus tem, em um plano só</p>
+
+            <div class="plano__preco">
+              <p class="plano__valor">R$ 19 <span class="plano__periodo">/mês</span></p>
+              <p class="plano__obs">ou R$ 69 por ano (sai R$ 5,75 por mês)</p>
+            </div>
+
+            <ul class="plano__lista">
+              <li class="plano__item">Análises de rótulo ilimitadas</li>
+              <li class="plano__item">Nota de 0 a 100 de cada produto</li>
+              <li class="plano__item">Recomendações feitas pela IA</li>
+              <li class="plano__item">Chatbot sem limite de perguntas</li>
+              <li class="plano__item">Histórico dos produtos</li>
+              <li class="plano__item">Alerta de ingredientes que irritam</li>
+            </ul>
+
+            <a href="login" id="btn-assinar-mensal" class="btn plano__botao">Assinar agora</a>
+          </div>
+
+          <div id="plano-anual" class="plano">
+            <div class="plano__topo">
+              <h3 class="plano__nome">Venus Plus</h3>
+              <span class="plano__selo">Tudo incluso</span>
+            </div>
+            <p class="plano__descricao">Tudo o que o Venus tem, em um plano só</p>
+
+            <div class="plano__preco">
+              <p class="plano__valor">R$ 69 <span class="plano__periodo">/ano</span></p>
+              <p class="plano__obs">sai R$ 5,75 por mês</p>
+            </div>
+
+            <ul class="plano__lista">
+              <li class="plano__item">Análises de rótulo ilimitadas</li>
+              <li class="plano__item">Nota de 0 a 100 de cada produto</li>
+              <li class="plano__item">Recomendações feitas pela IA</li>
+              <li class="plano__item">Chatbot sem limite de perguntas</li>
+              <li class="plano__item">Histórico dos produtos</li>
+              <li class="plano__item">Alerta de ingredientes que irritam</li>
+            </ul>
+
+            <a href="login" id="btn-assinar-anual" class="btn plano__botao">Assinar plano anual</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="sobre-nos" class="sobre">
+      <div class="sobre__container">
+
+        <div class="sobre__conteudo">
+          <span class="sobre__etiqueta">Sobre nós</span>
+          <h2 id="titulo-sobre-nos" class="sobre__titulo">Criamos o Venus porque entender um rótulo não deveria exigir um <span class="sobre__destaque">diploma em química.</span></h2>
+          <p class="sobre__texto">Somos estudantes do ensino médio técnico. O Venus nasceu de um trabalho interdisciplinar e virou uma vontade real: deixar a informação sobre cosméticos clara para todo mundo.</p>
+        </div>
+
+        <ul class="sobre__lista">
+          <li class="sobre__item">
+            <span class="sobre__numero">01</span>
+            <div>
+              <h3 class="sobre__item-titulo">O problema</h3>
+              <p class="sobre__item-texto">Quase ninguém entende a lista de ingredientes dos cosméticos.</p>
+            </div>
+          </li>
+          <li class="sobre__item">
+            <span class="sobre__numero">02</span>
+            <div>
+              <h3 class="sobre__item-titulo">A ideia</h3>
+              <p class="sobre__item-texto">Usar a câmera do celular e IA para traduzir o rótulo em segundos.</p>
+            </div>
+          </li>
+          <li class="sobre__item">
+            <span class="sobre__numero">03</span>
+            <div>
+              <h3 class="sobre__item-titulo">A missão</h3>
+              <p class="sobre__item-texto">Ajudar cada pessoa a escolher com segurança e consciência.</p>
+            </div>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+    <section id="equipe" class="equipe">
+      <div class="equipe__container">
+        <h2 id="titulo-equipe" class="equipe__titulo">Quem faz o <span class="equipe__destaque">Venus</span></h2>
+        <p class="equipe__subtitulo">Conheça o time por trás do projeto.</p>
+      </div>
+
+        <div id="faixa-equipe" class="equipe__faixa">
+          <div class="equipe__trilho">
+            <ul class="equipe__lista">
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 1</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 2</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 3</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 4</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 5</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 6</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 7</h3>
+                <span class="integrante__funcao">Dados</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 8</h3>
+                <span class="integrante__funcao">Dados</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 9</h3>
+                <span class="integrante__funcao">Design</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 10</h3>
+                <span class="integrante__funcao">Design</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 11</h3>
+                <span class="integrante__funcao">Pesquisa</span>
+              </li>
+            </ul>
+
+            <ul class="equipe__lista" aria-hidden="true">
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 1</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 2</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 3</h3>
+                <span class="integrante__funcao">Front-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 4</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 5</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 6</h3>
+                <span class="integrante__funcao">Back-end</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 7</h3>
+                <span class="integrante__funcao">Dados</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 8</h3>
+                <span class="integrante__funcao">Dados</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 9</h3>
+                <span class="integrante__funcao">Design</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 10</h3>
+                <span class="integrante__funcao">Design</span>
+              </li>
+              <li class="integrante">
+                <div class="integrante__foto"></div>
+                <h3 class="integrante__nome">Integrante 11</h3>
+                <span class="integrante__funcao">Pesquisa</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </section>
+
+    <section id="perguntas" class="perguntas">
+      <div class="perguntas__container">
+        <h2 id="titulo-perguntas" class="perguntas__titulo">Perguntas <span class="destaque">frequentes</span></h2>
+
+        <div class="pergunta">
+          <input type="checkbox" id="pergunta-1" class="pergunta__toggle checkbox-escondido">
+          <label for="pergunta-1" class="pergunta__titulo">O Venus é grátis?</label>
+          <p class="pergunta__resposta">Você pode criar a conta e conhecer o app. Para usar todas as funções, é só assinar o Venus Plus: R$ 19 por mês ou R$ 69 por ano.</p>
+        </div>
+
+        <div class="pergunta">
+          <input type="checkbox" id="pergunta-2" class="pergunta__toggle checkbox-escondido">
+          <label for="pergunta-2" class="pergunta__titulo">Funciona com qualquer marca?</label>
+          <p class="pergunta__resposta">Sim. O Venus lê o rótulo do produto, então funciona com cosméticos de qualquer marca, desde que a lista de ingredientes esteja legível.</p>
+        </div>
+
+        <div class="pergunta">
+          <input type="checkbox" id="pergunta-3" class="pergunta__toggle checkbox-escondido">
+          <label for="pergunta-3" class="pergunta__titulo">Meus dados ficam seguros?</label>
+          <p class="pergunta__resposta">Sim. Seguimos a LGPD: seus dados são usados só para personalizar as análises e não são vendidos para ninguém.</p>
+        </div>
+
+        <div class="pergunta">
+          <input type="checkbox" id="pergunta-4" class="pergunta__toggle checkbox-escondido">
+          <label for="pergunta-4" class="pergunta__titulo">O Venus substitui o dermatologista?</label>
+          <p class="pergunta__resposta">Não. O Venus ajuda você a entender seus produtos, mas não faz diagnóstico. Para qualquer problema de pele, procure um dermatologista.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="rodape" class="rodape">
+    <div class="rodape__container">
+      <div class="rodape__marca">
+        <a href="#inicio" class="rodape__logo">
+          <img src="assets/img/logo.png" alt="" width="179" height="194">
+          <span class="rodape__nome">Venus</span>
+        </a>
+        <p class="rodape__frase">Cuide da sua pele com informação.</p>
+      </div>
+
+      <div class="rodape__coluna">
+        <h2 class="rodape__titulo">Navegação</h2>
+        <ul class="rodape__lista">
+          <li><a class="rodape__link" href="#planos">Planos</a></li>
+          <li><a class="rodape__link" href="#como-funciona">Como funciona</a></li>
+          <li><a class="rodape__link" href="#sobre-nos">Sobre nós</a></li>
+        </ul>
+      </div>
+
+      <div class="rodape__coluna">
+        <h2 class="rodape__titulo">Contato</h2>
+        <ul class="rodape__lista">
+          <li><a class="rodape__link" href="mailto:contato@venus.com">contato@venus.com</a></li>
+          <li><a class="rodape__link" href="#">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rodape__final">
+      <p>&copy; 2026 Venus · Trabalho interdisciplinar</p>
+      <p>O Venus não substitui a orientação de um dermatologista.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

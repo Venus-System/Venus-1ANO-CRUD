@@ -5,6 +5,7 @@ import com.exemplo.dao.ProdutoDAO;
 import com.exemplo.dao.ProdutoUsuarioDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.ProdutoUsuario;
+import com.exemplo.util.Validador;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -36,7 +37,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_usuario.jsp").forward(request, response);
     }
 
-    //create
+    // Cadastro
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,6 +56,12 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             return;
         }
 
+        if (!Validador.idValido(idProdutoTexto) || !Validador.idValido(idUsuarioTexto)) {
+            request.setAttribute("erro", "Selecione um produto e um usuário válidos.");
+            abrirCadastro(request, response);
+            return;
+        }
+
         try {
             int idProduto = Integer.parseInt(idProdutoTexto);
             int idUsuario = Integer.parseInt(idUsuarioTexto);
@@ -68,6 +75,10 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
 
             if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)) {
+                if ("1".equals(request.getParameter("fixo"))) {
+                    response.sendRedirect(request.getContextPath() + "/usuarioDetalhe?id=" + idUsuario + "#produtos");
+                    return;
+                }
                 response.sendRedirect(request.getContextPath() + "/produtoUsuarios");
                 //O getContextPath devolve o nome da aplicação (o nome do VENUS na URL).
             } else {
@@ -90,7 +101,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         }
     }
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -105,6 +116,10 @@ public class ProdutoUsuarioServlet extends HttpServlet {
 
         try {
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                if (!Validador.idValido(idUsuarioTexto)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de usuário inválido.");
+                    return;
+                }
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
                 ArrayList<ProdutoUsuario> listaDoUsuario = produtoUsuarioDAO.readByIdUsuario(idUsuario);
 
@@ -126,7 +141,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         }
     }
 
-    //delete
+    // Exclusão
+    // Prioriza o ID do vínculo; sem ele, exclui todos os vínculos do produto ou do usuário.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -142,12 +158,24 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
+                if (!Validador.idValido(idTexto)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id inválido.");
+                    return;
+                }
                 int id = Integer.parseInt(idTexto);
                 linhas = produtoUsuarioDAO.deleteById(id);
             } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                if (!Validador.idValido(idProdutoTexto)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de produto inválido.");
+                    return;
+                }
                 int idProduto = Integer.parseInt(idProdutoTexto);
                 linhas = produtoUsuarioDAO.deleteByIdProduto(idProduto);
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
+                if (!Validador.idValido(idUsuarioTexto)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de usuário inválido.");
+                    return;
+                }
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
                 linhas = produtoUsuarioDAO.deleteByIdUsuario(idUsuario);
             } else {

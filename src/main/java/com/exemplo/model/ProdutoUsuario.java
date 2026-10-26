@@ -1,11 +1,12 @@
-//recomendação.
 package com.exemplo.model;
 
+// Representa o vínculo de um produto com um usuário na tabela produto_usuario.
 public class ProdutoUsuario {
 
     private int idProdutoUsuario;
     private int idProduto;
     private int idUsuario;
+    // Nomes preenchidos pelas consultas com junção no DAO para exibição nas telas.
     private String nomeProduto;
     private String nomeUsuario;
 

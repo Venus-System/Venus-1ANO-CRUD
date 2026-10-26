@@ -2,6 +2,7 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.NomeIngrediente;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +37,8 @@ public class NomeIngredienteDAO {
                 );
                 nomeIngrediente.add(nI1);
             }
-        } return nomeIngrediente;
+        }
+        return nomeIngrediente;
 
     }
 
@@ -59,10 +61,11 @@ public class NomeIngredienteDAO {
                 }
             }
 
-        } return nomeIngrediente;
+        }
+        return nomeIngrediente;
     }
 
-    public ArrayList<NomeIngrediente> readByIdIngrediente (int id) throws SQLException {
+    public ArrayList<NomeIngrediente> readByIdIngrediente(int id) throws SQLException {
         String sql = "select * from nome_ingrediente where id_ingrediente =?";
         ArrayList<NomeIngrediente> listaNomeIngredientes = new ArrayList<>();
 
@@ -82,7 +85,8 @@ public class NomeIngredienteDAO {
                 }
             }
 
-        } return listaNomeIngredientes;
+        }
+        return listaNomeIngredientes;
     }
 
 
@@ -103,7 +107,7 @@ public class NomeIngredienteDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1,id);
+            pstmt.setInt(1, id);
             return pstmt.executeUpdate();
 
         }
@@ -114,7 +118,7 @@ public class NomeIngredienteDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1,id);
+            pstmt.setInt(1, id);
             return pstmt.executeUpdate();
 
         }

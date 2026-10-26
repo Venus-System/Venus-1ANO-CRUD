@@ -23,7 +23,7 @@ public class ProdutoServlet extends HttpServlet {
 
     private final ProdutoDAO produtoDAO = new ProdutoDAO();
 
-    //create
+    // Cadastro
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -57,17 +57,17 @@ public class ProdutoServlet extends HttpServlet {
         listaIngredientes = listaIngredientes == null ? "" : listaIngredientes.trim();
 
         if (!Validador.nomeProdutoValido(nome)) {
-            request.setAttribute("erro", "Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+            request.setAttribute("erro", "Nome do produto inválido. Use de 2 a 60 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
-        if (!Validador.nomeProdutoValido(marca)) {
-            request.setAttribute("erro", "Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+        if (!Validador.nomeProdutoValido(marca) || marca.length() > 50) {
+            request.setAttribute("erro", "Marca inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
-        if (!Validador.nomeProdutoValido(categoria)) {
-            request.setAttribute("erro", "Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+        if (!Validador.nomeProdutoValido(categoria) || categoria.length() > 50) {
+            request.setAttribute("erro", "Categoria inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
             return;
         }
@@ -75,14 +75,14 @@ public class ProdutoServlet extends HttpServlet {
         try {
             int pontuacao;
 
-            //A pontuação não veio, ou veio vazia?
+            // A pontuação não informada assume zero no cadastro.
             if (pontuacaoTexto == null || pontuacaoTexto.isBlank()) {
                 pontuacao = 0;
             } else {
                 pontuacao = Integer.parseInt(pontuacaoTexto.trim());
             }
 
-            //calcula a pontuação
+            // Valida a pontuação informada no intervalo de 0 a 100.
             if (!Validador.pontuacaoValida(pontuacao)) {
                 request.setAttribute("erro", "A pontuação deve ficar entre 0 e 100.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
@@ -111,7 +111,7 @@ public class ProdutoServlet extends HttpServlet {
         }
     }
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -167,7 +167,7 @@ public class ProdutoServlet extends HttpServlet {
         }
     }
 
-    //update
+    // Atualização
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -205,7 +205,7 @@ public class ProdutoServlet extends HttpServlet {
             int pontuacao = Integer.parseInt(json.get("pontuacao").getAsString());
             String listaIngredientes = json.get("listaIngredientes").getAsString().trim();
 
-            if (nome.isBlank() || marca.isBlank() || categoria.isBlank()){
+            if (nome.isBlank() || marca.isBlank() || categoria.isBlank()) {
                 response.setStatus(400);
                 response.getWriter().write("Preencha nome, marca e categoria.");
                 return;
@@ -214,17 +214,17 @@ public class ProdutoServlet extends HttpServlet {
             //aqui entram as validações.
             if (!Validador.nomeProdutoValido(nome)) {
                 response.setStatus(400);
-                response.getWriter().write("Nome do produto inválido. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Nome do produto inválido. Use de 2 a 60 caracteres, começando por letra ou número.");
                 return;
             }
-            if (!Validador.nomeProdutoValido(marca)) {
+            if (!Validador.nomeProdutoValido(marca) || marca.length() > 50) {
                 response.setStatus(400);
-                response.getWriter().write("Marca inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Marca inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
                 return;
             }
-            if (!Validador.nomeProdutoValido(categoria)) {
+            if (!Validador.nomeProdutoValido(categoria) || categoria.length() > 50) {
                 response.setStatus(400);
-                response.getWriter().write("Categoria inválida. Use de 2 a 100 caracteres, começando por letra ou número.");
+                response.getWriter().write("Categoria inválida. Use de 2 a 50 caracteres, começando por letra ou número.");
                 return;
             }
             if (!Validador.pontuacaoValida(pontuacao)) {
@@ -236,26 +236,26 @@ public class ProdutoServlet extends HttpServlet {
             Produto produto = new Produto(id, nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
             int linhas = produtoDAO.update(produto);
 
-            if (linhas>0){
+            if (linhas > 0) {
                 response.setStatus(200);
             } else {
                 response.setStatus(404);
                 response.getWriter().write("Produto não encontrado.");
             }
-        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
-        }catch (SQLException sqle){
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 response.setStatus(409);
                 response.getWriter().write("Já existe um produto com esses dados ou algum dado não foi aceito.");
-            }else {
+            } else {
                 throw new ServletException("Erro ao atualizar o produto.", sqle);
             }
         }
     }
 
-    //delete
+    // Exclusão
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -265,7 +265,7 @@ public class ProdutoServlet extends HttpServlet {
 
         String idTexto = request.getParameter("id");
 
-        if (idTexto == null || idTexto.isBlank()){
+        if (idTexto == null || idTexto.isBlank()) {
             response.setStatus(400);
             response.getWriter().write("Id não informado.");
             return;
@@ -275,23 +275,23 @@ public class ProdutoServlet extends HttpServlet {
             int id = Integer.parseInt(idTexto);
             int linhas = produtoDAO.deleteById(id);
 
-            if (linhas>0){
+            if (linhas > 0) {
                 response.setStatus(200);
-            }else {
+            } else {
                 response.setStatus(404);
                 response.getWriter().write("Produto não encontrado.");
             }
-        }catch (NumberFormatException nfe ){
+        } catch (NumberFormatException nfe) {
             response.setStatus(400);
             response.getWriter().write("Id inválido.");
-        }catch (SQLException sqle){
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
+        } catch (SQLException sqle) {
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 response.setStatus(409);
                 response.getWriter().write("Não é possível excluir: o produto está vinculado a usuários ou ingredientes.");
-            }else {
+            } else {
                 throw new ServletException("Erro ao excluir o produto.", sqle);
             }
         }
-        }
-
     }
+
+}

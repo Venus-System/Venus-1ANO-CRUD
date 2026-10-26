@@ -2,6 +2,7 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.PerfilCabelo;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -135,19 +136,12 @@ public class PerfilCabeloDAO {
 
 
         try (Connection conexao = ConexaoBanco.conectar();
-        PreparedStatement comando = conexao.prepareStatement(sql)) {
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setInt(1, idUsuario);
 
             try (ResultSet resultado = comando.executeQuery()) {
-
-                boolean existe = resultado.next();
-
-                resultado.close();
-                comando.close();
-                conexao.close();
-
-                return existe;
+                return resultado.next();
             }
         }
     }

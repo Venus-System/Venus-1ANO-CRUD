@@ -5,11 +5,12 @@ import java.util.regex.Pattern;
 
 public class Validador {
 
-    //padrão
 
     private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
 
-    private static final Pattern TELEFONE = Pattern.compile("^\\(?\\d{2}\\)?\\s?9?\\d{4}-?\\d{4}$");
+    private static final Pattern TELEFONE = Pattern.compile("^\\d{10,13}$");
+
+    private static final Pattern NOME_USUARIO = Pattern.compile("^[\\p{L}][\\p{L} .'\\-]{1,99}$");
 
     private static final Pattern SENHA = Pattern.compile("^.{6,}$");
 
@@ -21,7 +22,25 @@ public class Validador {
     }
 
     public static boolean telefoneValido(String telefone) {
-        return telefone == null || telefone.isBlank() || TELEFONE.matcher(telefone).matches();
+        return telefone != null && TELEFONE.matcher(telefone).matches();
+    }
+
+    public static boolean nomeUsuarioValido(String nome) {
+        return nome != null && NOME_USUARIO.matcher(nome.trim()).matches();
+    }
+
+    public static String somenteNumeros(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto.replaceAll("[^0-9]", "");
+    }
+
+    // O gênero é opcional; quando preenchido, deve corresponder a uma das opções aceitas.
+    public static boolean generoValido(String genero) {
+        return genero == null || genero.isBlank()
+                || genero.equals("Feminino") || genero.equals("Masculino")
+                || genero.equals("Outro") || genero.equals("Prefiro não informar");
     }
 
     public static boolean senhaValida(String senha) {
@@ -33,13 +52,15 @@ public class Validador {
         return nascimento != null && !nascimento.isAfter(LocalDate.now().minusYears(anos));
     }
 
-    // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 100 caracteres)
+    public static boolean nascimentoDepoisDe1900(LocalDate nascimento) {
+        return nascimento != null && nascimento.isAfter(LocalDate.of(1900, 1, 1));
+    }
+
+    // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 60 caracteres)
     private static final Pattern NOME_PRODUTO = Pattern.compile("^[\\p{L}\\d][\\p{L}\\d '()/.,&+%-]{1,59}$");
-    //o pattern é uma classe que guarda o regex já compilado. (o modelo de texto que eu quiser aceitar)
+
     public static boolean nomeProdutoValido(String texto) {
         return texto != null && NOME_PRODUTO.matcher(texto).matches();
-        //matcher é usado para validar.
-        //matches devolve true se o texto inteiro seguir o padrão.
     }
 
     public static boolean pontuacaoValida(int pontuacao) {
@@ -74,15 +95,23 @@ public class Validador {
     private static final Pattern TEXTO_PREFERENCIA =
             Pattern.compile("^[\\p{L}0-9][\\p{L}0-9 .,;:'()/%$&+\\-]{0,254}$");
 
+    // Preferências vazias são aceitas; textos preenchidos são validados sem espaços nas extremidades.
     public static boolean preferenciaOpcionalValida(String texto) {
-        return texto == null || texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches();
+        return preferenciaOpcionalValida(texto, 255);
     }
 
-    private static final Pattern TIPO_PELE =
-            Pattern.compile("^\\p{L}[\\p{L} /\\-]{1,49}$");
+    public static boolean preferenciaOpcionalValida(String texto, int tamanhoMaximo) {
+        return texto == null || (texto.length() <= tamanhoMaximo
+                && (texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches()));
+    }
 
     public static boolean tipoPeleValido(String tipo) {
-        return tipo != null && TIPO_PELE.matcher(tipo.trim()).matches();
+        if (tipo == null) {
+            return false;
+        }
+        String t = tipo.trim();
+        return t.equals("Seca") || t.equals("Oleosa") || t.equals("Sensível")
+                || t.equals("Mista") || t.equals("Normal");
     }
 
     public static boolean escalaValida(int valor) {
@@ -103,6 +132,20 @@ public class Validador {
 
     public static boolean pontuacaoAnaliseValida(int valor) {
         return valor >= 0 && valor <= 100;
+    }
+
+    // Aceita identificadores positivos que cabem em um int, sem zero à esquerda.
+    private static final Pattern ID = Pattern.compile("^[1-9]\\d{0,9}$");
+
+    public static boolean idValido(String texto) {
+        if (texto == null || !ID.matcher(texto.trim()).matches()) {
+            return false;
+        }
+        try {
+            return Integer.parseInt(texto.trim()) > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }

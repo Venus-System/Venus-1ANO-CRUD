@@ -1,0 +1,18 @@
+BEGIN;
+
+-- Sincroniza as sequências com os IDs existentes após inserções com identificadores explícitos.
+SELECT setval(pg_get_serial_sequence('nome_ingrediente', 'id_nome'), (SELECT MAX(id_nome) FROM nome_ingrediente));
+SELECT setval(pg_get_serial_sequence('produto_ingrediente', 'id_produto_ingrediente'), (SELECT MAX(id_produto_ingrediente) FROM produto_ingrediente));
+SELECT setval(pg_get_serial_sequence('produto_usuario', 'id_produto_usuario'), (SELECT MAX(id_produto_usuario) FROM produto_usuario));
+
+ALTER TABLE produto DROP CONSTRAINT produto_pontuacao_check;
+ALTER TABLE produto ADD CONSTRAINT produto_pontuacao_check CHECK (pontuacao BETWEEN 0 AND 100);
+
+ALTER TABLE analise DROP CONSTRAINT analise_pontuacao_check;
+ALTER TABLE analise ADD CONSTRAINT analise_pontuacao_check CHECK (pontuacao BETWEEN 0 AND 100);
+
+-- Multiplica por dez os valores de até 10; executar novamente pode converter esses valores outra vez.
+UPDATE produto SET pontuacao = pontuacao * 10 WHERE pontuacao <= 10;
+UPDATE analise SET pontuacao = pontuacao * 10 WHERE pontuacao <= 10;
+
+COMMIT;

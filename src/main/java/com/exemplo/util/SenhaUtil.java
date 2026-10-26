@@ -4,21 +4,22 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class SenhaUtil {
 
-    //aqui gera o hash. (é o resultado de passar um dado por uma função matemática que o transforma em um texto embaralhado).
-    public static String gerarHash(String senhaPura){
+    // Gera o hash BCrypt com salt aleatório e fator de custo 12.
+    public static String gerarHash(String senhaPura) {
         return BCrypt.hashpw(senhaPura, BCrypt.gensalt(12));
     }
 
-    private SenhaUtil(){}
+    private SenhaUtil() {
+    }
 
-    //aqui vai comparar a senha digitada com o hash (guardado no banco).
-    public static boolean conferir(String senhaPura, String hash){
-        if (senhaPura == null  || hash == null){
+    // Confere a senha com o hash salvo; valores nulos ou hashes inválidos retornam false.
+    public static boolean conferir(String senhaPura, String hash) {
+        if (senhaPura == null || hash == null) {
             return false;
         }
         try {
             return BCrypt.checkpw(senhaPura, hash);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
