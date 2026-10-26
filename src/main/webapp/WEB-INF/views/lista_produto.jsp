@@ -171,24 +171,17 @@
     </article>
 </section>
 
-<form class="filtros" method="get" action="${ctx}/produtos">
+<div class="filtros">
     <label class="busca">
         <img src="${ctx}/assets/img/icones-crud/buscar.svg" alt="">
-        <input type="search" name="nome" aria-label="Buscar por nome do produto"
-               placeholder="Buscar por nome do produto..." value="<c:out value='${param.nome}'/>">
+        <input type="search" data-busca="tabela-produtos" aria-label="Buscar produtos"
+               placeholder="Buscar por nome, marca ou categoria...">
     </label>
-    <label class="busca">
-        <img src="${ctx}/assets/img/icones-crud/buscar.svg" alt="">
-        <input type="search" name="marca" aria-label="Buscar por marca"
-               placeholder="Ou buscar por marca..." value="<c:out value='${param.marca}'/>">
-    </label>
-    <button class="btn btn--painel btn--roxo" type="submit">Buscar</button>
-    <a class="btn btn--painel" href="${ctx}/produtos">Limpar</a>
-</form>
+</div>
 
 <section class="tabela-painel">
     <div class="tabela-painel__rolagem">
-        <table class="tabela">
+        <table class="tabela" id="tabela-produtos">
             <caption class="sr-only">Lista de produtos</caption>
             <thead>
             <tr>
