@@ -40,6 +40,7 @@ public class LoginFiltro implements Filter {
             return;
         }
 
+        // PUT e DELETE recebem 401 em texto para que os scripts tratem a sessão encerrada.
         if (!"GET".equals(request.getMethod()) && !"POST".equals(request.getMethod())) {
             response.setStatus(401);
             response.setCharacterEncoding("UTF-8");

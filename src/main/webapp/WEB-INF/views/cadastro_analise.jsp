@@ -153,7 +153,7 @@
 
         <label class="form-field">
             Resumo do resultado
-            <textarea name="resumoResultado" maxlength="500" required><c:out value="${param.resumoResultado}"/></textarea>
+            <textarea name="resumoResultado" maxlength="255" required><c:out value="${param.resumoResultado}"/></textarea>
         </label>
 
         <label class="form-field">

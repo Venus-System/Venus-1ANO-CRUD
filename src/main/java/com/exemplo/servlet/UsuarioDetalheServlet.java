@@ -9,6 +9,7 @@ import com.exemplo.dao.RecomendaDAO;
 import com.exemplo.dao.UsuarioAlergiaDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
+import com.exemplo.util.Validador;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,7 +36,7 @@ public class UsuarioDetalheServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String idTexto = request.getParameter("id");
-        if (idTexto == null || !idTexto.matches("\\d+")) {
+        if (!Validador.idValido(idTexto)) {
             response.sendRedirect(request.getContextPath() + "/usuarios");
             return;
         }

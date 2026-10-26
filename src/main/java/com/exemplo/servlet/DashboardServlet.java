@@ -49,6 +49,7 @@ public class DashboardServlet extends HttpServlet {
                 }
             }
 
+            // O DAO ordena por identificador; os cinco maiores IDs são exibidos primeiro.
             ArrayList<Produto> ultimosProdutos = new ArrayList<>();
             for (int i = produtos.size() - 1; i >= 0 && ultimosProdutos.size() < 5; i--) {
                 ultimosProdutos.add(produtos.get(i));

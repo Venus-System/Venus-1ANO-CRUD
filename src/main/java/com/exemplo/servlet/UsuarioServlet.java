@@ -28,7 +28,7 @@ public class UsuarioServlet extends HttpServlet {
     //O tomcat cria só uma instância do servlet e reutiliza.
 
 
-    //create
+    // Cadastro
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,8 +55,13 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         email = email.trim().toLowerCase();
-        //email em espaços extras.
-        if (!Validador.emailValido(email)) {
+        if (!Validador.nomeUsuarioValido(nome)) {
+            request.setAttribute("erro", "Informe um nome válido de 2 a 100 caracteres.");
+            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            return;
+        }
+        // Normaliza o e-mail antes de validar e consultar a existência no banco.
+        if (!Validador.emailValido(email) || email.length() > 100) {
             request.setAttribute("erro", "E-mail inválido.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
@@ -156,9 +161,13 @@ public class UsuarioServlet extends HttpServlet {
 
         try {
             if (idTexto != null && !idTexto.isBlank()) {
+                if (!Validador.idValido(idTexto)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id inválido.");
+                    return;
+                }
                 int id = Integer.parseInt(idTexto);
                 Usuario usuario = usuarioDAO.readById(id);
-                //readById se nenhum usuário tiver esse id
+                // A consulta retorna null quando o usuário não existe.
 
                 if (usuario == null) {
                     response.sendRedirect(request.getContextPath() + "/usuarios");
@@ -181,15 +190,13 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
-    //Se não veio com id, vai listar todos os usuários
-
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8"); //define a codificação que entra, para os acentos.
-        response.setCharacterEncoding("UTF-8"); //define a decodificação que sai.
+        response.setCharacterEncoding("UTF-8"); // Define a codificação da resposta.
         response.setContentType("text/plain"); //avisa que a resposta é texto simples.
 
         //Lê o corpo (linha por linha) da requisição.
@@ -210,6 +217,11 @@ public class UsuarioServlet extends HttpServlet {
 
             //extrai os campos como texto
             int id = Integer.parseInt(json.get("idUsuario").getAsString());
+            if (id <= 0) {
+                response.setStatus(400);
+                response.getWriter().write("Id inválido.");
+                return;
+            }
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
             String email = json.get("email").getAsString().trim().toLowerCase();
@@ -223,8 +235,14 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
-            //Aquil valida o e-mail e o telefone no servidor.
-            if (!Validador.emailValido(email)) {
+            if (!Validador.nomeUsuarioValido(nome)) {
+                response.setStatus(400);
+                response.getWriter().write("Informe um nome válido de 2 a 100 caracteres.");
+                return;
+            }
+
+            // Valida e-mail e telefone também no servidor.
+            if (!Validador.emailValido(email) || email.length() > 100) {
                 response.setStatus(400);
                 response.getWriter().write("E-mail inválido.");
                 return;
@@ -312,6 +330,11 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         try {
+            if (!Validador.idValido(idTexto)) {
+                response.setStatus(400);
+                response.getWriter().write("Id inválido.");
+                return;
+            }
             int id = Integer.parseInt(idTexto);
             int linhas = usuarioDAO.deleteById(id);
 

@@ -24,7 +24,7 @@ public class NomeIngredienteServlet extends HttpServlet {
 
     private final NomeIngredienteDAO nomeIngredienteDAO = new NomeIngredienteDAO();
 
-    //create
+    // Cadastro
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,8 +49,8 @@ public class NomeIngredienteServlet extends HttpServlet {
 
                 if (nomeIngredienteDAO.cadastrarNomeIngrediente(nomeIngrediente)) {
                     response.sendRedirect(request.getContextPath() + "/nomeIngredientes?idIngrediente=" + idIngrediente);
-                    //sendRedirect --> O navegador faz uma nova requsição para a URL. É usado o doPost depois de cadastrar para o usuário não reenviar o formulário ao atualizar a página.
-                    // request.getContextPath --> Devolve o PREFIXO da URL (/Venus2). é necessário no sendRedirect porque o redirect é feito pelo navegador. que interpreta /usuarios como URL sem o nome Venus (app). Com o ContextPath, fica correto.
+                    // Redireciona após o cadastro para evitar reenvio do formulário ao atualizar a página.
+                    // O caminho de contexto mantém o redirecionamento dentro da aplicação.
                     return;
                 }
                 erro = "Não foi possível cadastrar o nome do ingrediente.";
@@ -72,7 +72,7 @@ public class NomeIngredienteServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_nome_ingrediente.jsp").forward(request, response);
     }
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -119,7 +119,7 @@ public class NomeIngredienteServlet extends HttpServlet {
         }
     }
 
-    //update
+    // Atualização
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -189,7 +189,7 @@ public class NomeIngredienteServlet extends HttpServlet {
         }
     }
 
-    //delete
+    // Exclusão
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -204,10 +204,10 @@ public class NomeIngredienteServlet extends HttpServlet {
 
             if (idTexto != null && !idTexto.isBlank()) {
                 linhas = nomeIngredienteDAO.deleteById(Integer.parseInt(idTexto));
-                //aqui exclui, pela chave da tabela IDNOME!
+                // Exclui apenas o nome identificado pela chave id_nome.
             } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 linhas = nomeIngredienteDAO.deleteByIdIngrediente(Integer.parseInt(idIngredienteTexto));
-                //aqui exclui TODOS os NOMES de um ingrediente
+                // Exclui todos os nomes vinculados ao ingrediente informado.
 
             } else {
                 response.setStatus(400);
@@ -219,7 +219,7 @@ public class NomeIngredienteServlet extends HttpServlet {
 
             if (linhas > 0) {
                 response.setStatus(200);
-                //aqui a resposta é baseada no número de linahs afetadas.
+                // A resposta considera a quantidade de registros excluídos.
             } else {
                 response.setStatus(404);
                 response.getWriter().write("Nome de ingrediente não encontrado.");

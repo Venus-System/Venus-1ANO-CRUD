@@ -23,7 +23,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
     private final UsuarioAlergiaDAO usuarioAlergiaDAO = new UsuarioAlergiaDAO();
     private final AlergiaDAO alergiaDAO = new AlergiaDAO();
-    //create
+    // Cadastro
 
     //O SQLException do read() é tratado dentro do auxiliar.
     private void mostrarFormulario(HttpServletRequest request, HttpServletResponse response, String erro)
@@ -74,22 +74,22 @@ public class UsuarioAlergiaServlet extends HttpServlet {
             mostrarFormulario(request, response, "Dados inválidos. Verifique o grau informado e tente novamente.");
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
-            //aqui significa que o vínculo já existe.
+            // O SQLState 23505 indica violação de unicidade do vínculo.
             if ("23505".equals(estado)) {
                 mostrarFormulario(request, response, "Este usuário já possui essa alergia.");
 
-                //aqui significa que o usuário ou a alergia já existe.
+                // O SQLState 23503 indica que o usuário ou a alergia referenciada não existe.
             } else if ("23503".equals(estado)) {
                 mostrarFormulario(request, response, "Usuário ou alergia não existe.");
             } else {
-                //aqui o throw também encerra o mehtodo.
+                //aqui o throw também encerra o método.
                 throw new ServletException("Erro ao cadastrar alergia do usuário", sqle);
             }
         }
     }
 
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -139,7 +139,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         }
     }
 
-    //update
+    // Atualização
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -180,7 +180,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         }
     }
 
-    //delete
+    // Exclusão
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -196,7 +196,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
             int linha;
 
 
-            //aqui será observado qual parâmetro veio na URL, pois dependendo do parâmetro outro mehtodo será chamado.
+            // Prioriza o vínculo por ID; depois, a exclusão de todos os vínculos do usuário ou da alergia.
             if (idTexto != null && !idTexto.isBlank()) {
                 linha = usuarioAlergiaDAO.deleteById(Integer.parseInt(idTexto));
 
@@ -206,7 +206,6 @@ public class UsuarioAlergiaServlet extends HttpServlet {
             } else if (idAlergiaTexto != null && !idAlergiaTexto.isBlank()) {
                 linha = usuarioAlergiaDAO.deleteByIdAlergia(Integer.parseInt(idAlergiaTexto));
 
-                //se nenhum
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");

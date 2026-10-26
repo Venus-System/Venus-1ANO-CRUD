@@ -44,8 +44,8 @@ public class CriarContaServlet extends HttpServlet {
 
         email = email.trim().toLowerCase();
 
-        if (nome.trim().length() > 100) {
-            voltarComErro(request, response, "O nome pode ter no máximo 100 caracteres.");
+        if (!Validador.nomeUsuarioValido(nome)) {
+            voltarComErro(request, response, "Informe um nome válido de 2 a 100 caracteres.");
             return;
         }
         if (!Validador.emailValido(email) || email.length() > 100) {
@@ -85,8 +85,11 @@ public class CriarContaServlet extends HttpServlet {
                 voltarComErro(request, response, "Este e-mail já está cadastrado. Tente entrar.");
                 return;
             }
-            usuarioDAO.cadastrarUsuario(usuario);
-            response.sendRedirect(request.getContextPath() + "/login?criada=1");
+            if (usuarioDAO.cadastrarUsuario(usuario)) {
+                response.sendRedirect(request.getContextPath() + "/login?criada=1");
+            } else {
+                voltarComErro(request, response, "Não foi possível criar a conta. Tente novamente.");
+            }
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
             if ("23505".equals(estado)) {

@@ -19,6 +19,7 @@ public class ErroServlet extends HttpServlet {
         Throwable erro = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
         String mensagem = "Algo deu errado ao abrir esta página. Tente de novo.";
 
+        // Percorre as causas para reconhecer falhas de autenticação ou conexão com o banco.
         while (erro != null) {
             if (erro instanceof SQLException) {
                 String estado = ((SQLException) erro).getSQLState();

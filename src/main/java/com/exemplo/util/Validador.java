@@ -5,11 +5,12 @@ import java.util.regex.Pattern;
 
 public class Validador {
 
-    //padrão
 
     private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
 
     private static final Pattern TELEFONE = Pattern.compile("^\\d{10,13}$");
+
+    private static final Pattern NOME_USUARIO = Pattern.compile("^[\\p{L}][\\p{L} .'\\-]{1,99}$");
 
     private static final Pattern SENHA = Pattern.compile("^.{6,}$");
 
@@ -24,6 +25,10 @@ public class Validador {
         return telefone != null && TELEFONE.matcher(telefone).matches();
     }
 
+    public static boolean nomeUsuarioValido(String nome) {
+        return nome != null && NOME_USUARIO.matcher(nome.trim()).matches();
+    }
+
     public static String somenteNumeros(String texto) {
         if (texto == null) {
             return "";
@@ -31,6 +36,7 @@ public class Validador {
         return texto.replaceAll("[^0-9]", "");
     }
 
+    // O gênero é opcional; quando preenchido, deve corresponder a uma das opções aceitas.
     public static boolean generoValido(String genero) {
         return genero == null || genero.isBlank()
                 || genero.equals("Feminino") || genero.equals("Masculino")
@@ -52,11 +58,9 @@ public class Validador {
 
     // começa com letra ou número; depois letras, números, espaço e  ' ( ) / . , & + % -   (2 a 60 caracteres)
     private static final Pattern NOME_PRODUTO = Pattern.compile("^[\\p{L}\\d][\\p{L}\\d '()/.,&+%-]{1,59}$");
-    //o pattern é uma classe que guarda o regex já compilado. (o modelo de texto que eu quiser aceitar)
+
     public static boolean nomeProdutoValido(String texto) {
         return texto != null && NOME_PRODUTO.matcher(texto).matches();
-        //matcher é usado para validar.
-        //matches devolve true se o texto inteiro seguir o padrão.
     }
 
     public static boolean pontuacaoValida(int pontuacao) {
@@ -91,8 +95,14 @@ public class Validador {
     private static final Pattern TEXTO_PREFERENCIA =
             Pattern.compile("^[\\p{L}0-9][\\p{L}0-9 .,;:'()/%$&+\\-]{0,254}$");
 
+    // Preferências vazias são aceitas; textos preenchidos são validados sem espaços nas extremidades.
     public static boolean preferenciaOpcionalValida(String texto) {
-        return texto == null || texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches();
+        return preferenciaOpcionalValida(texto, 255);
+    }
+
+    public static boolean preferenciaOpcionalValida(String texto, int tamanhoMaximo) {
+        return texto == null || (texto.length() <= tamanhoMaximo
+                && (texto.isBlank() || TEXTO_PREFERENCIA.matcher(texto.trim()).matches()));
     }
 
     public static boolean tipoPeleValido(String tipo) {
@@ -124,10 +134,18 @@ public class Validador {
         return valor >= 0 && valor <= 100;
     }
 
-    private static final Pattern ID = Pattern.compile("^[1-9]\\d{0,8}$");
+    // Aceita identificadores positivos que cabem em um int, sem zero à esquerda.
+    private static final Pattern ID = Pattern.compile("^[1-9]\\d{0,9}$");
 
     public static boolean idValido(String texto) {
-        return texto != null && ID.matcher(texto.trim()).matches();
+        if (texto == null || !ID.matcher(texto.trim()).matches()) {
+            return false;
+        }
+        try {
+            return Integer.parseInt(texto.trim()) > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }

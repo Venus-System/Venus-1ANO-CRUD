@@ -16,7 +16,7 @@ public class Analise {
         this.dtHrAnalise = dtHrAnalise;
         this.resumoResultado = resumoResultado;
         this.pontuacao = pontuacao;
-        this.idUsuario=idUsuario;
+        this.idUsuario = idUsuario;
 
     }
 
@@ -75,12 +75,13 @@ public class Analise {
     public String getDtHrAnaliseFormatada() {
         return dtHrAnalise == null ? "" : dtHrAnalise.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
+
     @Override
     public String toString() {
-        return "Id Análise: " + getIdAnalise()+"\n"+
-                "Data e Hora Análise: " + getDtHrAnalise() + "\n"+
-                "Resumo Resultado: " + getResumoResultado() + "\n"+
-                "Pontuação: "+getPontuacao()+"\n"+
-                "Id Usuário: "+getIdUsuario()+"\n";
+        return "Id Análise: " + getIdAnalise() + "\n" +
+                "Data e Hora Análise: " + getDtHrAnalise() + "\n" +
+                "Resumo Resultado: " + getResumoResultado() + "\n" +
+                "Pontuação: " + getPontuacao() + "\n" +
+                "Id Usuário: " + getIdUsuario() + "\n";
     }
 }

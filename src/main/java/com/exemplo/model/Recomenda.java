@@ -3,6 +3,7 @@ package com.exemplo.model;
 public class Recomenda {
     private int idProduto;
     private int idUsuario;
+    // Dados do produto e do usuário preenchidos pelas consultas com junção no DAO.
     private String nomeProduto;
     private String marcaProduto;
     private String nomeUsuario;

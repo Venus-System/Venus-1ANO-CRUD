@@ -2,6 +2,7 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.PerfilPele;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,14 +48,12 @@ public class PerfilPeleDAO {
     public PerfilPele readById(int id) throws SQLException {
         String sql = "select * from perfil_pele where id_perfil_pele = ?";
         PerfilPele perfil = null;
-        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
 
             try (ResultSet rset = pstmt.executeQuery()) {
-                //que permite a visualização das tabelas
                 if (rset.next()) {
                     perfil = new PerfilPele(
                             rset.getInt("sensibilidade"),
@@ -137,11 +136,11 @@ public class PerfilPeleDAO {
 
 
         try (Connection conexao = ConexaoBanco.conectar();
-        PreparedStatement comando = conexao.prepareStatement(sql)) {
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setInt(1, idUsuario);
 
-            try (ResultSet resultado = comando.executeQuery()){
+            try (ResultSet resultado = comando.executeQuery()) {
 
                 boolean existe = resultado.next();
 

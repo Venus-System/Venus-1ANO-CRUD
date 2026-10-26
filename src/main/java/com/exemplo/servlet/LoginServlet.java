@@ -58,13 +58,16 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
+            // Converte a senha antiga em texto para BCrypt após confirmar as credenciais.
             if (!senhaTemHash(usuario.getSenha())) {
                 usuarioDAO.trocarSenha(usuario.getIdUsuario(), SenhaUtil.gerarHash(senha));
             }
 
             request.getSession(true);
+            // Renova o identificador da sessão após a autenticação.
             request.changeSessionId();
 
+            // Evita manter a senha carregada do banco no objeto guardado na sessão.
             usuario.setSenha(null);
             request.getSession().setAttribute("usuarioLogado", usuario);
             response.sendRedirect(request.getContextPath() + "/dashboard");

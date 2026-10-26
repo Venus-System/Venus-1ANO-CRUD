@@ -24,10 +24,10 @@ public class AnaliseServlet extends HttpServlet {
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    private static final String MSG_RESUMO_INVALIDO = "O resumo deve ter no máximo 500 caracteres.";
+    private static final String MSG_RESUMO_INVALIDO = "O resumo deve ter no máximo 255 caracteres.";
     private static final String MSG_PONTUACAO_INVALIDA = "A pontuação deve ficar entre 0 e 100.";
 
-    //create
+    // Cadastro
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -87,7 +87,7 @@ public class AnaliseServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_analise.jsp").forward(request, response);
     }
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -134,7 +134,7 @@ public class AnaliseServlet extends HttpServlet {
         }
     }
 
-    //update
+    // Atualização
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -198,7 +198,8 @@ public class AnaliseServlet extends HttpServlet {
         }
     }
 
-    //delete
+    // Exclusão
+    // Exclui uma análise por ID ou todas as análises do usuário quando apenas idUsuario é informado.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -139,7 +139,7 @@
     <form id="form-editar">
         <label class="form-field">
             Faixa de preço
-            <input id="faixaPreco" type="text" maxlength="255"
+            <input id="faixaPreco" type="text" maxlength="20"
                    value="<c:out value='${preferencia.faixaPreco}'/>">
         </label>
 
@@ -150,18 +150,18 @@
 
         <label class="form-field">
             Restrições de dieta
-            <textarea id="restricoesDieta" maxlength="255"><c:out value="${preferencia.restricoesDieta}"/></textarea>
+            <textarea id="restricoesDieta" maxlength="100"><c:out value="${preferencia.restricoesDieta}"/></textarea>
         </label>
 
         <label class="form-field">
             Categorias preferidas
-            <input id="categoriaPref" type="text" maxlength="255"
+            <input id="categoriaPref" type="text" maxlength="100"
                    value="<c:out value='${preferencia.categoriaPref}'/>">
         </label>
 
         <label class="form-field">
             Marcas favoritas
-            <input id="marcasFav" type="text" maxlength="255"
+            <input id="marcasFav" type="text" maxlength="100"
                    value="<c:out value='${preferencia.marcasFav}'/>">
         </label>
 

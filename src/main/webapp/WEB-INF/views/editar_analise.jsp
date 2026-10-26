@@ -140,7 +140,7 @@
     <form id="form-editar">
         <label class="form-field">
             Resumo do resultado
-            <textarea id="resumoResultado" maxlength="500" required><c:out value="${analise.resumoResultado}"/></textarea>
+            <textarea id="resumoResultado" maxlength="255" required><c:out value="${analise.resumoResultado}"/></textarea>
         </label>
 
         <label class="form-field">

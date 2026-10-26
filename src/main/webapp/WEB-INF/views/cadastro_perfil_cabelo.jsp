@@ -153,7 +153,7 @@
 
         <div class="form-row">
             <label class="form-field">
-                Curvatura (1 a 5)
+                Curvatura (1 a 4)
                 <select name="curvatura" required>
                     <option value="">Selecione</option>
                     <c:forEach var="n" begin="1" end="4">
@@ -163,7 +163,7 @@
             </label>
 
             <label class="form-field">
-                Oleosidade (1 a 5)
+                Oleosidade (1 a 10)
                 <select name="oleosidade" required>
                     <option value="">Selecione</option>
                     <c:forEach var="n" begin="1" end="10">
@@ -177,7 +177,7 @@
             Espessura (1 a 10)
             <select name="espessura" required>
                 <option value="">Selecione</option>
-                <c:forEach var="n" begin="1" end="5">
+                <c:forEach var="n" begin="1" end="10">
                     <option value="${n}" ${param.espessura == n ? 'selected' : ''}>${n}</option>
                 </c:forEach>
             </select>

@@ -139,7 +139,7 @@
     <form id="form-editar">
         <label class="form-field">
             Tipo de pele
-            <input id="tipoPele" type="text" maxlength="50" list="tipos-pele" required
+            <input id="tipoPele" type="text" maxlength="20" list="tipos-pele" required
                    value="<c:out value='${perfilPele.tipoPele}'/>">
             <datalist id="tipos-pele">
                 <option value="Normal">
@@ -152,18 +152,18 @@
 
         <div class="form-row">
             <label class="form-field">
-                Sensibilidade (1 a 5)
+                Sensibilidade (1 a 10)
                 <select id="sensibilidade" required>
-                    <c:forEach var="n" begin="1" end="5">
+                    <c:forEach var="n" begin="1" end="10">
                         <option value="${n}" ${perfilPele.sensibilidade == n ? 'selected' : ''}>${n}</option>
                     </c:forEach>
                 </select>
             </label>
 
             <label class="form-field">
-                Oleosidade (1 a 5)
+                Oleosidade (1 a 10)
                 <select id="nivelOleosidade" required>
-                    <c:forEach var="n" begin="1" end="5">
+                    <c:forEach var="n" begin="1" end="10">
                         <option value="${n}" ${perfilPele.nivelOleosidade == n ? 'selected' : ''}>${n}</option>
                     </c:forEach>
                 </select>

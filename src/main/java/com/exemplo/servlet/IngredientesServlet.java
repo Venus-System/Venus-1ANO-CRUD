@@ -84,7 +84,7 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    //read
+    // Consulta
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -122,7 +122,7 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    //update
+    // Atualização
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -190,7 +190,7 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    //delete
+    // Exclusão
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -24,6 +24,7 @@ public class AcessoServlet extends HttpServlet {
                 }
                 response.sendRedirect(request.getContextPath() + "/login?saiu=1");
                 break;
+            // Estas rotas exibem as telas de recuperação, sem alterar a senha no banco.
             case "/esqueceu-a-senha":
                 request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
                 break;
