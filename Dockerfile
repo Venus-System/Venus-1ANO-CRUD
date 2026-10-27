@@ -13,7 +13,8 @@ RUN rm -rf /usr/local/tomcat/webapps/*
 
 COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
+RUN sed -i 's|</Host>|<Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="x-forwarded-for" protocolHeader="x-forwarded-proto" /></Host>|' /usr/local/tomcat/conf/server.xml
+
 EXPOSE 8080
 
 CMD ["catalina.sh", "run"]
-RUN sed -i 's|</Host>|<Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="x-forwarded-for" protocolHeader="x-forwarded-proto" /></Host>|' /usr/local/tomcat/conf/server.xml
