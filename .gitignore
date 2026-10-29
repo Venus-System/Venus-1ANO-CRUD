@@ -1,5 +1,6 @@
 ### Ambiente / segredos ###
 .env
+.env.example
 
 ### Maven ###
 target/

@@ -105,7 +105,6 @@ if (botoesAba.length > 0) {
     });
   });
 
-  // Usa o fragmento da URL para reabrir a aba ao retornar ao detalhe do usuário.
   const abaDoEndereco = location.hash.replace('#', '');
   if (document.getElementById('aba-' + abaDoEndereco)) {
     abrirAba(abaDoEndereco);
@@ -114,7 +113,6 @@ if (botoesAba.length > 0) {
   }
 }
 
-// Separa os dados locais de perfil pelo ID do usuário; o salvamento ocorre neste navegador.
 const chavePerfil = 'venus-perfil-' + (document.body.dataset.usuario || '');
 
 function lerPerfil() {
@@ -189,7 +187,6 @@ if (formularioPerfil) {
       tela.width = 200;
       tela.height = 200;
 
-      // Recorta o centro da imagem em formato quadrado e reduz a foto para 200 por 200 pixels.
       const lado = Math.min(imagem.width, imagem.height);
       const x = (imagem.width - lado) / 2;
       const y = (imagem.height - lado) / 2;
@@ -262,7 +259,6 @@ document.querySelectorAll('.alerta-erro, .alert-erro').forEach(function (aviso) 
 
 const LINHAS_POR_PAGINA = 10;
 
-// A busca usa hidden ou display; a paginação usa a classe fora-da-pagina para preservar esse filtro.
 function linhaPassaNaBusca(linha) {
   return !linha.hidden && linha.style.display !== 'none';
 }

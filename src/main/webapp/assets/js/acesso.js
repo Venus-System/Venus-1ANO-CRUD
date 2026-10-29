@@ -2,7 +2,6 @@ const botoesOlho = document.querySelectorAll('.mostrar-senha');
 
 for (const botao of botoesOlho) {
   botao.addEventListener('change', function () {
-    // O campo de senha deve ser o elemento imediatamente após o controle de visibilidade.
     const campoSenha = botao.nextElementSibling;
 
     if (botao.checked) {

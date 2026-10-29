@@ -27,7 +27,7 @@ public class PerfilCabeloServlet extends HttpServlet {
     private static final String MSG_ESCALA_INVALIDA =
             "Curvatura deve ficar entre 1 e 4. Oleosidade e espessura devem ficar entre 1 e 10.";
 
-    // Cadastro
+    //create
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -93,7 +93,7 @@ public class PerfilCabeloServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_cabelo.jsp").forward(request, response);
     }
 
-    // Consulta
+    //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -144,7 +144,7 @@ public class PerfilCabeloServlet extends HttpServlet {
         }
     }
 
-    // Atualização
+    //update
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -200,8 +200,7 @@ public class PerfilCabeloServlet extends HttpServlet {
         }
     }
 
-    // Exclusão
-    // Exclui pelo ID do perfil ou pelo usuário quando o ID do perfil não é informado.
+    //delete
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -223,7 +222,7 @@ public class PerfilCabeloServlet extends HttpServlet {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");
                 return;
-                //encerra o método na hora, depois de definir o status e escrever a mensagem.
+                //encerra o mehtodo na hora, depois de definir o status e escrever a mensagem.
 
             }
 

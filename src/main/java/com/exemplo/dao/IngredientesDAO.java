@@ -2,7 +2,6 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Ingredientes;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 
 public class IngredientesDAO {
 
-    // Usa a data atual como data de atualização no cadastro do ingrediente.
     public boolean cadastrarIngredientes(Ingredientes ingredientes) throws SQLException {
         String sql = "insert into ingredientes(nivel_perigo, tipo, dt_atualizacao) values (?, ?, ?)";
 
@@ -41,12 +39,11 @@ public class IngredientesDAO {
                 );
                 ingredientes.add(ing1);
             }
-        }
-        return ingredientes;
+        } return ingredientes;
 
     }
 
-    public Ingredientes readById(int id) throws SQLException {
+    public Ingredientes readById (int id) throws SQLException {
         String sql = "select * from ingredientes where id_ingrediente =?";
         Ingredientes ingredientes = null;
 
@@ -66,11 +63,9 @@ public class IngredientesDAO {
                 }
             }
 
-        }
-        return ingredientes;
+        } return ingredientes;
     }
 
-    // Renova a data de atualização ao alterar o tipo ou o nível de perigo.
     public int alterarValores(Ingredientes ingredientes) throws SQLException {
         String sql = "update ingredientes set nivel_perigo = ?, tipo = ?, dt_atualizacao = ? where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
@@ -78,7 +73,7 @@ public class IngredientesDAO {
 
             pstmt.setInt(1, ingredientes.getNivelPerigo());
             pstmt.setString(2, ingredientes.getTipo());
-            pstmt.setObject(3, LocalDate.now());
+            pstmt.setObject(3,LocalDate.now());
             pstmt.setInt(4, ingredientes.getIdIngrediente());
 
             return pstmt.executeUpdate();
@@ -90,7 +85,7 @@ public class IngredientesDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }

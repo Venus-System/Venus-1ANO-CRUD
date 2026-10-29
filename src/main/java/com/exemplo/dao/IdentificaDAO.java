@@ -13,8 +13,8 @@ public class IdentificaDAO {
 
     private static final String SELECT_COM_INGREDIENTE =
             "select ide.id_ingrediente, ide.id_analise, i.tipo, i.nivel_perigo " +
-                    "from identifica ide " +
-                    "left join ingredientes i on i.id_ingrediente = ide.id_ingrediente ";
+            "from identifica ide " +
+            "left join ingredientes i on i.id_ingrediente = ide.id_ingrediente ";
 
     public boolean cadastrarIdentifica(Identifica identifica) throws SQLException {
         String sql = "insert into identifica (id_ingrediente, id_analise) values (?, ?)";
@@ -76,7 +76,6 @@ public class IdentificaDAO {
         return lista;
     }
 
-    // Localiza o vínculo pela análise e pelo ingrediente antigo para substituir o ingrediente.
     public int update(int idAnalise, int idIngredienteAntigo, int idIngredienteNovo) throws SQLException {
         String sql = "update identifica set id_ingrediente = ? where id_analise = ? and id_ingrediente = ?";
 

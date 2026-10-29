@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -82,6 +80,12 @@
                     <a class="menu-lateral__link" href="${ctx}/alergias" ${paginaAtiva == 'alergias' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/ingredientes-atencao.svg" alt="">
                         Alergias
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
                     </a>
                 </li>
                 <li>
@@ -153,7 +157,7 @@
 
         <div class="form-row">
             <label class="form-field">
-                Curvatura (1 a 4)
+                Curvatura (1 a 5)
                 <select name="curvatura" required>
                     <option value="">Selecione</option>
                     <c:forEach var="n" begin="1" end="4">
@@ -163,7 +167,7 @@
             </label>
 
             <label class="form-field">
-                Oleosidade (1 a 10)
+                Oleosidade (1 a 5)
                 <select name="oleosidade" required>
                     <option value="">Selecione</option>
                     <c:forEach var="n" begin="1" end="10">
@@ -177,7 +181,7 @@
             Espessura (1 a 10)
             <select name="espessura" required>
                 <option value="">Selecione</option>
-                <c:forEach var="n" begin="1" end="10">
+                <c:forEach var="n" begin="1" end="5">
                     <option value="${n}" ${param.espessura == n ? 'selected' : ''}>${n}</option>
                 </c:forEach>
             </select>

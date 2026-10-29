@@ -20,7 +20,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
     private final ProdutoIngredienteDAO produtoIngredienteDAO = new ProdutoIngredienteDAO();
     private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
 
-    // Cadastro
+    //create
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -75,84 +75,83 @@ public class ProdutoIngredienteServlet extends HttpServlet {
     }
 
 
-    // Consulta
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        //read
+        @Override
+        protected void doGet (HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String idProdutoTexto = request.getParameter("idProduto"); //aqui filtrará por produto.
-        String acao = request.getParameter("acao");
-        try {
-            if ("novo".equals(acao)) {
-                request.setAttribute("ingredientes", ingredientesDAO.read());
-                request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
-                return;
-            }
+            String idProdutoTexto = request.getParameter("idProduto"); //aqui filtrará por produto.
+            String acao = request.getParameter("acao");
+            try {
+                if ("novo".equals(acao)) {
+                    request.setAttribute("ingredientes", ingredientesDAO.read());
+                    request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
+                    return;
+                }
 
-            if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
-                int idProduto = Integer.parseInt(idProdutoTexto);
-                ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.readByIdProduto(idProduto);
+                if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                    int idProduto = Integer.parseInt(idProdutoTexto);
+                    ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.readByIdProduto(idProduto);
 
+                    request.setAttribute("produtosIngredientes", listaProduto);
+                    request.getRequestDispatcher("/WEB-INF/views/lista_produto_ingrediente.jsp").forward(request, response);
+                    return;
+                }
+
+                ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.read();
                 request.setAttribute("produtosIngredientes", listaProduto);
                 request.getRequestDispatcher("/WEB-INF/views/lista_produto_ingrediente.jsp").forward(request, response);
-                return;
+            } catch (NumberFormatException nfe) {
+                response.sendRedirect(request.getContextPath() + "/produtoIngredientes");
+            } catch (SQLException sqle) {
+                throw new ServletException("Erro ao buscar ingredientes dos produtos.", sqle);
             }
-
-            ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.read();
-            request.setAttribute("produtosIngredientes", listaProduto);
-            request.getRequestDispatcher("/WEB-INF/views/lista_produto_ingrediente.jsp").forward(request, response);
-        } catch (NumberFormatException nfe) {
-            response.sendRedirect(request.getContextPath() + "/produtoIngredientes");
-        } catch (SQLException sqle) {
-            throw new ServletException("Erro ao buscar ingredientes dos produtos.", sqle);
         }
-    }
 
-    // Exclusão
-    // Prioriza o ID do vínculo; sem ele, exclui todos os vínculos do ingrediente ou do produto.
-    @Override
+        //delete
+        @Override
 
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+        protected void doDelete (HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/plain");
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/plain");
 
-        String idTexto = request.getParameter("id");
-        String idIngredienteTexto = request.getParameter("idIngrediente");
-        String idProdutoTexto = request.getParameter("idProduto");
+            String idTexto = request.getParameter("id");
+            String idIngredienteTexto = request.getParameter("idIngrediente");
+            String idProdutoTexto = request.getParameter("idProduto");
 
-        try {
-            int linhas;
+            try {
+                int linhas;
 
-            if (idTexto != null && !idTexto.isBlank()) {
-                int id = Integer.parseInt(idTexto);
-                linhas = produtoIngredienteDAO.deleteById(id);
-            } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
-                int idIngrediente = Integer.parseInt(idIngredienteTexto);
-                linhas = produtoIngredienteDAO.deleteByIdIngrediente(idIngrediente);
-            } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
-                int idProduto = Integer.parseInt(idProdutoTexto);
-                linhas = produtoIngredienteDAO.deleteByIdProduto(idProduto);
-            } else {
+                if (idTexto != null && !idTexto.isBlank()) {
+                    int id = Integer.parseInt(idTexto);
+                    linhas = produtoIngredienteDAO.deleteById(id);
+                } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
+                    int idIngrediente = Integer.parseInt(idIngredienteTexto);
+                    linhas = produtoIngredienteDAO.deleteByIdIngrediente(idIngrediente);
+                } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
+                    int idProduto = Integer.parseInt(idProdutoTexto);
+                    linhas = produtoIngredienteDAO.deleteByIdProduto(idProduto);
+                } else {
+                    response.setStatus(400);
+                    response.getWriter().write("Id não informado.");
+                    return;
+                }
+
+                if (linhas > 0) {
+                    response.setStatus(200);
+                    //algo foi apagado, então a exclusão deu certo.
+                } else {
+                    response.setStatus(404);
+                    response.getWriter().write("Registro não encontrado.");
+                    //o comando rodou sem erro, mas nenhum registro tinha aquele id, então não havia o que apagar.
+                }
+            } catch (NumberFormatException nfe) {
                 response.setStatus(400);
-                response.getWriter().write("Id não informado.");
-                return;
+                response.getWriter().write("Id inválido.");
+            } catch (SQLException sqle) {
+                throw new ServletException("Erro ao excluir o ingrediente do produto.", sqle);
             }
-
-            if (linhas > 0) {
-                response.setStatus(200);
-                //algo foi apagado, então a exclusão deu certo.
-            } else {
-                response.setStatus(404);
-                response.getWriter().write("Registro não encontrado.");
-                //o comando rodou sem erro, mas nenhum registro tinha aquele id, então não havia o que apagar.
-            }
-        } catch (NumberFormatException nfe) {
-            response.setStatus(400);
-            response.getWriter().write("Id inválido.");
-        } catch (SQLException sqle) {
-            throw new ServletException("Erro ao excluir o ingrediente do produto.", sqle);
         }
     }
-}

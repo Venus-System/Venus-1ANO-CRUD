@@ -25,15 +25,15 @@ public class PerfilPeleServlet extends HttpServlet {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     private static final String MSG_TIPO_INVALIDO =
-            "Tipo de pele inválido. Escolha Seca, Oleosa, Sensível, Mista ou Normal.";
+            "Tipo de pele inválido. Use de 2 a 50 caracteres (letras, espaço, / e -).";
     private static final String MSG_ESCALA_INVALIDA =
-            "Sensibilidade e oleosidade devem ficar entre 1 e 10.";
+            "Sensibilidade e oleosidade devem ficar entre 1 e 5.";
 
     private String valor(String texto) {
         return texto == null ? "" : texto.trim();
     }
 
-    // Cadastro
+    //create
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -98,7 +98,7 @@ public class PerfilPeleServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_pele.jsp").forward(request, response);
     }
 
-    // Consulta
+    //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -149,7 +149,7 @@ public class PerfilPeleServlet extends HttpServlet {
         }
     }
 
-    // Atualização
+    //update
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -216,8 +216,7 @@ public class PerfilPeleServlet extends HttpServlet {
         }
     }
 
-    // Exclusão
-    // Exclui pelo ID do perfil ou pelo usuário quando o ID do perfil não é informado.
+    //delete
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

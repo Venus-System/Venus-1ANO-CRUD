@@ -13,26 +13,26 @@ import java.time.LocalDate;
 
 public class UsuarioAlergiaDAO {
     public boolean inserirUsuarioAlergia(UsuarioAlergia usuarioAlergia) throws SQLException {
-        String sql = "insert into usuario_alergia (grau, id_usuario , id_alergia) values (?,?,?)";
+        String sql= "insert into usuario_alergia (grau, id_usuario , id_alergia) values (?,?,?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
-            pstm.setInt(1, usuarioAlergia.getGrau());
-            pstm.setInt(2, usuarioAlergia.getIdUsuario());
-            pstm.setInt(3, usuarioAlergia.getIdAlergia());
-            return pstm.executeUpdate() > 0;
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
+                pstm.setInt(1,usuarioAlergia.getGrau());
+                pstm.setInt(2,usuarioAlergia.getIdUsuario());
+                pstm.setInt(3,usuarioAlergia.getIdAlergia());
+            return pstm.executeUpdate()>0;
         }
     }
 
-    public ArrayList<UsuarioAlergia> read() throws SQLException {
-        String sql = "select*from usuario_alergia order by id_usuario_alergia";
+    public ArrayList<UsuarioAlergia> read() throws SQLException{
+        String sql= "select*from usuario_alergia order by id_usuario_alergia";
         ArrayList<UsuarioAlergia> usuarioAlergia = new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql);
              ResultSet rset = pstmt.executeQuery()) {
-            while (rset.next()) {
-                UsuarioAlergia usAl = new UsuarioAlergia(
+            while (rset.next()){
+                UsuarioAlergia usAl = new UsuarioAlergia (
                         rset.getInt("id_usuario_alergia"),
                         rset.getObject("dt_registro", LocalDate.class),
                         rset.getInt("grau"),
@@ -40,21 +40,20 @@ public class UsuarioAlergiaDAO {
                         rset.getInt("id_alergia"));
                 usuarioAlergia.add(usAl);
             }
-        }
-        return usuarioAlergia;
+        } return usuarioAlergia;
     }
 
-    public UsuarioAlergia readById(int id) throws SQLException {
-        String sql = "select*from usuario_alergia where id_usuario_alergia = ?";
+    public UsuarioAlergia readById(int id) throws SQLException{
+        String sql= "select*from usuario_alergia where id_usuario_alergia = ?";
         UsuarioAlergia usuarioAlergia = null;
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
-            pstm.setInt(1, id);
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
+            pstm.setInt(1,id);
 
             try (ResultSet rset = pstm.executeQuery()) {
-                if (rset.next()) {
-                    usuarioAlergia = new UsuarioAlergia(
+                if(rset.next()){
+                    usuarioAlergia  = new UsuarioAlergia(
                             rset.getInt("id_usuario_alergia"),
                             rset.getObject("dt_registro", LocalDate.class),
                             rset.getInt("grau"),
@@ -62,25 +61,24 @@ public class UsuarioAlergiaDAO {
                             rset.getInt("id_alergia"));
                 }
             }
-        }
-        return usuarioAlergia;
+        }return usuarioAlergia;
 
     }
 
-    public ArrayList<UsuarioAlergia> readByIdUsuario(int id) throws SQLException {
-        String sql = "select ua.*, a.nome_alergia as nome_alergia " +
+    public ArrayList<UsuarioAlergia> readByIdUsuario(int id) throws SQLException{
+        String sql= "select ua.*, a.nome_alergia as nome_alergia " +
                 "from usuario_alergia ua " +
                 "join alergia a on a.id_alergia = ua.id_alergia " +
                 "where ua.id_usuario = ? " +
                 "order by a.nome_alergia";
-        ArrayList<UsuarioAlergia> usuarioAlergia = new ArrayList<>();
+        ArrayList<UsuarioAlergia> usuarioAlergia= new ArrayList<>();
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
-            pstm.setInt(1, id);
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
+            pstm.setInt(1,id);
 
             try (ResultSet rset = pstm.executeQuery()) {
-                while (rset.next()) {
+                while (rset.next()){
                     UsuarioAlergia usAl1 = new UsuarioAlergia(
                             rset.getInt("id_usuario_alergia"),
                             rset.getObject("dt_registro", LocalDate.class),
@@ -91,15 +89,14 @@ public class UsuarioAlergiaDAO {
                     usuarioAlergia.add(usAl1);
                 }
             }
-        }
-        return usuarioAlergia;
+        }return usuarioAlergia;
 
     }
 
-    public int update(UsuarioAlergia usuarioAlergia) throws SQLException {
+    public int update (UsuarioAlergia usuarioAlergia) throws SQLException{
         String sql = "update usuario_alergia set grau =? where id_usuario_alergia=?";
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+            PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setInt(1, usuarioAlergia.getGrau());
             pstmt.setInt(2, usuarioAlergia.getIdUsuarioAlergia());
@@ -109,33 +106,33 @@ public class UsuarioAlergiaDAO {
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    public int deleteById(int id) throws SQLException{
         String sql = "delete from usuario_alergia where id_usuario_alergia = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
             return pstm.executeUpdate();
         }
     }
 
-    public int deleteByIdAlergia(int id) throws SQLException {
+    public int deleteByIdAlergia(int id) throws SQLException{
         String sql = "delete from usuario_alergia where id_alergia = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
+           PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
             return pstm.executeUpdate();
         }
     }
 
-    public int deleteByIdUsuario(int id) throws SQLException {
+    public int deleteByIdUsuario(int id) throws SQLException{
         String sql = "delete from usuario_alergia where id_usuario = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstm = cnn.prepareStatement(sql)) {
+             PreparedStatement pstm = cnn.prepareStatement(sql)){
 
             pstm.setInt(1, id);
             return pstm.executeUpdate();

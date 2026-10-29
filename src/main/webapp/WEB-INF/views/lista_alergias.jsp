@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -85,6 +83,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
+                    </a>
+                </li>
+                <li>
                     <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
                         Perfil
@@ -134,7 +138,7 @@
     </div>
     <div class="heading-actions">
         <a class="btn primary" href="${ctx}/alergias?acao=novo">
-            <span class="figma-icon" style="--icon-size:20px"><img src="${ctx}/assets/21d8c3ca-d1c2-4fee-8539-28c320da8381.svg" alt=""></span>
+            <span class="figma-icon" style="--icon-size:20px"><img src="${ctx}/assets/img/icones-crud/mais.svg" alt=""></span>
             Adicionar nova alergia
         </a>
     </div>
@@ -155,7 +159,7 @@
 
 <div class="toolbar">
     <label class="search">
-        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
+        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/buscar.svg" alt=""></span>
         <input id="busca" type="search" aria-label="Buscar alergias" placeholder="Buscar por nome...">
     </label>
 </div>
@@ -178,10 +182,10 @@
                     <td>
                         <div class="actions">
                             <a class="icon-btn" href="${ctx}/alergias?id=${a.idAlergia}" aria-label="Editar ${fn:escapeXml(a.nomeAlergia)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/editar.svg" alt=""></span>
                             </a>
                             <button class="icon-btn" type="button" data-excluir="${a.idAlergia}" aria-label="Excluir ${fn:escapeXml(a.nomeAlergia)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/excluir.svg" alt=""></span>
                             </button>
                         </div>
                     </td>

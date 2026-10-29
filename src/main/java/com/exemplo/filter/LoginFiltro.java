@@ -18,7 +18,7 @@ public class LoginFiltro implements Filter {
 
     private static final Set<String> PAGINAS_LIVRES = Set.of(
             "/", "/index.html", "/login", "/criar-conta", "/sair",
-            "/esqueceu-a-senha", "/nova-senha", "/senha-alterada", "/erro");
+            "/esqueceu-a-senha", "/nova-senha", "/senha-alterada", "/verificar-codigo", "/erro");
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -40,7 +40,6 @@ public class LoginFiltro implements Filter {
             return;
         }
 
-        // PUT e DELETE recebem 401 em texto para que os scripts tratem a sessão encerrada.
         if (!"GET".equals(request.getMethod()) && !"POST".equals(request.getMethod())) {
             response.setStatus(401);
             response.setCharacterEncoding("UTF-8");

@@ -118,7 +118,6 @@
   background-color: #e5d8f7;
 }
 
-/* Oculta as linhas de outras páginas sem alterar o filtro de busca usado pelo painel.js. */
 .fora-da-pagina {
   display: none;
 }

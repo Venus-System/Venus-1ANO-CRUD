@@ -22,7 +22,6 @@ public class ProdutoIngredienteDAO {
         }
     }
 
-    // Agrupa os nomes do ingrediente para manter uma linha por vínculo com o produto.
     public ArrayList<ProdutoIngrediente> read() throws SQLException {
         String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
                 + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "
@@ -52,7 +51,6 @@ public class ProdutoIngredienteDAO {
 
     }
 
-    // Mantém uma linha por vínculo, reunindo os nomes ou exibindo "(sem nome)".
     public ArrayList<ProdutoIngrediente> readByIdProduto(int id) throws SQLException {
         String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
                 + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "
