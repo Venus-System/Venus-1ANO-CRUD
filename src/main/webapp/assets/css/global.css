@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
+
 :root {
   --cor-rosa-claro: #f7caff;
   --cor-branco: #ffffff;
@@ -40,7 +42,7 @@
   --painel-vermelho: #d45d79;
   --gradiente-menu: linear-gradient(180deg, #32135b 48%, #6a28c1);
   --gradiente-menu-ativo: linear-gradient(90deg, #7549c2, #553287);
-  --fonte-menu: "Inter", sans-serif;
+  --fonte-menu: "Poppins", sans-serif;
 }
 
 * {

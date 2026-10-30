@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -85,6 +83,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
+                    </a>
+                </li>
+                <li>
                     <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
                         Perfil
@@ -139,7 +143,7 @@
     <form id="form-editar">
         <label class="form-field">
             Faixa de preço
-            <input id="faixaPreco" type="text" maxlength="20"
+            <input id="faixaPreco" type="text" maxlength="255"
                    value="<c:out value='${preferencia.faixaPreco}'/>">
         </label>
 
@@ -150,18 +154,18 @@
 
         <label class="form-field">
             Restrições de dieta
-            <textarea id="restricoesDieta" maxlength="100"><c:out value="${preferencia.restricoesDieta}"/></textarea>
+            <textarea id="restricoesDieta" maxlength="255"><c:out value="${preferencia.restricoesDieta}"/></textarea>
         </label>
 
         <label class="form-field">
             Categorias preferidas
-            <input id="categoriaPref" type="text" maxlength="100"
+            <input id="categoriaPref" type="text" maxlength="255"
                    value="<c:out value='${preferencia.categoriaPref}'/>">
         </label>
 
         <label class="form-field">
             Marcas favoritas
-            <input id="marcasFav" type="text" maxlength="100"
+            <input id="marcasFav" type="text" maxlength="255"
                    value="<c:out value='${preferencia.marcasFav}'/>">
         </label>
 

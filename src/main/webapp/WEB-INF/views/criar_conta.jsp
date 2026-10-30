@@ -11,13 +11,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><c:out value="${tituloPagina}"/> · Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/acesso.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/${cssPagina}">
 </head>
 <body>
     <section class="lado-formulario">
         <a class="marca" href="${ctx}/" aria-label="Venus, voltar para a página inicial">
-            <img src="${ctx}/assets/img/logo-acesso.png" alt="">
+            <img src="${ctx}/assets/img/logo-roxa.png" alt="">
             <span>Venus</span>
         </a>
         <main class="conteudo">
@@ -69,6 +70,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6S2 12 2 12Z"/>
                                 <circle cx="12" cy="12" r="3"/>
+                                <path class="olho__risco" d="M3 3l18 18"/>
                             </svg>
                         </label>
                     </div>

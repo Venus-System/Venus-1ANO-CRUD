@@ -2,7 +2,6 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Analise;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,19 +10,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class AnaliseDAO {
-    // Registra a data e a hora atuais no cadastro da análise.
     public boolean cadastrarAnalise(Analise analise) throws SQLException {
         String sql = "insert into analise (dt_hr_analise, resumo_resultado, pontuacao, id_usuario) values (?, ?, ?, ?)";
 
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+        try (Connection cnn= ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)){
             pstmt.setObject(1, LocalDateTime.now());
-            pstmt.setString(2, analise.getResumoResultado());
+            pstmt.setString( 2, analise.getResumoResultado());
             pstmt.setInt(3, analise.getPontuacao());
             pstmt.setInt(4, analise.getIdUsuario());
 
-            // O cadastro retorna apenas se houve inserção, sem recuperar os dados gerados pelo banco.
-            return pstmt.executeUpdate() > 0;
+            return pstmt.executeUpdate()>0;
+            // o executeUpdate so vai retornar quantas linhas do banco foram alteradas, não retorna os dados inseridos.
         }
     }
 
@@ -36,43 +34,44 @@ public class AnaliseDAO {
              ResultSet rset = pstmt.executeQuery()) {
             while (rset.next()) {
                 Analise an1 = new Analise(
-                        rset.getInt("id_analise"),
-                        rset.getObject("dt_hr_analise", LocalDateTime.class),
-                        rset.getString("resumo_resultado"),
-                        rset.getInt("pontuacao"),
-                        rset.getInt("id_usuario")
+                    rset.getInt("id_analise"),
+                    rset.getObject("dt_hr_analise", LocalDateTime.class),
+                    rset.getString( "resumo_resultado"),
+                    rset.getInt("pontuacao"),
+                    rset.getInt("id_usuario")
 
                 );
                 analise.add(an1);
             }
-        }
-        return analise;
+        } return analise;
 
     }
 
-    public Analise readById(int id) throws SQLException {
+    public Analise readById(int id) throws SQLException{
         String sql = "select * from analise where id_analise = ?";
         Analise analise = null;
-        try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+        //ainda sem objeto
+        try(Connection cnn = ConexaoBanco.conectar();
+            PreparedStatement pstmt= cnn.prepareStatement(sql)){
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
 
-            try (ResultSet rset = pstmt.executeQuery()) {
-                if (rset.next()) {
+            try (ResultSet rset = pstmt.executeQuery()){
+                //que permite a visualização das tabelas
+                if(rset.next()){
                     analise = new Analise(
                             rset.getInt("id_analise"),
                             rset.getObject("dt_hr_analise", LocalDateTime.class),
-                            rset.getString("resumo_resultado"),
+                            rset.getString( "resumo_resultado"),
                             rset.getInt("pontuacao"),
                             rset.getInt("id_usuario")
 
+                            //retornará a analise com o id que está sendo procurado.
                     );
                 }
             }
 
-        }
-        return analise;
+        } return analise;
     }
 
     public ArrayList<Analise> readByIdUsuario(int idUsuario) throws SQLException {
@@ -99,14 +98,13 @@ public class AnaliseDAO {
         return lista;
     }
 
-    // Atualiza também a data e a hora da análise, mantendo o usuário vinculado.
-    public int update(Analise analise) throws SQLException {
+    public int update (Analise analise) throws SQLException {
         String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =?  where id_analise = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
-             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+             PreparedStatement pstmt = cnn.prepareStatement(sql)){
 
             pstmt.setObject(1, LocalDateTime.now());
-            pstmt.setString(2, analise.getResumoResultado());
+            pstmt.setString( 2, analise.getResumoResultado());
             pstmt.setInt(3, analise.getPontuacao());
             pstmt.setInt(4, analise.getIdAnalise());
 
@@ -125,7 +123,6 @@ public class AnaliseDAO {
         }
     }
 
-    // Exclui todo o histórico de análises do usuário informado.
     public int deleteByIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from analise where id_usuario = ?";
         try (Connection cnn = ConexaoBanco.conectar();
@@ -133,6 +130,7 @@ public class AnaliseDAO {
 
             pstmt.setInt(1, idUsuario);
             return pstmt.executeUpdate();
+            //aqui limpa o histórico de análises
         }
     }
 }

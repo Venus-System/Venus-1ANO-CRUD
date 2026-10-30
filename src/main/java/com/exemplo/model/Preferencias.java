@@ -100,8 +100,8 @@ public class Preferencias {
                 "Faixa de Preço: " + getFaixaPreco() + "\n" +
                 "Prefere Vegano: " + getPrefereVegano() + "\n" +
                 "Restrições Dieta: " + getRestricoesDieta() + "\n" +
-                "Cateogira Favorita: " + getCategoriaPref() + "\n" +
-                "Marca Favorita: " + getMarcasFav() + "\n " +
+                "Cateogira Favorita: "+getCategoriaPref()+"\n"+
+                "Marca Favorita: "+getMarcasFav()+"\n "+
                 "Id Usuário: " + getIdUsuario() + "\n";
     }
 }

@@ -2,7 +2,6 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.IngredienteAnalise;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +22,7 @@ public class IngredienteAnaliseDAO {
     }
 
     public ArrayList<IngredienteAnalise> read() throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -43,8 +42,7 @@ public class IngredienteAnaliseDAO {
                 );
                 ingredienteAnalise.add(ia1);
             }
-        }
-        return ingredienteAnalise;
+        } return ingredienteAnalise;
 
     }
 
@@ -67,13 +65,12 @@ public class IngredienteAnaliseDAO {
                 }
             }
 
-        }
-        return ingredienteAnalise;
+        } return ingredienteAnalise;
     }
 
 
     public ArrayList<IngredienteAnalise> readByIdAnalise(int idAnalise) throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -102,7 +99,7 @@ public class IngredienteAnaliseDAO {
     }
 
     public ArrayList<IngredienteAnalise> readByIdIngrediente(int idIngrediente) throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -135,7 +132,7 @@ public class IngredienteAnaliseDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }
@@ -146,7 +143,7 @@ public class IngredienteAnaliseDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }
@@ -157,7 +154,7 @@ public class IngredienteAnaliseDAO {
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }

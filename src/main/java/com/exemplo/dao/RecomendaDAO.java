@@ -13,9 +13,9 @@ public class RecomendaDAO {
 
     private static final String SELECT_COMPLETO =
             "select r.id_produto, r.id_usuario, p.nome, p.marca, u.nome_completo " +
-                    "from recomenda r " +
-                    "left join produto p on p.id_produto = r.id_produto " +
-                    "left join usuario u on u.id_usuario = r.id_usuario ";
+            "from recomenda r " +
+            "left join produto p on p.id_produto = r.id_produto " +
+            "left join usuario u on u.id_usuario = r.id_usuario ";
 
     public boolean cadastrarRecomenda(Recomenda recomenda) throws SQLException {
         String sql = "insert into recomenda (id_produto, id_usuario) values (?, ?)";
@@ -77,7 +77,6 @@ public class RecomendaDAO {
         return lista;
     }
 
-    // Localiza o vínculo pelo usuário e pelo produto antigo para substituir o produto.
     public int update(int idUsuario, int idProdutoAntigo, int idProdutoNovo) throws SQLException {
         String sql = "update recomenda set id_produto = ? where id_usuario = ? and id_produto = ?";
 
@@ -111,8 +110,6 @@ public class RecomendaDAO {
         }
     }
 
-    // Substitui as recomendações por até cinco produtos com maior pontuação.
-    // Combina categoria ou marca favorita e respeita a preferência por produtos veganos.
     public int recomendarPelasPreferencias(int idUsuario) throws SQLException {
         String sqlApagar = "delete from recomenda where id_usuario = ?";
         String sqlInserir = "insert into recomenda (id_produto, id_usuario) "

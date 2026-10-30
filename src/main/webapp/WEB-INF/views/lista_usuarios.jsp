@@ -16,8 +16,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -84,6 +82,12 @@
                     <a class="menu-lateral__link" href="${ctx}/alergias" ${paginaAtiva == 'alergias' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/ingredientes-atencao.svg" alt="">
                         Alergias
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
                     </a>
                 </li>
                 <li>
@@ -156,14 +160,14 @@
         </div>
     </article>
     <article class="resumo__card">
-        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt=""></span>
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/genero-feminino.svg" alt=""></span>
         <div>
             <span class="resumo__rotulo">Feminino</span>
             <strong class="resumo__numero">${feminino}</strong>
         </div>
     </article>
     <article class="resumo__card">
-        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/usuarios-inativos.svg" alt=""></span>
+        <span class="resumo__icone"><img src="${ctx}/assets/img/icones-crud/genero-masculino.svg" alt=""></span>
         <div>
             <span class="resumo__rotulo">Masculino</span>
             <strong class="resumo__numero">${masculino}</strong>

@@ -48,8 +48,8 @@ public class NomeIngrediente {
 
     @Override
     public String toString() {
-        return "Id Nome Ingrediente: " + getIdNomeIngrediente() + "\n" +
-                "Nome Ingrediente: " + getNomeIngrediente() + "\n" +
+        return "Id Nome Ingrediente: " + getIdNomeIngrediente()+ "\n" +
+                "Nome Ingrediente: " + getNomeIngrediente()+ "\n" +
                 "Id Ingrediente: " + getIdIngrediente() + "\n";
     }
 }

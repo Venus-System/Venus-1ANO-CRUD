@@ -31,17 +31,14 @@ O código é organizado separando responsabilidades em pacotes:
 
 Telas e arquivos do site:
 
-- `banco/venus.sql` — cria as tabelas, chaves e restrições (PostgreSQL)
-- `banco/dataload.sql` — carrega os dados iniciais e ajusta as sequências
-- `banco/CONVENCAO_NOMES.md` — convenção de nomes do código e do banco
+- `banco/venus.sql` — cria as tabelas e coloca os dados de exemplo (PostgreSQL)
 - `src/main/webapp/index.html` — landing page
 - `src/main/webapp/WEB-INF/views/` — telas do painel (JSP), abertas pelos Servlets
 - `src/main/webapp/assets/` — CSS, imagens e JavaScript (mesmo visual na landing e no painel)
 
 ## ▶️ Como rodar
 
-1. No PostgreSQL, crie um banco vazio (ex.: `venus`) e execute `banco/venus.sql`. Para ter dados de exemplo, execute `banco/dataload.sql` uma única vez, depois da criação das tabelas.
-   O arquivo `banco/ajustes_aiven.sql` serve apenas para ajustar bases antigas e não faz parte dessa instalação nova.
+1. No PostgreSQL, crie um banco vazio (ex.: `venus`) e rode o arquivo `banco/venus.sql` inteiro.
 2. Copie `.env.example` para `.env` e coloque o endereço, o usuário e a senha do seu banco.
 3. Rode o projeto no IntelliJ com o **Tomcat 11** (o projeto usa Servlet 6.1).
 4. Abra `http://localhost:8080/venus/` → landing. O botão **Login** abre a tela de login (`/login`); depois de entrar com e-mail e senha da tabela `usuario`, abre o Dashboard.

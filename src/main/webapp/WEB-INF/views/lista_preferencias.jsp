@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -85,6 +83,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
+                    </a>
+                </li>
+                <li>
                     <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
                         Perfil
@@ -140,7 +144,7 @@
 
 <div class="toolbar">
     <label class="search">
-        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/05487dae-bbcf-4cbf-b4f6-dac8001dd2c1.svg" alt=""></span>
+        <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/buscar.svg" alt=""></span>
         <input id="busca" type="search" aria-label="Buscar preferências" placeholder="Buscar por faixa de preço, categoria ou marca...">
     </label>
 </div>
@@ -173,10 +177,10 @@
                     <td>
                         <div class="actions">
                             <a class="icon-btn" href="${ctx}/preferencias?id=${p.idPreferencias}" aria-label="Editar preferências">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/editar.svg" alt=""></span>
                             </a>
                             <button class="icon-btn" type="button" onclick="excluir(${p.idPreferencias})" aria-label="Excluir preferências">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/excluir.svg" alt=""></span>
                             </button>
                         </div>
                     </td>

@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -85,6 +83,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
+                    </a>
+                </li>
+                <li>
                     <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
                         Perfil
@@ -139,7 +143,7 @@
     <form id="form-editar">
         <label class="form-field">
             Tipo de pele
-            <input id="tipoPele" type="text" maxlength="20" list="tipos-pele" required
+            <input id="tipoPele" type="text" maxlength="50" list="tipos-pele" required
                    value="<c:out value='${perfilPele.tipoPele}'/>">
             <datalist id="tipos-pele">
                 <option value="Normal">
@@ -152,18 +156,18 @@
 
         <div class="form-row">
             <label class="form-field">
-                Sensibilidade (1 a 10)
+                Sensibilidade (1 a 5)
                 <select id="sensibilidade" required>
-                    <c:forEach var="n" begin="1" end="10">
+                    <c:forEach var="n" begin="1" end="5">
                         <option value="${n}" ${perfilPele.sensibilidade == n ? 'selected' : ''}>${n}</option>
                     </c:forEach>
                 </select>
             </label>
 
             <label class="form-field">
-                Oleosidade (1 a 10)
+                Oleosidade (1 a 5)
                 <select id="nivelOleosidade" required>
-                    <c:forEach var="n" begin="1" end="10">
+                    <c:forEach var="n" begin="1" end="5">
                         <option value="${n}" ${perfilPele.nivelOleosidade == n ? 'selected' : ''}>${n}</option>
                     </c:forEach>
                 </select>

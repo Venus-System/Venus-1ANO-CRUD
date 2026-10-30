@@ -3,7 +3,6 @@ package com.exemplo.model;
 public class Identifica {
     private int idIngrediente;
     private int idAnalise;
-    // Dados do ingrediente preenchidos pelas consultas com junção no DAO.
     private String tipoIngrediente;
     private int nivelPerigo;
 

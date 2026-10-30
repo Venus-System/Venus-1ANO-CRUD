@@ -32,7 +32,7 @@ public class Alergia {
 
     @Override
     public String toString() {
-        return "id Alergia: " + getIdAlergia() + "\n" +
+        return "id Alergia: " + getIdAlergia() + "\n"+
                 "Nome Alergia: " + getNomeAlergia() + "\n";
     }
 }

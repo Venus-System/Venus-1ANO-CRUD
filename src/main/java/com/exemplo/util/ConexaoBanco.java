@@ -11,26 +11,25 @@ public class ConexaoBanco {
     public static final String DB_USER;
     public static final String DB_PASSWORD;
 
-    private static boolean isNullOrEmpty(String valor) {
+    private static boolean isNullOrEmpty(String valor){
 
-        return valor == null || valor.isEmpty();
+        return valor == null  || valor.isEmpty();
     }
 
     static {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-        // Prioriza as variáveis de ambiente e usa o .env quando o valor estiver ausente ou vazio.
         String url = System.getenv("DB_URL");
         String user = System.getenv("DB_USER");
         String password = System.getenv("DB_PASSWORD");
 
-        if (isNullOrEmpty(url)) {
+        if(isNullOrEmpty(url)) {
             url = dotenv.get("DB_URL");
         }
-        if (isNullOrEmpty(user)) {
+        if(isNullOrEmpty(user)) {
             user = dotenv.get("DB_USER");
         }
-        if (isNullOrEmpty(password)) {
+        if(isNullOrEmpty(password)) {
             password = dotenv.get("DB_PASSWORD");
         }
 
@@ -40,22 +39,20 @@ public class ConexaoBanco {
 
         try {
             Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ExceptionInInitializerError("Driver JDBC do PostgreSQL não encontrado: " + e.getMessage());
+        }catch (ClassNotFoundException e){
+            System.out.println(e);
         }
 
     }
-
-    // Abre uma nova conexão; quem a utiliza fica responsável por fechá-la.
     public static Connection conectar() throws SQLException {
-        if (isNullOrEmpty(DB_URL) || isNullOrEmpty(DB_USER) || isNullOrEmpty(DB_PASSWORD)) {
+        if (isNullOrEmpty(DB_URL) || isNullOrEmpty(DB_USER) || isNullOrEmpty(DB_PASSWORD)){
             throw new SQLException("Configurações do banco ausentes");
         }
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        return DriverManager.getConnection(DB_URL,DB_USER,DB_PASSWORD);
     }
 
-    public static void desconectar(Connection cnn) throws SQLException {
-        if (cnn != null && !cnn.isClosed()) {
+    public static void desconectar(Connection cnn) throws SQLException{
+        if (cnn != null && !cnn.isClosed()){
             cnn.close();
         }
     }

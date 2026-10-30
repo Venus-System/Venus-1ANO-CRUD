@@ -22,10 +22,6 @@ import java.util.stream.Collectors;
 @WebServlet("/preferencias")
 public class PreferenciasServlet extends HttpServlet {
 
-    private static final String MSG_CAMPOS_INVALIDOS =
-            "Campo inválido. Faixa de preço: até 20 caracteres; demais campos: até 100 caracteres. "
-                    + "Use letras, números e . , ; : ' ( ) / % $ & + -.";
-
     private final PreferenciasDAO preferenciasDAO = new PreferenciasDAO();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final RecomendaDAO recomendaDAO = new RecomendaDAO();
@@ -34,15 +30,7 @@ public class PreferenciasServlet extends HttpServlet {
         return texto == null ? "" : texto.trim();
     }
 
-    private boolean camposValidos(String faixaPreco, String restricoesDieta,
-                                  String categoriaPref, String marcasFav) {
-        return Validador.preferenciaOpcionalValida(faixaPreco, 20)
-                && Validador.preferenciaOpcionalValida(restricoesDieta, 100)
-                && Validador.preferenciaOpcionalValida(categoriaPref, 100)
-                && Validador.preferenciaOpcionalValida(marcasFav, 100);
-    }
-
-    // Cadastro
+    //create
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,15 +43,18 @@ public class PreferenciasServlet extends HttpServlet {
         String marcasFav = request.getParameter("marcasFav");
         String idUsuarioTexto = request.getParameter("idUsuario");
 
-        // O checkbox desmarcado não envia parâmetro e representa false.
+        //igual ao produto sobre ehVegano
         boolean prefereVegano = request.getParameter("prefereVegano") != null;
 
         String erro = null;
 
         if (idUsuarioTexto == null || idUsuarioTexto.isBlank()) {
             erro = "Selecione o usuário.";
-        } else if (!camposValidos(faixaPreco, restricoesDieta, categoriaPref, marcasFav)) {
-            erro = MSG_CAMPOS_INVALIDOS;
+        } else if (!Validador.preferenciaOpcionalValida(faixaPreco) ||
+                !Validador.preferenciaOpcionalValida(restricoesDieta)
+                || !Validador.preferenciaOpcionalValida(categoriaPref)
+                || !Validador.preferenciaOpcionalValida(marcasFav)) {
+            erro = "Campo inválido. Use letras, números e . , ; : ' ( ) / % $ & + - (até 255 caracteres).";
         } else {
 
             try {
@@ -102,7 +93,7 @@ public class PreferenciasServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_preferencias.jsp").forward(request, response);
     }
 
-    // Consulta
+    //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -155,7 +146,7 @@ public class PreferenciasServlet extends HttpServlet {
         }
     }
 
-    // Atualização
+    //update
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -168,7 +159,7 @@ public class PreferenciasServlet extends HttpServlet {
 
         try {
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
-            // A atualização recebe os campos no corpo da requisição em JSON.
+            //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
             if (!json.has("idPreferencias") || !json.has("faixaPreco")
                     || !json.has("prefereVegano") || !json.has("restricoesDieta")
                     || !json.has("categoriaPref") || !json.has("marcasFav")) {
@@ -185,9 +176,12 @@ public class PreferenciasServlet extends HttpServlet {
             String categoriaPref = json.get("categoriaPref").getAsString();
             String marcasFav = json.get("marcasFav").getAsString();
 
-            if (!camposValidos(faixaPreco, restricoesDieta, categoriaPref, marcasFav)) {
+            if (!Validador.preferenciaOpcionalValida(faixaPreco)
+                    || !Validador.preferenciaOpcionalValida(restricoesDieta)
+                    || !Validador.preferenciaOpcionalValida(categoriaPref)
+                    || !Validador.preferenciaOpcionalValida(marcasFav)) {
                 response.setStatus(400);
-                response.getWriter().write(MSG_CAMPOS_INVALIDOS);
+                response.getWriter().write("Campo inválido. Use letras, números e . , ; : ' ( ) / % $ & + - (até 255 caracteres).");
                 return;
             }
 
@@ -215,7 +209,7 @@ public class PreferenciasServlet extends HttpServlet {
         }
     }
 
-    // Exclusão
+    //delete
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

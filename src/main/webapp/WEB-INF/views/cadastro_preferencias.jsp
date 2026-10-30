@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -82,6 +80,12 @@
                     <a class="menu-lateral__link" href="${ctx}/alergias" ${paginaAtiva == 'alergias' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/ingredientes-atencao.svg" alt="">
                         Alergias
+                    </a>
+                </li>
+                <li>
+                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
+                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
+                        Admins
                     </a>
                 </li>
                 <li>
@@ -153,7 +157,7 @@
 
         <label class="form-field">
             Faixa de preço
-            <input type="text" name="faixaPreco" maxlength="20"
+            <input type="text" name="faixaPreco" maxlength="255"
                    value="<c:out value='${param.faixaPreco}'/>" placeholder="Ex.: R$ 30 - R$ 80">
         </label>
 
@@ -164,18 +168,18 @@
 
         <label class="form-field">
             Restrições de dieta
-            <textarea name="restricoesDieta" maxlength="100"><c:out value="${param.restricoesDieta}"/></textarea>
+            <textarea name="restricoesDieta" maxlength="255"><c:out value="${param.restricoesDieta}"/></textarea>
         </label>
 
         <label class="form-field">
             Categorias preferidas
-            <input type="text" name="categoriaPref" maxlength="100"
+            <input type="text" name="categoriaPref" maxlength="255"
                    value="<c:out value='${param.categoriaPref}'/>" placeholder="Ex.: Skincare, Maquiagem">
         </label>
 
         <label class="form-field">
             Marcas favoritas
-            <input type="text" name="marcasFav" maxlength="100"
+            <input type="text" name="marcasFav" maxlength="255"
                    value="<c:out value='${param.marcasFav}'/>" placeholder="Ex.: Marca A, Marca B">
         </label>
 

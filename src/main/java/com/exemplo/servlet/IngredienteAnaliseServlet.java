@@ -17,9 +17,9 @@ import java.util.ArrayList;
 public class IngredienteAnaliseServlet extends HttpServlet {
 
     private final IngredienteAnaliseDAO ingredienteAnaliseDAO = new IngredienteAnaliseDAO();
-    private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
+    private final IngredientesDAO ingredientesDAO = new IngredientesDAO();   // novo campo (+ import)
 
-    // Recarrega os ingredientes do formulário antes de abrir o cadastro ou exibir um erro.
+    // carrega os ingredientes para o <select> e abre o cadastro (único ponto de forward)
     private void abrirCadastro(HttpServletRequest request, HttpServletResponse response, String erro)
             throws ServletException, IOException {
         try {
@@ -82,7 +82,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         }
     }
 
-    // Consulta
+    //read
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -101,16 +101,14 @@ public class IngredienteAnaliseServlet extends HttpServlet {
                 ArrayList<IngredienteAnalise> listaAnalises = ingredienteAnaliseDAO.readByIdAnalise(idAnalise);
 
                 request.setAttribute("ingredientesAnalises", listaAnalises);
-                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-                return;
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
             }
             if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
                 ArrayList<IngredienteAnalise> listaIngredientes = ingredienteAnaliseDAO.readByIdIngrediente(idIngrediente);
 
                 request.setAttribute("ingredientesAnalises", listaIngredientes);
-                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-                return;
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
             }
 
             if ("novo".equals(request.getParameter("acao"))) {
@@ -120,16 +118,14 @@ public class IngredienteAnaliseServlet extends HttpServlet {
 
             ArrayList<IngredienteAnalise> listaIngredienteAnalises = ingredienteAnaliseDAO.read();
             request.setAttribute("ingredientesAnalises", listaIngredienteAnalises);
-            request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-        } catch (NumberFormatException nfe) {
+            request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);        } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/ingredienteAnalises");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes da análise.", sqle);
         }
     }
 
-    // Exclusão
-    // Prioriza o ID do vínculo; sem ele, exclui todos os vínculos do ingrediente ou da análise.
+    //delete
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

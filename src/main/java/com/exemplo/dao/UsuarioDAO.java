@@ -25,8 +25,8 @@ public class UsuarioDAO {
             pstmt.setString(5, usuario.getTelefone());
             pstmt.setObject(6, usuario.getDtNascimento());
             pstmt.setObject(7, usuario.getDtCadastro());
-            // O cadastro retorna apenas se houve inserção, sem recuperar os dados gerados pelo banco.
             return pstmt.executeUpdate() > 0;
+            // o executeUpdate so vai retornar quantas linhas do banco foram alteradas, não retorna os dados inseridos.
         }
     }
 
@@ -58,7 +58,7 @@ public class UsuarioDAO {
 
     public Usuario readById(int id) throws SQLException {
         String sql = "select * from usuario where id_usuario =?";
-        Usuario usuario = null;
+        Usuario usuario = null; //ainda sem objeto
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -66,6 +66,7 @@ public class UsuarioDAO {
             pstmt.setInt(1, id);
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 if (rset.next()) {
                     usuario = new Usuario(
                             rset.getInt("id_usuario"),
@@ -77,6 +78,7 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará o usuario com o id que está sendo procurado.
                     );
                 }
             }
@@ -86,14 +88,16 @@ public class UsuarioDAO {
     }
 
     public Usuario readByEmail(String email) throws SQLException {
-        String sql = "select * from usuario where email =?";
+        String sql = "select * from usuario where email =? order by id_usuario limit 1";
         Usuario usuario = null;
+        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, email);
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 if (rset.next()) {
                     usuario = new Usuario(
                             rset.getInt("id_usuario"),
@@ -105,6 +109,7 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará o usuario com o email que está sendo procurado.
                     );
                 }
             }
@@ -117,12 +122,14 @@ public class UsuarioDAO {
         String sql = "select * from usuario where nome_completo like ? ";
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
 
+        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, "%" + nomeCompleto + "%");
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 while (rset.next()) {
                     Usuario us1 = new Usuario(
                             rset.getInt("id_usuario"),
@@ -134,6 +141,7 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará os usuario com o nome que está sendo procurado.
                     );
 
                     listaUsuarios.add(us1);
@@ -144,7 +152,6 @@ public class UsuarioDAO {
         return listaUsuarios;
     }
 
-    // Atualiza os dados pessoais sem alterar a senha nem a data de cadastro.
     public int update(Usuario usuario) throws SQLException {
         String sql = "update usuario set nome_completo = ?, genero = ?, email = ?, telefone = ?, dt_nascimento = ? where id_usuario = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
@@ -168,11 +175,12 @@ public class UsuarioDAO {
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, novaSenha);
-            // A senha recebida deve estar em hash; este método apenas a grava.
+            //o valor recebido deve ser o hash.
             pstmt.setInt(2, idUsuario);
 
             int linhas = pstmt.executeUpdate();
             return linhas > 0;
+            //fica dentro do try porque é somente aqui dentro que linhas tem o valor que precisa devolver.
         }
     }
 

@@ -9,7 +9,6 @@ public class UsuarioAlergia {
     private int grau;
     private int idUsuario;
     private int idAlergia;
-    // Nome preenchido pela consulta das alergias de um usuário para exibição na tela.
     private String nomeAlergia;
 
     public UsuarioAlergia(int idUsuarioAlergia, LocalDate dtRegistro, int grau, int idUsuario, int idAlergia) {

@@ -4,7 +4,6 @@ public class IngredienteAnalise {
     private int idIngredienteAnalise;
     private int idIngrediente;
     private int idAnalise;
-    // Dados do ingrediente preenchidos pelas consultas com junção no DAO.
     private String tipo;
     private int nivelPerigo;
 
