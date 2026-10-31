@@ -17,8 +17,8 @@ import java.util.Set;
 public class LoginFiltro implements Filter {
 
     private static final Set<String> PAGINAS_LIVRES = Set.of(
-            "/", "/index.html", "/login", "/criar-conta", "/sair",
-            "/esqueceu-a-senha", "/nova-senha", "/senha-alterada", "/verificar-codigo", "/erro");
+            "/", "/index.html", "/aplicativo.html", "/login", "/sair",
+            "/esqueceu-a-senha", "/nova-senha", "/senha-alterada", "/erro");
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)

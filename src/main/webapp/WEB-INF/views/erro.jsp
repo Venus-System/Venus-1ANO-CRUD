@@ -84,12 +84,6 @@
                     </a>
                 </li>
                 <li>
-                    <a class="menu-lateral__link" href="${ctx}/admins" ${paginaAtiva == 'admins' ? 'aria-current="page"' : ''}>
-                        <img src="${ctx}/assets/img/icones-crud/usuarios-admin.svg" alt="">
-                        Admins
-                    </a>
-                </li>
-                <li>
                     <a class="menu-lateral__link" href="${ctx}/perfil" ${paginaAtiva == 'perfil' ? 'aria-current="page"' : ''}>
                         <img src="${ctx}/assets/img/icones-crud/conta.svg" alt="">
                         Perfil

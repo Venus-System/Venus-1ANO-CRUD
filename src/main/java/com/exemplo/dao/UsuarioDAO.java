@@ -87,6 +87,20 @@ public class UsuarioDAO {
         return usuario;
     }
 
+    public boolean ehAdmin(int id) throws SQLException {
+        String sql = "select 1 from usuario where id_usuario = ? and nivel = 'admin'";
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                return rset.next();
+            }
+        }
+    }
+
     public Usuario readByEmail(String email) throws SQLException {
         String sql = "select * from usuario where email =? order by id_usuario limit 1";
         Usuario usuario = null;
@@ -111,6 +125,7 @@ public class UsuarioDAO {
 
                             //retornará o usuario com o email que está sendo procurado.
                     );
+                    usuario.setNivel(rset.getString("nivel"));
                 }
             }
 

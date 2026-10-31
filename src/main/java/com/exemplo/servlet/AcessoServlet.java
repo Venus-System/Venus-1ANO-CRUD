@@ -5,7 +5,7 @@ import com.exemplo.model.Usuario;
 import com.exemplo.util.EmailUtil;
 import com.exemplo.util.SenhaUtil;
 import com.exemplo.util.Validador;
-import jakarta.mail.MessagingException;
+import org.simplejavamail.MailException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -97,7 +97,7 @@ public class AcessoServlet extends HttpServlet {
             Usuario usuario = usuarioDAO.readByEmail(email);
 
             if (usuario == null) {
-                request.setAttribute("erro", "Não existe conta com esse e-mail. Confira se digitou certo ou crie uma conta.");
+                request.setAttribute("erro", "Não existe conta com esse e-mail. Confira se digitou certo.");
                 request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
                 return;
             }
@@ -112,7 +112,7 @@ public class AcessoServlet extends HttpServlet {
                     "Recebemos um pedido para redefinir a senha da sua conta Venus. Use o código abaixo na tela do Venus para criar uma senha nova.", 15, imagem);
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar o usuário.", sqle);
-        } catch (MessagingException me) {
+        } catch (MailException me) {
             System.out.println("Erro ao enviar e-mail: " + me.getMessage());
             request.setAttribute("erro", "Não foi possível enviar o e-mail agora. Tente novamente mais tarde.");
             request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);

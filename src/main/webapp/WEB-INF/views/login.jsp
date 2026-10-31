@@ -22,12 +22,8 @@
         </a>
         <main class="conteudo">
 
-            <h1 class="titulo">Login</h1>
-            <p class="texto-intro">
-                Seu perfil, histórico e favoritos continuam exatamente onde
-                <br>
-                você deixou.
-            </p>
+            <h1 class="titulo">Entrar</h1>
+            <p class="texto-intro">Acesso restrito aos administradores do Venus.</p>
 
             <c:if test="${not empty sucesso}">
                 <p class="mensagem-sucesso" role="status"><c:out value="${sucesso}"/></p>
@@ -61,10 +57,6 @@
                 </div>
                 <button class="botao botao--principal" type="submit">Entrar</button>
             </form>
-            <p class="rodape-form">
-                Ainda não tem conta?
-                <a href="${ctx}/criar-conta">Criar conta grátis</a>
-            </p>
 
         </main>
     </section>
