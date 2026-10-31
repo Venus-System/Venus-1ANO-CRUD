@@ -1,4 +1,4 @@
-package com.exemplo.paginas;
+package com.exemplo.servlet;
 
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
