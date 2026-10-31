@@ -1,21 +1,11 @@
 package com.exemplo.util;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
-import jakarta.mail.Authenticator;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Properties;
+import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
+import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.mailer.MailerBuilder;
 
 public class EmailUtil {
 
@@ -43,52 +33,23 @@ public class EmailUtil {
         return REMETENTE != null && !REMETENTE.isEmpty() && SENHA_APP != null && !SENHA_APP.isEmpty();
     }
 
-    public static void enviarCodigo(String para, String nome, String codigo, String motivo, int minutos, String caminhoImagem)
-            throws MessagingException, UnsupportedEncodingException {
+    public static void enviarCodigo(String para, String nome, String codigo, String motivo, int minutos, String caminhoImagem) {
 
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        Email email = EmailBuilder.startingBlank()
+                .from("Venus", REMETENTE)
+                .withReplyTo(REMETENTE)
+                .to(para)
+                .withSubject(codigo + " é o seu código do Venus")
+                .withPlainText(montarTexto(nome, codigo, motivo, minutos))
+                .withHTMLText(montarHtml(nome, codigo, motivo, minutos))
+                .withEmbeddedImage("banner", new FileDataSource(caminhoImagem))
+                .buildEmail();
 
-        Session sessao = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(REMETENTE, SENHA_APP);
-            }
-        });
-
-        MimeBodyPart texto = new MimeBodyPart();
-        texto.setText(montarTexto(nome, codigo, motivo, minutos), "UTF-8");
-
-        MimeBodyPart html = new MimeBodyPart();
-        html.setContent(montarHtml(nome, codigo, motivo, minutos), "text/html; charset=UTF-8");
-
-        MimeBodyPart imagem = new MimeBodyPart();
-        imagem.setDataHandler(new DataHandler(new FileDataSource(caminhoImagem)));
-        imagem.setHeader("Content-ID", "<banner>");
-        imagem.setDisposition(MimeBodyPart.INLINE);
-
-        MimeMultipart htmlComImagem = new MimeMultipart("related");
-        htmlComImagem.addBodyPart(html);
-        htmlComImagem.addBodyPart(imagem);
-
-        MimeBodyPart parteHtml = new MimeBodyPart();
-        parteHtml.setContent(htmlComImagem);
-
-        MimeMultipart partes = new MimeMultipart("alternative");
-        partes.addBodyPart(texto);
-        partes.addBodyPart(parteHtml);
-
-        MimeMessage mensagem = new MimeMessage(sessao);
-        mensagem.setFrom(new InternetAddress(REMETENTE, "Venus"));
-        mensagem.setReplyTo(InternetAddress.parse(REMETENTE));
-        mensagem.setRecipients(Message.RecipientType.TO, InternetAddress.parse(para));
-        mensagem.setSubject(codigo + " é o seu código do Venus", "UTF-8");
-        mensagem.setContent(partes);
-
-        Transport.send(mensagem);
+        MailerBuilder
+                .withSMTPServer("smtp.gmail.com", 587, REMETENTE, SENHA_APP)
+                .withTransportStrategy(TransportStrategy.SMTP_TLS)
+                .buildMailer()
+                .sendMail(email);
     }
 
     private static String montarTexto(String nome, String codigo, String motivo, int minutos) {

@@ -12,6 +12,7 @@ public class Usuario {
     private LocalDate dtNascimento;
     private String telefone;
     private LocalDate dtCadastro;
+    private String nivel;
 
     public Usuario(int idUsuario, String nomeCompleto, String genero, String email, String senha, String telefone, LocalDate dtNascimento, LocalDate dtCadastro) {
         this.idUsuario = idUsuario;
@@ -96,6 +97,14 @@ public class Usuario {
 
     public void setDtCadastro(LocalDate dtCadastro) {
         this.dtCadastro = dtCadastro;
+    }
+
+    public String getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(String nivel) {
+        this.nivel = nivel;
     }
 
     @Override

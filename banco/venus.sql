@@ -9,6 +9,8 @@ CREATE TABLE usuario (
     dt_nascimento DATE NOT NULL,
     telefone VARCHAR(15) NOT NULL,
     dt_cadastro DATE DEFAULT CURRENT_DATE,
+    nivel VARCHAR(10) NOT NULL DEFAULT 'usuario',
+    CHECK (nivel IN ('admin', 'usuario')),
     CHECK (EXTRACT(YEAR FROM age(CURRENT_DATE, dt_nascimento)) >= 18),
     CHECK (email LIKE '%@%.%'),
     CHECK (LENGTH(senha) >= 6),
@@ -118,15 +120,6 @@ CREATE TABLE recomenda (
     id_produto INT,
     id_usuario INT,
     PRIMARY KEY (id_produto, id_usuario));
-
-CREATE TABLE admin (
-    id_admin SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(60) NOT NULL,
-    dt_cadastro DATE DEFAULT CURRENT_DATE,
-    CHECK (email LIKE '%@%.%'),
-    CHECK (LENGTH(senha) >= 6));
 
 
 -- ---------- INSERTS ----------
@@ -927,3 +920,8 @@ ADD CONSTRAINT uq_produto_ingrediente UNIQUE (id_produto, id_ingrediente);
 
 ALTER TABLE ingrediente_analise
 ADD CONSTRAINT uq_ingrediente_analise UNIQUE (id_ingrediente, id_analise);
+
+-- INSERT USUARIO ADMIN
+
+INSERT INTO usuario (nome_completo, genero, email, senha, dt_nascimento, telefone, nivel) VALUES
+('Equipe Venus', 'Prefiro não informar', 'venus.interdisciplinar@gmail.com', '$2a$12$dc7A6.85KvMRGPpdeHrrj.bgGbHuyLR74g5SRfoq5G5s44Dluu5YS', '2000-01-01', '11900000000', 'admin');

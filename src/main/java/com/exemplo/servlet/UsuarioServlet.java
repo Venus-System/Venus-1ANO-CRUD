@@ -313,6 +313,13 @@ public class UsuarioServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idTexto);
+
+            if (usuarioDAO.ehAdmin(id)) {
+                response.setStatus(409);
+                response.getWriter().write("Não é possível excluir o usuário admin.");
+                return;
+            }
+
             int linhas = usuarioDAO.deleteById(id);
 
             if (linhas > 0) {
