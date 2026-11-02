@@ -7,8 +7,10 @@ import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 
+// Classe que envia o e-mail com o código para redefinir a senha.
 public class EmailUtil {
 
+    // E-mail do Venus e senha de app do Gmail, lidos das variáveis do sistema ou do .env.
     private static final String REMETENTE;
     private static final String SENHA_APP;
 
@@ -29,10 +31,12 @@ public class EmailUtil {
         SENHA_APP = senha;
     }
 
+    // Confere se o e-mail e a senha de app foram configurados antes de tentar enviar.
     public static boolean configurado() {
         return REMETENTE != null && !REMETENTE.isEmpty() && SENHA_APP != null && !SENHA_APP.isEmpty();
     }
 
+    // Monta o e-mail (texto simples e HTML com o banner) e envia pelo servidor do Gmail.
     public static void enviarCodigo(String para, String nome, String codigo, String motivo, int minutos, String caminhoImagem) {
 
         Email email = EmailBuilder.startingBlank()
@@ -52,6 +56,7 @@ public class EmailUtil {
                 .sendMail(email);
     }
 
+    // Versão em texto simples, para quem não abre e-mail em HTML.
     private static String montarTexto(String nome, String codigo, String motivo, int minutos) {
         return "Olá, " + nome.trim().split(" ")[0] + "!\n\n"
                 + motivo + "\n\n"
@@ -62,6 +67,7 @@ public class EmailUtil {
                 + "Instagram: https://www.instagram.com/venus.jef/\n";
     }
 
+    // Versão em HTML. O nome passa por replace para não deixar entrar código HTML no e-mail.
     private static String montarHtml(String nome, String codigo, String motivo, int minutos) {
         String primeiroNome = nome.trim().split(" ")[0]
                 .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");

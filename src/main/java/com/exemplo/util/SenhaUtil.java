@@ -2,6 +2,7 @@ package com.exemplo.util;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+// Classe que cuida das senhas com BCrypt, para o banco nunca guardar a senha pura.
 public class SenhaUtil {
 
     //aqui gera o hash. (é o resultado de passar um dado por uma função matemática que o transforma em um texto embaralhado).
@@ -9,6 +10,7 @@ public class SenhaUtil {
         return BCrypt.hashpw(senhaPura, BCrypt.gensalt(12));
     }
 
+    // Construtor privado: a classe só tem métodos static, então não precisa criar objeto.
     private SenhaUtil(){}
 
     //aqui vai comparar a senha digitada com o hash (guardado no banco).

@@ -95,7 +95,8 @@ public class AcessoServlet extends HttpServlet {
         }
 
         if (!EmailUtil.configurado()) {
-            System.out.println("EMAIL_REMETENTE ou EMAIL_SENHA_APP faltando no .env");
+            // Grava o aviso no log do Tomcat, que só o administrador vê.
+            getServletContext().log("EMAIL_REMETENTE ou EMAIL_SENHA_APP faltando no .env");
             request.setAttribute("erro", "Não foi possível enviar o e-mail agora. Tente novamente mais tarde.");
             request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
             return;
@@ -121,7 +122,7 @@ public class AcessoServlet extends HttpServlet {
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar o usuário.", sqle);
         } catch (MailException me) {
-            System.out.println("Erro ao enviar e-mail: " + me.getMessage());
+            getServletContext().log("Erro ao enviar e-mail", me);
             request.setAttribute("erro", "Não foi possível enviar o e-mail agora. Tente novamente mais tarde.");
             request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
             return;
