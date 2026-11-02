@@ -18,11 +18,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet dos ingredientes: recebe as requisições da tela e chama o IngredientesDAO.
 @WebServlet("/ingredientes")
 public class IngredientesServlet extends HttpServlet {
 
     private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
 
+    // Cadastra um ingrediente com o tipo e o nível de perigo e volta para a lista.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -41,6 +43,7 @@ public class IngredientesServlet extends HttpServlet {
         }
 
         try {
+            // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
             int nivelPerigo = Integer.parseInt(nivelPerigoTexto);
             String tipoLimpo = tipo.trim();
 
@@ -58,7 +61,7 @@ public class IngredientesServlet extends HttpServlet {
 
             Ingredientes ingredientes = new Ingredientes(nivelPerigo, tipoLimpo);
 
-            if (ingredientesDAO.cadastrarIngredientes(ingredientes)) {
+            if (ingredientesDAO.cadastrar(ingredientes)) {
                 response.sendRedirect(request.getContextPath() + "/ingredientes");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o ingrediente.");
@@ -69,6 +72,7 @@ public class IngredientesServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
+            // 23505 é o código do banco para registro repetido.
             if ("23505".equals(estado)) {
                 request.setAttribute("erro", "Já existe um ingrediente com esse tipo.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente.jsp").forward(request, response);
@@ -84,7 +88,8 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    // Consulta
+    //listar
+    // Abre as telas: com acao=novo abre o cadastro, com id abre a alteração e sem nada mostra a lista.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -100,7 +105,7 @@ public class IngredientesServlet extends HttpServlet {
         try {
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                Ingredientes ingredientes = ingredientesDAO.readById(id);
+                Ingredientes ingredientes = ingredientesDAO.listarPorId(id);
 
                 if (ingredientes == null) {
                     response.sendRedirect(request.getContextPath() + "/ingredientes");
@@ -112,7 +117,7 @@ public class IngredientesServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<Ingredientes> listaIngredientes = ingredientesDAO.read();
+            ArrayList<Ingredientes> listaIngredientes = ingredientesDAO.listar();
             request.setAttribute("ingredientes", listaIngredientes);
             request.getRequestDispatcher("/WEB-INF/views/lista_ingredientes.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
@@ -122,7 +127,8 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    // Atualização
+    //alterar
+    // Altera o ingrediente com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -131,9 +137,11 @@ public class IngredientesServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idIngrediente") || !json.has("nivelPerigo")
@@ -168,7 +176,7 @@ public class IngredientesServlet extends HttpServlet {
 
             Ingredientes ingredientes = new Ingredientes(id, nivelPerigo, tipoLimpo);
 
-            int linhas = ingredientesDAO.alterarValores(ingredientes);
+            int linhas = ingredientesDAO.alterar(ingredientes);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -190,7 +198,8 @@ public class IngredientesServlet extends HttpServlet {
         }
     }
 
-    // Exclusão
+    //deletar
+    // Deleta o ingrediente pelo id.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -208,7 +217,7 @@ public class IngredientesServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idTexto);
-            int linhas = ingredientesDAO.deleteById(id);
+            int linhas = ingredientesDAO.deletarPorId(id);
 
             if (linhas > 0) {
                 response.setStatus(200);

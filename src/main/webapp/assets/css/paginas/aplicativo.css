@@ -1,0 +1,33 @@
+.aplicativo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.25rem;
+  background-color: var(--painel-lilas);
+}
+
+.aplicativo__conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.aplicativo__logo {
+  width: 6rem;
+  height: auto;
+}
+
+.aplicativo__titulo {
+  font-family: var(--fonte-titulo);
+  font-size: 2.5rem;
+  color: var(--painel-texto);
+}
+
+.aplicativo__voltar {
+  font-family: var(--fonte-texto);
+  font-weight: 600;
+  color: var(--cor-roxo-escuro);
+}

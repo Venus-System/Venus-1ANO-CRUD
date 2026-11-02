@@ -20,6 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet dos usuários: recebe as requisições da tela e chama o UsuarioDAO.
 @WebServlet("/usuarios")
 public class UsuarioServlet extends HttpServlet {
     //transforma a classe Java comum em um Servlet
@@ -28,7 +29,8 @@ public class UsuarioServlet extends HttpServlet {
     //O tomcat cria só uma instância do servlet e reutiliza.
 
 
-    // Cadastro
+    //cadastrar
+    // Valida os dados do formulário (e-mail, telefone e data), confere se o e-mail já existe e cadastra o usuário.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,13 +57,8 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         email = email.trim().toLowerCase();
-        if (!Validador.nomeUsuarioValido(nome)) {
-            request.setAttribute("erro", "Informe um nome válido de 2 a 100 caracteres.");
-            request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
-            return;
-        }
-        // Normaliza o e-mail antes de validar e consultar a existência no banco.
-        if (!Validador.emailValido(email) || email.length() > 100) {
+        //email em espaços extras.
+        if (!Validador.emailValido(email)) {
             request.setAttribute("erro", "E-mail inválido.");
             request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
             return;
@@ -121,7 +118,7 @@ public class UsuarioServlet extends HttpServlet {
             //monta o objeto model com os dados.
             Usuario usuario = new Usuario(nome.trim(), genero, email, SenhaUtil.gerarHash(senha), telefone, dtNascimento, dtCadastro);
 
-            if (usuarioDAO.cadastrarUsuario(usuario)) {
+            if (usuarioDAO.cadastrar(usuario)) {
                 response.sendRedirect(request.getContextPath() + "/usuarios");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o usuário.");
@@ -135,9 +132,11 @@ public class UsuarioServlet extends HttpServlet {
             //no console do Tomcat aparece a mensagem de erro. Quem usa o site não vê isso.
             getServletContext().log("Erro SQL ao cadastrar usuário", sqle);
 
+            // 23505 é o código do banco para registro repetido.
             if ("23505".equals(sqle.getSQLState())) {
                 request.setAttribute("erro", "Este e-mail já está cadastrado.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
+            // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
             } else if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "O banco não aceitou algum dado. Confira telefone, gênero e data de nascimento.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario.jsp").forward(request, response);
@@ -147,6 +146,7 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
+    // Abre as telas: com acao=novo abre o cadastro, com id abre a alteração e sem nada mostra a lista.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -161,13 +161,10 @@ public class UsuarioServlet extends HttpServlet {
 
         try {
             if (idTexto != null && !idTexto.isBlank()) {
-                if (!Validador.idValido(idTexto)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id inválido.");
-                    return;
-                }
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int id = Integer.parseInt(idTexto);
-                Usuario usuario = usuarioDAO.readById(id);
-                // A consulta retorna null quando o usuário não existe.
+                Usuario usuario = usuarioDAO.listarPorId(id);
+                //listarPorId se nenhum usuário tiver esse id
 
                 if (usuario == null) {
                     response.sendRedirect(request.getContextPath() + "/usuarios");
@@ -179,7 +176,7 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<Usuario> listaUsuarios = usuarioDAO.read();
+            ArrayList<Usuario> listaUsuarios = usuarioDAO.listar();
             request.setAttribute("usuarios", listaUsuarios);
             request.getRequestDispatcher("/WEB-INF/views/lista_usuarios.jsp").forward(request, response);
 
@@ -190,13 +187,16 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
+    //Se não veio com id, vai listar todos os usuários
 
+
+    // Altera o usuário com os dados em JSON, depois de validar o e-mail e o telefone.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8"); //define a codificação que entra, para os acentos.
-        response.setCharacterEncoding("UTF-8"); // Define a codificação da resposta.
+        response.setCharacterEncoding("UTF-8"); //define a decodificação que sai.
         response.setContentType("text/plain"); //avisa que a resposta é texto simples.
 
         //Lê o corpo (linha por linha) da requisição.
@@ -204,6 +204,7 @@ public class UsuarioServlet extends HttpServlet {
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
             //sendo transformado em um objeto java. (dá para extrair cada campo)
 
@@ -217,11 +218,6 @@ public class UsuarioServlet extends HttpServlet {
 
             //extrai os campos como texto
             int id = Integer.parseInt(json.get("idUsuario").getAsString());
-            if (id <= 0) {
-                response.setStatus(400);
-                response.getWriter().write("Id inválido.");
-                return;
-            }
             String nome = json.get("nome").getAsString();
             String genero = json.get("genero").getAsString();
             String email = json.get("email").getAsString().trim().toLowerCase();
@@ -235,14 +231,8 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
-            if (!Validador.nomeUsuarioValido(nome)) {
-                response.setStatus(400);
-                response.getWriter().write("Informe um nome válido de 2 a 100 caracteres.");
-                return;
-            }
-
-            // Valida e-mail e telefone também no servidor.
-            if (!Validador.emailValido(email) || email.length() > 100) {
+            //Aquil valida o e-mail e o telefone no servidor.
+            if (!Validador.emailValido(email)) {
                 response.setStatus(400);
                 response.getWriter().write("E-mail inválido.");
                 return;
@@ -274,7 +264,7 @@ public class UsuarioServlet extends HttpServlet {
                 return;
             }
 
-            Usuario usuarioExistente = usuarioDAO.readByEmail(email);
+            Usuario usuarioExistente = usuarioDAO.listarPorEmail(email);
 
             if (usuarioExistente != null && usuarioExistente.getIdUsuario() != id) {
                 response.setStatus(409);
@@ -285,7 +275,7 @@ public class UsuarioServlet extends HttpServlet {
             Usuario usuario = new Usuario(id, nome.trim(), genero, email, null, telefone, dtNascimento, null);
             //como o update não mexe em senha e dtCadastro, esses campos ficam null.
 
-            int linhas = usuarioDAO.update(usuario);
+            int linhas = usuarioDAO.alterar(usuario);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -314,6 +304,7 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
+    // Deleta o usuário pelo id. Administradores não podem ser deletados por aqui.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -330,13 +321,15 @@ public class UsuarioServlet extends HttpServlet {
         }
 
         try {
-            if (!Validador.idValido(idTexto)) {
-                response.setStatus(400);
-                response.getWriter().write("Id inválido.");
+            int id = Integer.parseInt(idTexto);
+
+            if (usuarioDAO.ehAdmin(id)) {
+                response.setStatus(409);
+                response.getWriter().write("Não é possível excluir o usuário admin.");
                 return;
             }
-            int id = Integer.parseInt(idTexto);
-            int linhas = usuarioDAO.deleteById(id);
+
+            int linhas = usuarioDAO.deletarPorId(id);
 
             if (linhas > 0) {
                 response.setStatus(200);

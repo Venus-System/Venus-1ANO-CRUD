@@ -10,9 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela usuario: faz o CRUD dos usuários e as consultas usadas no login.
 public class UsuarioDAO {
 
-    public boolean cadastrarUsuario(Usuario usuario) throws SQLException {
+    // Cadastra um novo usuário.
+    public boolean cadastrar(Usuario usuario) throws SQLException {
         String sql = "insert into usuario(nome_completo, genero, email, senha ,telefone,  dt_nascimento ,dt_cadastro) values (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -25,13 +27,14 @@ public class UsuarioDAO {
             pstmt.setString(5, usuario.getTelefone());
             pstmt.setObject(6, usuario.getDtNascimento());
             pstmt.setObject(7, usuario.getDtCadastro());
-            // O cadastro retorna apenas se houve inserção, sem recuperar os dados gerados pelo banco.
             return pstmt.executeUpdate() > 0;
+            // o executeUpdate so vai retornar quantas linhas do banco foram alteradas, não retorna os dados inseridos.
         }
     }
 
 
-    public ArrayList<Usuario> read() throws SQLException {
+    // Lista todos os usuários, em ordem de id.
+    public ArrayList<Usuario> listar() throws SQLException {
         String sql = "select * from usuario order by id_usuario";
         ArrayList<Usuario> usuario = new ArrayList<>();
 
@@ -56,9 +59,10 @@ public class UsuarioDAO {
 
     }
 
-    public Usuario readById(int id) throws SQLException {
+    // Busca um usuário pelo id. Usado para preencher o formulário de alteração e a tela de detalhes.
+    public Usuario listarPorId(int id) throws SQLException {
         String sql = "select * from usuario where id_usuario =?";
-        Usuario usuario = null;
+        Usuario usuario = null; //ainda sem objeto
 
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -66,6 +70,7 @@ public class UsuarioDAO {
             pstmt.setInt(1, id);
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 if (rset.next()) {
                     usuario = new Usuario(
                             rset.getInt("id_usuario"),
@@ -77,6 +82,7 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará o usuario com o id que está sendo procurado.
                     );
                 }
             }
@@ -85,15 +91,33 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public Usuario readByEmail(String email) throws SQLException {
-        String sql = "select * from usuario where email =?";
+    // Confere se o usuário tem nível admin. Usado para liberar as telas de administrador.
+    public boolean ehAdmin(int id) throws SQLException {
+        String sql = "select 1 from usuario where id_usuario = ? and nivel = 'admin'";
+
+        try (Connection cnn = ConexaoBanco.conectar();
+             PreparedStatement pstmt = cnn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rset = pstmt.executeQuery()) {
+                return rset.next();
+            }
+        }
+    }
+
+    // Busca o usuário pelo e-mail. Usado no login e na troca de senha.
+    public Usuario listarPorEmail(String email) throws SQLException {
+        String sql = "select * from usuario where email =? order by id_usuario limit 1";
         Usuario usuario = null;
+        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, email);
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 if (rset.next()) {
                     usuario = new Usuario(
                             rset.getInt("id_usuario"),
@@ -105,7 +129,9 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará o usuario com o email que está sendo procurado.
                     );
+                    usuario.setNivel(rset.getString("nivel"));
                 }
             }
 
@@ -113,16 +139,19 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public ArrayList<Usuario> readByName(String nomeCompleto) throws SQLException {
+    // Lista os usuários cujo nome contém o texto pesquisado (filtro da tela).
+    public ArrayList<Usuario> listarPorNome(String nomeCompleto) throws SQLException {
         String sql = "select * from usuario where nome_completo like ? ";
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
 
+        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, "%" + nomeCompleto + "%");
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 while (rset.next()) {
                     Usuario us1 = new Usuario(
                             rset.getInt("id_usuario"),
@@ -134,6 +163,7 @@ public class UsuarioDAO {
                             rset.getObject("dt_nascimento", LocalDate.class),
                             rset.getObject("dt_cadastro", LocalDate.class)
 
+                            //retornará os usuario com o nome que está sendo procurado.
                     );
 
                     listaUsuarios.add(us1);
@@ -144,8 +174,8 @@ public class UsuarioDAO {
         return listaUsuarios;
     }
 
-    // Atualiza os dados pessoais sem alterar a senha nem a data de cadastro.
-    public int update(Usuario usuario) throws SQLException {
+    // Altera os dados do usuário, menos a senha, que tem um método só para ela.
+    public int alterar(Usuario usuario) throws SQLException {
         String sql = "update usuario set nome_completo = ?, genero = ?, email = ?, telefone = ?, dt_nascimento = ? where id_usuario = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -161,6 +191,7 @@ public class UsuarioDAO {
         }
     }
 
+    // Troca a senha do usuário.
     public boolean trocarSenha(int idUsuario, String novaSenha) throws SQLException {
         String sql = "update usuario set senha = ? where id_usuario = ?";
 
@@ -168,16 +199,18 @@ public class UsuarioDAO {
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setString(1, novaSenha);
-            // A senha recebida deve estar em hash; este método apenas a grava.
+            //o valor recebido deve ser o hash.
             pstmt.setInt(2, idUsuario);
 
             int linhas = pstmt.executeUpdate();
             return linhas > 0;
+            //fica dentro do try porque é somente aqui dentro que linhas tem o valor que precisa devolver.
         }
     }
 
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o usuário pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from usuario where id_usuario = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -187,7 +220,8 @@ public class UsuarioDAO {
         }
     }
 
-    public int deleteByEmail(String email) throws SQLException {
+    // Deleta o usuário pelo e-mail.
+    public int deletarPorEmail(String email) throws SQLException {
         String sql = "delete from usuario where email=?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -196,6 +230,7 @@ public class UsuarioDAO {
         }
     }
 
+    // Confere se o e-mail já está cadastrado, para não deixar dois usuários com o mesmo e-mail.
     public boolean existeEmail(String email) throws SQLException {
         String sql = "select 1 FROM usuario WHERE email = ?";
 

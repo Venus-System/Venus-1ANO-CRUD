@@ -9,8 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela produto_usuario: liga os usuários aos produtos.
 public class ProdutoUsuarioDAO {
 
+    // Confere se o produto já está ligado ao usuário, para não cadastrar o mesmo vínculo duas vezes.
     public boolean existeVinculo(int idProduto, int idUsuario) throws SQLException {
         String sql = "select 1 from produto_usuario where id_produto = ? and id_usuario = ?";
 
@@ -26,7 +28,8 @@ public class ProdutoUsuarioDAO {
         }
     }
 
-    public boolean inserirProdutoUsuario(ProdutoUsuario produtoUsuario) throws SQLException {
+    // Cadastra o vínculo entre um produto e um usuário.
+    public boolean cadastrar(ProdutoUsuario produtoUsuario) throws SQLException {
         String sql = "insert into produto_usuario (id_produto , id_usuario) values (?,?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -38,7 +41,8 @@ public class ProdutoUsuarioDAO {
         }
     }
 
-    public ArrayList<ProdutoUsuario> read() throws SQLException {
+    // Lista todos os vínculos. Os JOINs trazem o nome do produto e o nome do usuário para mostrar na tela.
+    public ArrayList<ProdutoUsuario> listar() throws SQLException {
         String sql = "select pu.id_produto_usuario, pu.id_produto, pu.id_usuario, " +
                 "p.nome as nome_produto, u.nome_completo as nome_usuario " +
                 "from produto_usuario pu " +
@@ -63,7 +67,8 @@ public class ProdutoUsuarioDAO {
         return produtosUsuario;
     }
 
-    public ProdutoUsuario readById(int id) throws SQLException {
+    // Busca um vínculo pelo id.
+    public ProdutoUsuario listarPorId(int id) throws SQLException {
         String sql = "select * from produto_usuario where id_produto_usuario = ?";
         ProdutoUsuario produtoUsuario = null;
 
@@ -84,7 +89,8 @@ public class ProdutoUsuarioDAO {
 
     }
 
-    public ArrayList<ProdutoUsuario> readByIdUsuario(int idUsuario) throws SQLException {
+    // Lista os produtos ligados ao usuário escolhido, com o nome de cada produto.
+    public ArrayList<ProdutoUsuario> listarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "select pu.id_produto_usuario, pu.id_produto, pu.id_usuario, " +
                 "p.nome as nome_produto, u.nome_completo as nome_usuario " +
                 "from produto_usuario pu " +
@@ -115,7 +121,8 @@ public class ProdutoUsuarioDAO {
 
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o vínculo pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from produto_usuario where id_produto_usuario = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -126,7 +133,8 @@ public class ProdutoUsuarioDAO {
         }
     }
 
-    public int deleteByIdProduto(int id) throws SQLException {
+    // Deleta todos os vínculos do produto escolhido.
+    public int deletarPorIdProduto(int id) throws SQLException {
         String sql = "delete from produto_usuario where id_produto = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -137,7 +145,8 @@ public class ProdutoUsuarioDAO {
         }
     }
 
-    public int deleteByIdUsuario(int id) throws SQLException {
+    // Deleta todos os vínculos do usuário escolhido.
+    public int deletarPorIdUsuario(int id) throws SQLException {
         String sql = "delete from produto_usuario where id_usuario = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// Servlet do painel inicial do administrador.
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
 
@@ -26,15 +27,16 @@ public class DashboardServlet extends HttpServlet {
     private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
 
+    // Conta os usuários, produtos, ingredientes e análises, separa os ingredientes por nível de perigo e pega os 5 últimos produtos para o painel.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            ArrayList<Usuario> usuarios = usuarioDAO.read();
-            ArrayList<Produto> produtos = produtoDAO.read();
-            ArrayList<Ingredientes> ingredientes = ingredientesDAO.read();
-            ArrayList<Analise> analises = analiseDAO.read();
+            ArrayList<Usuario> usuarios = usuarioDAO.listar();
+            ArrayList<Produto> produtos = produtoDAO.listar();
+            ArrayList<Ingredientes> ingredientes = ingredientesDAO.listar();
+            ArrayList<Analise> analises = analiseDAO.listar();
 
             int seguros = 0;
             int atencao = 0;
@@ -49,7 +51,6 @@ public class DashboardServlet extends HttpServlet {
                 }
             }
 
-            // O DAO ordena por identificador; os cinco maiores IDs são exibidos primeiro.
             ArrayList<Produto> ultimosProdutos = new ArrayList<>();
             for (int i = produtos.size() - 1; i >= 0 && ultimosProdutos.size() < 5; i--) {
                 ultimosProdutos.add(produtos.get(i));

@@ -1,5 +1,11 @@
 package com.exemplo.servlet;
 
+import com.exemplo.dao.UsuarioDAO;
+import com.exemplo.model.Usuario;
+import com.exemplo.util.EmailUtil;
+import com.exemplo.util.SenhaUtil;
+import com.exemplo.util.Validador;
+import org.simplejavamail.MailException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,31 +14,186 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+// Servlet do acesso: cuida de sair do sistema e de redefinir a senha por e-mail.
 @WebServlet({"/sair", "/esqueceu-a-senha", "/nova-senha", "/senha-alterada"})
 public class AcessoServlet extends HttpServlet {
 
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    // Guardam, por e-mail, o código enviado, até quando ele vale e quantas tentativas já foram feitas.
+    private static final Map<String, String> CODIGOS = new ConcurrentHashMap<>();
+    private static final Map<String, Long> VALIDADE = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> TENTATIVAS = new ConcurrentHashMap<>();
+    // Tempo que o código enviado por e-mail continua válido.
+    private static final long QUINZE_MINUTOS = 15 * 60 * 1000;
+    // Gerador de números aleatórios seguro, usado para sortear o código.
+    private static final SecureRandom SORTEIO = new SecureRandom();
+
+    // Abre as telas pelo endereço: /sair encerra a sessão, e as outras abrem as telas de redefinir a senha.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         switch (request.getServletPath()) {
             case "/sair":
+                // false: só pega a sessão se ela já existir, sem criar uma nova.
                 HttpSession sessao = request.getSession(false);
                 if (sessao != null) {
                     sessao.invalidate();
                 }
                 response.sendRedirect(request.getContextPath() + "/login?saiu=1");
                 break;
-            // Estas rotas exibem as telas de recuperação, sem alterar a senha no banco.
             case "/esqueceu-a-senha":
                 request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
                 break;
             case "/nova-senha":
+                HttpSession sessaoSenha = request.getSession(false);
+                if (sessaoSenha == null || sessaoSenha.getAttribute("emailRedefinir") == null) {
+                    response.sendRedirect(request.getContextPath() + "/esqueceu-a-senha");
+                    return;
+                }
                 request.getRequestDispatcher("/WEB-INF/views/nova_senha.jsp").forward(request, response);
                 break;
             default:
                 request.getRequestDispatcher("/WEB-INF/views/senha_alterada.jsp").forward(request, response);
         }
+    }
+
+    // Recebe os formulários: decide se é para enviar o código ou para salvar a nova senha.
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        if ("/esqueceu-a-senha".equals(request.getServletPath())) {
+            enviarCodigo(request, response);
+        } else if ("/nova-senha".equals(request.getServletPath())) {
+            salvarNovaSenha(request, response);
+        } else {
+            response.sendError(405);
+        }
+    }
+
+    // Confere se o e-mail existe, sorteia um código e manda para o e-mail do usuário.
+    private void enviarCodigo(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String email = request.getParameter("email");
+        email = email == null ? "" : email.trim().toLowerCase();
+        request.setAttribute("email", email);
+
+        if (!Validador.emailValido(email)) {
+            request.setAttribute("erro", "Digite um e-mail válido.");
+            request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
+            return;
+        }
+
+        if (!EmailUtil.configurado()) {
+            // Grava o aviso no log do Tomcat, que só o administrador vê.
+            getServletContext().log("EMAIL_REMETENTE ou EMAIL_SENHA_APP faltando no .env");
+            request.setAttribute("erro", "Não foi possível enviar o e-mail agora. Tente novamente mais tarde.");
+            request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
+            return;
+        }
+
+        try {
+            Usuario usuario = usuarioDAO.listarPorEmail(email);
+
+            if (usuario == null) {
+                request.setAttribute("erro", "Não existe conta com esse e-mail. Confira se digitou certo.");
+                request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
+                return;
+            }
+
+            String codigo = String.format("%06d", SORTEIO.nextInt(1000000));
+            CODIGOS.put(email, codigo);
+            VALIDADE.put(email, System.currentTimeMillis() + QUINZE_MINUTOS);
+            TENTATIVAS.put(email, 0);
+
+            String imagem = getServletContext().getRealPath("/assets/img/email-senha.png");
+            EmailUtil.enviarCodigo(usuario.getEmail(), usuario.getNomeCompleto(), codigo,
+                    "Recebemos um pedido para redefinir a senha da sua conta Venus. Use o código abaixo na tela do Venus para criar uma senha nova.", 15, imagem);
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao buscar o usuário.", sqle);
+        } catch (MailException me) {
+            getServletContext().log("Erro ao enviar e-mail", me);
+            request.setAttribute("erro", "Não foi possível enviar o e-mail agora. Tente novamente mais tarde.");
+            request.getRequestDispatcher("/WEB-INF/views/esqueceu_a_senha.jsp").forward(request, response);
+            return;
+        }
+
+        request.getSession().setAttribute("emailRedefinir", email);
+        response.sendRedirect(request.getContextPath() + "/nova-senha");
+    }
+
+    // Confere o código e as senhas digitadas e, se estiver tudo certo, grava a nova senha em hash.
+    private void salvarNovaSenha(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession sessao = request.getSession(false);
+        String email = sessao == null ? null : (String) sessao.getAttribute("emailRedefinir");
+        if (email == null) {
+            response.sendRedirect(request.getContextPath() + "/esqueceu-a-senha");
+            return;
+        }
+
+        String codigo = request.getParameter("codigo");
+        String senha = request.getParameter("senha");
+        String confirmacao = request.getParameter("confirmacao");
+
+        if (!CODIGOS.containsKey(email) || System.currentTimeMillis() > VALIDADE.get(email)) {
+            apagarCodigo(email);
+            sessao.removeAttribute("emailRedefinir");
+            response.sendRedirect(request.getContextPath() + "/esqueceu-a-senha?expirado=1");
+            return;
+        }
+
+        String erro = null;
+        if (codigo == null || !codigo.trim().equals(CODIGOS.get(email))) {
+            int tentativas = TENTATIVAS.get(email) + 1;
+            TENTATIVAS.put(email, tentativas);
+            if (tentativas >= 5) {
+                apagarCodigo(email);
+                sessao.removeAttribute("emailRedefinir");
+                response.sendRedirect(request.getContextPath() + "/esqueceu-a-senha?expirado=1");
+                return;
+            }
+            erro = "Código incorreto. Confira o e-mail e tente de novo.";
+        } else if (!Validador.senhaValida(senha)) {
+            erro = "A senha precisa ter pelo menos 6 caracteres.";
+        } else if (!senha.equals(confirmacao)) {
+            erro = "As senhas devem ser iguais.";
+        }
+
+        if (erro != null) {
+            request.setAttribute("erro", erro);
+            request.getRequestDispatcher("/WEB-INF/views/nova_senha.jsp").forward(request, response);
+            return;
+        }
+
+        try {
+            Usuario usuario = usuarioDAO.listarPorEmail(email);
+            usuarioDAO.trocarSenha(usuario.getIdUsuario(), SenhaUtil.gerarHash(senha));
+        } catch (SQLException sqle) {
+            throw new ServletException("Erro ao trocar a senha.", sqle);
+        }
+
+        apagarCodigo(email);
+        sessao.removeAttribute("emailRedefinir");
+
+        response.sendRedirect(request.getContextPath() + "/senha-alterada");
+    }
+
+    // Apaga o código, a validade e as tentativas do e-mail, para o código não servir de novo.
+    private void apagarCodigo(String email) {
+        CODIGOS.remove(email);
+        VALIDADE.remove(email);
+        TENTATIVAS.remove(email);
     }
 }

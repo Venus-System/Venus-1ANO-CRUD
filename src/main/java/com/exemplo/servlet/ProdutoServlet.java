@@ -18,12 +18,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet dos produtos: recebe as requisições da tela e chama o ProdutoDAO.
 @WebServlet("/produtos")
 public class ProdutoServlet extends HttpServlet {
 
     private final ProdutoDAO produtoDAO = new ProdutoDAO();
 
-    // Cadastro
+    //cadastrar
+    // Valida os dados do formulário, calcula a pontuação quando ela não vem e cadastra o produto.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -75,14 +77,15 @@ public class ProdutoServlet extends HttpServlet {
         try {
             int pontuacao;
 
-            // A pontuação não informada assume zero no cadastro.
+            //A pontuação não veio, ou veio vazia?
             if (pontuacaoTexto == null || pontuacaoTexto.isBlank()) {
                 pontuacao = 0;
             } else {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 pontuacao = Integer.parseInt(pontuacaoTexto.trim());
             }
 
-            // Valida a pontuação informada no intervalo de 0 a 100.
+            //calcula a pontuação
             if (!Validador.pontuacaoValida(pontuacao)) {
                 request.setAttribute("erro", "A pontuação deve ficar entre 0 e 100.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
@@ -91,7 +94,7 @@ public class ProdutoServlet extends HttpServlet {
 
             Produto produto = new Produto(nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
 
-            if (produtoDAO.cadastrarProduto(produto)) {
+            if (produtoDAO.cadastrar(produto)) {
                 response.sendRedirect(request.getContextPath() + "/produtos");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar o produto.");
@@ -102,6 +105,7 @@ public class ProdutoServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
 
         } catch (SQLException sqle) {
+            // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Este produto já está cadastrado ou algum dado não foi aceito.");
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_produto.jsp").forward(request, response);
@@ -111,7 +115,8 @@ public class ProdutoServlet extends HttpServlet {
         }
     }
 
-    // Consulta
+    //listar
+    // Abre as telas e mostra a lista com filtros: por nome ou por marca.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -129,7 +134,7 @@ public class ProdutoServlet extends HttpServlet {
         try {
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                Produto produto = produtoDAO.readById(id);
+                Produto produto = produtoDAO.listarPorId(id);
 
                 if (produto == null) {
                     response.sendRedirect(request.getContextPath() + "/produtos");
@@ -142,7 +147,7 @@ public class ProdutoServlet extends HttpServlet {
             }
 
             if (nomeBusca != null && !nomeBusca.isBlank()) {
-                ArrayList<Produto> listaNomesProdutos = produtoDAO.readByName(nomeBusca.trim());
+                ArrayList<Produto> listaNomesProdutos = produtoDAO.listarPorNome(nomeBusca.trim());
 
                 request.setAttribute("produtos", listaNomesProdutos);
                 request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
@@ -150,14 +155,14 @@ public class ProdutoServlet extends HttpServlet {
             }
 
             if (marcaBusca != null && !marcaBusca.isBlank()) {
-                ArrayList<Produto> listaMarcasProdutos = produtoDAO.readByBrand(marcaBusca.trim());
+                ArrayList<Produto> listaMarcasProdutos = produtoDAO.listarPorMarca(marcaBusca.trim());
 
                 request.setAttribute("produtos", listaMarcasProdutos);
                 request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
                 return;
             }
 
-            ArrayList<Produto> listaProdutos = produtoDAO.read();
+            ArrayList<Produto> listaProdutos = produtoDAO.listar();
             request.setAttribute("produtos", listaProdutos);
             request.getRequestDispatcher("/WEB-INF/views/lista_produto.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
@@ -167,7 +172,8 @@ public class ProdutoServlet extends HttpServlet {
         }
     }
 
-    // Atualização
+    //alterar
+    // Altera o produto com os dados em JSON, depois de validar cada campo.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -181,6 +187,7 @@ public class ProdutoServlet extends HttpServlet {
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             // o update grava todos os campos, então todos precisam vir no JSON
@@ -205,7 +212,7 @@ public class ProdutoServlet extends HttpServlet {
             int pontuacao = Integer.parseInt(json.get("pontuacao").getAsString());
             String listaIngredientes = json.get("listaIngredientes").getAsString().trim();
 
-            if (nome.isBlank() || marca.isBlank() || categoria.isBlank()) {
+            if (nome.isBlank() || marca.isBlank() || categoria.isBlank()){
                 response.setStatus(400);
                 response.getWriter().write("Preencha nome, marca e categoria.");
                 return;
@@ -234,28 +241,29 @@ public class ProdutoServlet extends HttpServlet {
             }
 
             Produto produto = new Produto(id, nome, marca, categoria, descricao, ehVegano, ehCrueltyFree, pontuacao, listaIngredientes);
-            int linhas = produtoDAO.update(produto);
+            int linhas = produtoDAO.alterar(produto);
 
-            if (linhas > 0) {
+            if (linhas>0){
                 response.setStatus(200);
             } else {
                 response.setStatus(404);
                 response.getWriter().write("Produto não encontrado.");
             }
-        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e) {
+        }catch (JsonParseException | IllegalStateException | UnsupportedOperationException | NumberFormatException e){
             response.setStatus(400);
             response.getWriter().write("Dados inválidos.");
-        } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+        }catch (SQLException sqle){
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
                 response.setStatus(409);
                 response.getWriter().write("Já existe um produto com esses dados ou algum dado não foi aceito.");
-            } else {
+            }else {
                 throw new ServletException("Erro ao atualizar o produto.", sqle);
             }
         }
     }
 
-    // Exclusão
+    //deletar
+    // Deleta o produto pelo id.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -265,7 +273,7 @@ public class ProdutoServlet extends HttpServlet {
 
         String idTexto = request.getParameter("id");
 
-        if (idTexto == null || idTexto.isBlank()) {
+        if (idTexto == null || idTexto.isBlank()){
             response.setStatus(400);
             response.getWriter().write("Id não informado.");
             return;
@@ -273,25 +281,25 @@ public class ProdutoServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idTexto);
-            int linhas = produtoDAO.deleteById(id);
+            int linhas = produtoDAO.deletarPorId(id);
 
-            if (linhas > 0) {
+            if (linhas>0){
                 response.setStatus(200);
-            } else {
+            }else {
                 response.setStatus(404);
                 response.getWriter().write("Produto não encontrado.");
             }
-        } catch (NumberFormatException nfe) {
+        }catch (NumberFormatException nfe ){
             response.setStatus(400);
             response.getWriter().write("Id inválido.");
-        } catch (SQLException sqle) {
-            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
+        }catch (SQLException sqle){
+            if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")){
                 response.setStatus(409);
                 response.getWriter().write("Não é possível excluir: o produto está vinculado a usuários ou ingredientes.");
-            } else {
+            }else {
                 throw new ServletException("Erro ao excluir o produto.", sqle);
             }
         }
-    }
+        }
 
-}
+    }

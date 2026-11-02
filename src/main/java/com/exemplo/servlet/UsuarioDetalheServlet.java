@@ -9,7 +9,6 @@ import com.exemplo.dao.RecomendaDAO;
 import com.exemplo.dao.UsuarioAlergiaDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.Usuario;
-import com.exemplo.util.Validador;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -19,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
+// Servlet da tela de detalhes do usuário: junta em uma tela os dados de várias tabelas.
 @WebServlet("/usuarioDetalhe")
 public class UsuarioDetalheServlet extends HttpServlet {
 
@@ -31,19 +31,21 @@ public class UsuarioDetalheServlet extends HttpServlet {
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
     private final RecomendaDAO recomendaDAO = new RecomendaDAO();
 
+    // Busca o usuário pelo id e tudo ligado a ele (alergias, produtos, recomendações, preferências, perfis e análises).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String idTexto = request.getParameter("id");
-        if (!Validador.idValido(idTexto)) {
+        if (idTexto == null || !idTexto.matches("\\d+")) {
             response.sendRedirect(request.getContextPath() + "/usuarios");
             return;
         }
 
         try {
+            // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
             int id = Integer.parseInt(idTexto);
-            Usuario usuario = usuarioDAO.readById(id);
+            Usuario usuario = usuarioDAO.listarPorId(id);
 
             if (usuario == null) {
                 response.sendRedirect(request.getContextPath() + "/usuarios");
@@ -51,13 +53,13 @@ public class UsuarioDetalheServlet extends HttpServlet {
             }
 
             request.setAttribute("usuario", usuario);
-            request.setAttribute("alergias", usuarioAlergiaDAO.readByIdUsuario(id));
-            request.setAttribute("produtos", produtoUsuarioDAO.readByIdUsuario(id));
-            request.setAttribute("recomendas", recomendaDAO.readByIdUsuario(id));
-            request.setAttribute("preferencias", preferenciasDAO.readByIdUsuario(id));
-            request.setAttribute("perfilPele", perfilPeleDAO.readByIdUsuario(id));
-            request.setAttribute("perfilCabelo", perfilCabeloDAO.readByIdUsuario(id));
-            request.setAttribute("analises", analiseDAO.readByIdUsuario(id));
+            request.setAttribute("alergias", usuarioAlergiaDAO.listarPorIdUsuario(id));
+            request.setAttribute("produtos", produtoUsuarioDAO.listarPorIdUsuario(id));
+            request.setAttribute("recomendas", recomendaDAO.listarPorIdUsuario(id));
+            request.setAttribute("preferencias", preferenciasDAO.listarPorIdUsuario(id));
+            request.setAttribute("perfilPele", perfilPeleDAO.listarPorIdUsuario(id));
+            request.setAttribute("perfilCabelo", perfilCabeloDAO.listarPorIdUsuario(id));
+            request.setAttribute("analises", analiseDAO.listarPorIdUsuario(id));
 
             request.getRequestDispatcher("/WEB-INF/views/usuario_detalhe.jsp").forward(request, response);
 

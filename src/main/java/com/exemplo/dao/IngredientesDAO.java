@@ -2,7 +2,6 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.Ingredientes;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,10 +9,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+// DAO da tabela ingredientes: faz o CRUD dos ingredientes e do nível de perigo deles.
 public class IngredientesDAO {
 
-    // Usa a data atual como data de atualização no cadastro do ingrediente.
-    public boolean cadastrarIngredientes(Ingredientes ingredientes) throws SQLException {
+    // Cadastra um novo ingrediente com o tipo, o nível de perigo e a data de atualização.
+    public boolean cadastrar(Ingredientes ingredientes) throws SQLException {
         String sql = "insert into ingredientes(nivel_perigo, tipo, dt_atualizacao) values (?, ?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -25,7 +25,8 @@ public class IngredientesDAO {
         }
     }
 
-    public ArrayList<Ingredientes> read() throws SQLException {
+    // Lista todos os ingredientes, em ordem de id.
+    public ArrayList<Ingredientes> listar() throws SQLException {
         String sql = "select * from ingredientes order by id_ingrediente";
         ArrayList<Ingredientes> ingredientes = new ArrayList<>();
 
@@ -41,12 +42,12 @@ public class IngredientesDAO {
                 );
                 ingredientes.add(ing1);
             }
-        }
-        return ingredientes;
+        } return ingredientes;
 
     }
 
-    public Ingredientes readById(int id) throws SQLException {
+    // Busca um ingrediente pelo id. Usado para preencher o formulário de alteração.
+    public Ingredientes listarPorId(int id) throws SQLException {
         String sql = "select * from ingredientes where id_ingrediente =?";
         Ingredientes ingredientes = null;
 
@@ -66,31 +67,31 @@ public class IngredientesDAO {
                 }
             }
 
-        }
-        return ingredientes;
+        } return ingredientes;
     }
 
-    // Renova a data de atualização ao alterar o tipo ou o nível de perigo.
-    public int alterarValores(Ingredientes ingredientes) throws SQLException {
+    // Altera o tipo, o nível de perigo e a data de atualização do ingrediente.
+    public int alterar(Ingredientes ingredientes) throws SQLException {
         String sql = "update ingredientes set nivel_perigo = ?, tipo = ?, dt_atualizacao = ? where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, ingredientes.getNivelPerigo());
             pstmt.setString(2, ingredientes.getTipo());
-            pstmt.setObject(3, LocalDate.now());
+            pstmt.setObject(3,LocalDate.now());
             pstmt.setInt(4, ingredientes.getIdIngrediente());
 
             return pstmt.executeUpdate();
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o ingrediente pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from ingredientes where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }

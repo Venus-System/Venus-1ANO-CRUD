@@ -17,7 +17,7 @@
   --cor-erro: #b01949;
   --gradiente-lateral: linear-gradient(105deg, #5708ab, #801080, #a51261);
   --gradiente-botao: linear-gradient(105deg, #aa1462, #370a26);
-  --fonte-texto: "Century Gothic", "Segoe UI", sans-serif;
+  --fonte-texto: "Plus Jakarta Sans", sans-serif;
   --borda-campo: 0.9375rem;
   --borda-botao: 1.875rem;
 }
@@ -30,6 +30,7 @@ body {
   margin: 0;
   font-family: var(--fonte-texto);
   font-size: 0.875rem;
+  line-height: normal;
   color: var(--cor-texto);
   background-color: var(--cor-branco);
 }
@@ -63,7 +64,7 @@ a:hover {
 }
 
 .marca img {
-  width: 3.125rem;
+  width: auto;
   height: 3.125rem;
 }
 
@@ -260,6 +261,10 @@ input::placeholder {
   margin: 0;
   opacity: 0;
   cursor: pointer;
+}
+
+.mostrar-senha:checked ~ .olho .olho__risco {
+  display: none;
 }
 
 .mostrar-senha:focus-visible ~ .olho {

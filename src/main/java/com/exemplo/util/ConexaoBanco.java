@@ -6,31 +6,34 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+// Classe que abre a conexão com o PostgreSQL usando as variáveis do .env.
 public class ConexaoBanco {
+    // Endereço, usuário e senha do banco. São lidos uma vez só, quando a classe é carregada.
     public static final String DB_URL;
     public static final String DB_USER;
     public static final String DB_PASSWORD;
 
-    private static boolean isNullOrEmpty(String valor) {
+    // Confere se o texto não veio ou veio vazio.
+    private static boolean isNullOrEmpty(String valor){
 
-        return valor == null || valor.isEmpty();
+        return valor == null  || valor.isEmpty();
     }
 
+    // Bloco que roda uma vez: primeiro tenta as variáveis do sistema e, se não tiver, usa o arquivo .env.
     static {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-        // Prioriza as variáveis de ambiente e usa o .env quando o valor estiver ausente ou vazio.
         String url = System.getenv("DB_URL");
         String user = System.getenv("DB_USER");
         String password = System.getenv("DB_PASSWORD");
 
-        if (isNullOrEmpty(url)) {
+        if(isNullOrEmpty(url)) {
             url = dotenv.get("DB_URL");
         }
-        if (isNullOrEmpty(user)) {
+        if(isNullOrEmpty(user)) {
             user = dotenv.get("DB_USER");
         }
-        if (isNullOrEmpty(password)) {
+        if(isNullOrEmpty(password)) {
             password = dotenv.get("DB_PASSWORD");
         }
 
@@ -40,22 +43,23 @@ public class ConexaoBanco {
 
         try {
             Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ExceptionInInitializerError("Driver JDBC do PostgreSQL não encontrado: " + e.getMessage());
+        }catch (ClassNotFoundException e){
+            // Sem o driver não dá para conectar, então o erro é avisado na hora.
+            throw new IllegalStateException("Driver do PostgreSQL não encontrado.", e);
         }
 
     }
-
-    // Abre uma nova conexão; quem a utiliza fica responsável por fechá-la.
+    // Abre e devolve uma conexão nova. Os DAOs usam com try-with-resources, que fecha sozinho.
     public static Connection conectar() throws SQLException {
-        if (isNullOrEmpty(DB_URL) || isNullOrEmpty(DB_USER) || isNullOrEmpty(DB_PASSWORD)) {
+        if (isNullOrEmpty(DB_URL) || isNullOrEmpty(DB_USER) || isNullOrEmpty(DB_PASSWORD)){
             throw new SQLException("Configurações do banco ausentes");
         }
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        return DriverManager.getConnection(DB_URL,DB_USER,DB_PASSWORD);
     }
 
-    public static void desconectar(Connection cnn) throws SQLException {
-        if (cnn != null && !cnn.isClosed()) {
+    // Fecha a conexão, caso ela ainda esteja aberta.
+    public static void desconectar(Connection cnn) throws SQLException{
+        if (cnn != null && !cnn.isClosed()){
             cnn.close();
         }
     }

@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -160,10 +158,10 @@
                     <td>
                         <div class="actions">
                             <a class="icon-btn" href="${ctx}/nomeIngredientes?id=${n.idNomeIngrediente}" aria-label="Editar ${fn:escapeXml(n.nomeIngrediente)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/106e6b38-e528-4239-9191-5b8babefdc63.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/editar.svg" alt=""></span>
                             </a>
                             <button class="icon-btn" type="button" onclick="excluir(${n.idNomeIngrediente})" aria-label="Excluir ${fn:escapeXml(n.nomeIngrediente)}">
-                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/174bca6f-6692-44c0-9769-3c921855c872.svg" alt=""></span>
+                                <span class="figma-icon" style="--icon-size:16px"><img src="${ctx}/assets/img/icones-crud/excluir.svg" alt=""></span>
                             </button>
                         </div>
                     </td>

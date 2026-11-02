@@ -13,20 +13,21 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// Servlet dos ingredientes encontrados em cada análise.
 @WebServlet("/ingredienteAnalises")
 public class IngredienteAnaliseServlet extends HttpServlet {
 
     private final IngredienteAnaliseDAO ingredienteAnaliseDAO = new IngredienteAnaliseDAO();
-    private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
+    private final IngredientesDAO ingredientesDAO = new IngredientesDAO();   // novo campo (+ import)
 
-    // Recarrega os ingredientes do formulário antes de abrir o cadastro ou exibir um erro.
+    // carrega os ingredientes para o <select> e abre o cadastro (único ponto de forward)
     private void abrirCadastro(HttpServletRequest request, HttpServletResponse response, String erro)
             throws ServletException, IOException {
         try {
             if (erro != null) {
                 request.setAttribute("erro", erro);
             }
-            request.setAttribute("ingredientes", ingredientesDAO.read());
+            request.setAttribute("ingredientes", ingredientesDAO.listar());
             request.getRequestDispatcher("/WEB-INF/views/cadastro_ingrediente_analise.jsp")
                     .forward(request, response);
         } catch (SQLException sqle) {
@@ -35,6 +36,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
     }
 
 
+    // Cadastra um ingrediente em uma análise e volta para a lista dessa análise.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,6 +53,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
                 return;
             }
 
+            // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
             int idIngrediente = Integer.parseInt(idIngredienteTexto);
             int idAnalise = Integer.parseInt(idAnaliseTexto);
 
@@ -61,7 +64,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
 
             IngredienteAnalise ia = new IngredienteAnalise(idIngrediente, idAnalise);
 
-            if (ingredienteAnaliseDAO.cadastrarIngredienteAnalise(ia)) {
+            if (ingredienteAnaliseDAO.cadastrar(ia)) {
                 response.sendRedirect(request.getContextPath() + "/ingredienteAnalises?idAnalise=" + idAnalise);
             } else {
                 abrirCadastro(request, response, "Não foi possível vincular o ingrediente à análise.");
@@ -70,6 +73,7 @@ public class IngredienteAnaliseServlet extends HttpServlet {
             abrirCadastro(request, response, "Dados inválidos. Selecione o ingrediente e tente novamente.");
         } catch (SQLException sqle) {
             String estado = sqle.getSQLState();
+            // 23505 é o código do banco para registro repetido.
             if ("23505".equals(estado)) {
                 abrirCadastro(request, response, "Esse ingrediente já está vinculado a esta análise.");
             } else if ("23503".equals(estado)) {
@@ -82,7 +86,8 @@ public class IngredienteAnaliseServlet extends HttpServlet {
         }
     }
 
-    // Consulta
+    //listar
+    // Abre o cadastro ou mostra a lista (por análise, por ingrediente ou todas).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -98,19 +103,17 @@ public class IngredienteAnaliseServlet extends HttpServlet {
 
             if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()) {
                 int idAnalise = Integer.parseInt(idAnaliseTexto);
-                ArrayList<IngredienteAnalise> listaAnalises = ingredienteAnaliseDAO.readByIdAnalise(idAnalise);
+                ArrayList<IngredienteAnalise> listaAnalises = ingredienteAnaliseDAO.listarPorIdAnalise(idAnalise);
 
                 request.setAttribute("ingredientesAnalises", listaAnalises);
-                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-                return;
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
             }
             if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
-                ArrayList<IngredienteAnalise> listaIngredientes = ingredienteAnaliseDAO.readByIdIngrediente(idIngrediente);
+                ArrayList<IngredienteAnalise> listaIngredientes = ingredienteAnaliseDAO.listarPorIdIngrediente(idIngrediente);
 
                 request.setAttribute("ingredientesAnalises", listaIngredientes);
-                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-                return;
+                request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);                return;
             }
 
             if ("novo".equals(request.getParameter("acao"))) {
@@ -118,18 +121,17 @@ public class IngredienteAnaliseServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<IngredienteAnalise> listaIngredienteAnalises = ingredienteAnaliseDAO.read();
+            ArrayList<IngredienteAnalise> listaIngredienteAnalises = ingredienteAnaliseDAO.listar();
             request.setAttribute("ingredientesAnalises", listaIngredienteAnalises);
-            request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);
-        } catch (NumberFormatException nfe) {
+            request.getRequestDispatcher("/WEB-INF/views/lista_ingrediente_analise.jsp").forward(request, response);        } catch (NumberFormatException nfe) {
             response.sendRedirect(request.getContextPath() + "/ingredienteAnalises");
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes da análise.", sqle);
         }
     }
 
-    // Exclusão
-    // Prioriza o ID do vínculo; sem ele, exclui todos os vínculos do ingrediente ou da análise.
+    //deletar
+    // Deleta um registro pelo id, ou todos de um ingrediente, ou todos de uma análise.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -146,13 +148,13 @@ public class IngredienteAnaliseServlet extends HttpServlet {
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                linhas = ingredienteAnaliseDAO.deleteById(id);
+                linhas = ingredienteAnaliseDAO.deletarPorId(id);
             } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
-                linhas = ingredienteAnaliseDAO.deleteByIdIngrediente(idIngrediente);
+                linhas = ingredienteAnaliseDAO.deletarPorIdIngrediente(idIngrediente);
             } else if (idAnaliseTexto != null && !idAnaliseTexto.isBlank()) {
                 int idAnalise = Integer.parseInt(idAnaliseTexto);
-                linhas = ingredienteAnaliseDAO.deleteByIdAnalise(idAnalise);
+                linhas = ingredienteAnaliseDAO.deletarPorIdAnalise(idAnalise);
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");

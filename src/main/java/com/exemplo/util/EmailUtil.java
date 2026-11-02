@@ -1,0 +1,97 @@
+package com.exemplo.util;
+
+import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.activation.FileDataSource;
+import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
+import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.mailer.MailerBuilder;
+
+// Classe que envia o e-mail com o código para redefinir a senha.
+public class EmailUtil {
+
+    // E-mail do Venus e senha de app do Gmail, lidos das variáveis do sistema ou do .env.
+    private static final String REMETENTE;
+    private static final String SENHA_APP;
+
+    static {
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+
+        String remetente = System.getenv("EMAIL_REMETENTE");
+        String senha = System.getenv("EMAIL_SENHA_APP");
+
+        if (remetente == null || remetente.isEmpty()) {
+            remetente = dotenv.get("EMAIL_REMETENTE");
+        }
+        if (senha == null || senha.isEmpty()) {
+            senha = dotenv.get("EMAIL_SENHA_APP");
+        }
+
+        REMETENTE = remetente;
+        SENHA_APP = senha;
+    }
+
+    // Confere se o e-mail e a senha de app foram configurados antes de tentar enviar.
+    public static boolean configurado() {
+        return REMETENTE != null && !REMETENTE.isEmpty() && SENHA_APP != null && !SENHA_APP.isEmpty();
+    }
+
+    // Monta o e-mail (texto simples e HTML com o banner) e envia pelo servidor do Gmail.
+    public static void enviarCodigo(String para, String nome, String codigo, String motivo, int minutos, String caminhoImagem) {
+
+        Email email = EmailBuilder.startingBlank()
+                .from("Venus", REMETENTE)
+                .withReplyTo(REMETENTE)
+                .to(para)
+                .withSubject(codigo + " é o seu código do Venus")
+                .withPlainText(montarTexto(nome, codigo, motivo, minutos))
+                .withHTMLText(montarHtml(nome, codigo, motivo, minutos))
+                .withEmbeddedImage("banner", new FileDataSource(caminhoImagem))
+                .buildEmail();
+
+        MailerBuilder
+                .withSMTPServer("smtp.gmail.com", 587, REMETENTE, SENHA_APP)
+                .withTransportStrategy(TransportStrategy.SMTP_TLS)
+                .buildMailer()
+                .sendMail(email);
+    }
+
+    // Versão em texto simples, para quem não abre e-mail em HTML.
+    private static String montarTexto(String nome, String codigo, String motivo, int minutos) {
+        return "Olá, " + nome.trim().split(" ")[0] + "!\n\n"
+                + motivo + "\n\n"
+                + "Seu código: " + codigo + "\n\n"
+                + "O código vale por " + minutos + " minutos. Não mostre para ninguém.\n"
+                + "Se não foi você, ignore este e-mail e troque a sua senha.\n\n"
+                + "Venus - Escaneie. Analise. Escolha com confiança.\n"
+                + "Instagram: https://www.instagram.com/venus.jef/\n";
+    }
+
+    // Versão em HTML. O nome passa por replace para não deixar entrar código HTML no e-mail.
+    private static String montarHtml(String nome, String codigo, String motivo, int minutos) {
+        String primeiroNome = nome.trim().split(" ")[0]
+                .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+
+        return "<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charset=\"UTF-8\"></head><body style=\"margin:0;padding:0;background:#f4effc;\">"
+                + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4effc;padding:32px 12px;\"><tr><td align=\"center\">"
+                + "<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;\">"
+                + "<tr><td><img src=\"cid:banner\" width=\"600\" alt=\"Venus - código de segurança\" style=\"display:block;width:100%;height:auto;border:0;\"></td></tr>"
+                + "<tr><td style=\"padding:40px 44px 8px;color:#30135a;\">"
+                + "<h1 style=\"margin:0 0 16px;font-size:26px;line-height:1.3;\">Olá, " + primeiroNome + "!</h1>"
+                + "<p style=\"margin:0 0 16px;font-size:15px;line-height:1.7;color:#5b4a70;\">" + motivo + "</p>"
+                + "</td></tr>"
+                + "<tr><td align=\"center\" style=\"padding:16px 44px 28px;\">"
+                + "<div style=\"display:inline-block;background:#f4effc;border:2px dashed #b794d5;border-radius:16px;padding:18px 34px;"
+                + "font-family:'Courier New',monospace;font-size:38px;font-weight:bold;letter-spacing:12px;color:#6a28c1;\">" + codigo + "</div>"
+                + "</td></tr>"
+                + "<tr><td style=\"padding:0 44px 32px;\">"
+                + "<p style=\"margin:0;padding:14px 18px;background:#f4effc;border-radius:12px;font-size:13px;line-height:1.6;color:#68429c;\">"
+                + "&#9201; O código vale por <b>" + minutos + " minutos</b>. Não mostre para ninguém.</p>"
+                + "<p style=\"margin:20px 0 0;font-size:13px;line-height:1.6;color:#8b789f;\">Se não foi você, ignore este e-mail e troque a sua senha.</p>"
+                + "</td></tr>"
+                + "<tr><td style=\"padding:20px 44px;background:#32135b;color:#e9dcff;font-size:12px;text-align:center;\">"
+                + "Venus &middot; Escaneie. Analise. Escolha com confiança.<br>"
+                + "<a href=\"https://www.instagram.com/venus.jef/\" style=\"color:#e9dcff;\">Instagram @venus.jef</a></td></tr>"
+                + "</table></td></tr></table></body></html>";
+    }
+}

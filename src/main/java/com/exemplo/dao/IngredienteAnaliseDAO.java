@@ -2,16 +2,17 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.IngredienteAnalise;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela ingrediente_analise: guarda os ingredientes encontrados em cada análise.
 public class IngredienteAnaliseDAO {
 
-    public boolean cadastrarIngredienteAnalise(IngredienteAnalise ingredienteAnalise) throws SQLException {
+    // Cadastra um ingrediente encontrado em uma análise.
+    public boolean cadastrar(IngredienteAnalise ingredienteAnalise) throws SQLException {
         String sql = "insert into ingrediente_analise(id_ingrediente, id_analise) values (?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -22,8 +23,9 @@ public class IngredienteAnaliseDAO {
         }
     }
 
-    public ArrayList<IngredienteAnalise> read() throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+    // Lista todos os ingredientes das análises. O JOIN com ingredientes traz o tipo e o nível de perigo.
+    public ArrayList<IngredienteAnalise> listar() throws SQLException {
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -43,12 +45,12 @@ public class IngredienteAnaliseDAO {
                 );
                 ingredienteAnalise.add(ia1);
             }
-        }
-        return ingredienteAnalise;
+        } return ingredienteAnalise;
 
     }
 
-    public IngredienteAnalise readById(int id) throws SQLException {
+    // Busca um registro pelo id.
+    public IngredienteAnalise listarPorId(int id) throws SQLException {
         String sql = "select * from ingrediente_analise where id_ingrediente_analise =?";
         IngredienteAnalise ingredienteAnalise = null;
 
@@ -67,13 +69,13 @@ public class IngredienteAnaliseDAO {
                 }
             }
 
-        }
-        return ingredienteAnalise;
+        } return ingredienteAnalise;
     }
 
 
-    public ArrayList<IngredienteAnalise> readByIdAnalise(int idAnalise) throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+    // Lista os ingredientes encontrados na análise escolhida, com o tipo e o nível de perigo.
+    public ArrayList<IngredienteAnalise> listarPorIdAnalise(int idAnalise) throws SQLException {
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -101,8 +103,9 @@ public class IngredienteAnaliseDAO {
         return lista;
     }
 
-    public ArrayList<IngredienteAnalise> readByIdIngrediente(int idIngrediente) throws SQLException {
-        String sql = "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
+    // Lista em quais análises o ingrediente escolhido apareceu.
+    public ArrayList<IngredienteAnalise> listarPorIdIngrediente(int idIngrediente) throws SQLException {
+        String sql =  "select ia.id_ingrediente_analise, ia.id_ingrediente, ia.id_analise, "
                 + "i.tipo, i.nivel_perigo "
                 + "from ingrediente_analise ia "
                 + "join ingredientes i on i.id_ingrediente = ia.id_ingrediente "
@@ -130,34 +133,37 @@ public class IngredienteAnaliseDAO {
         return lista;
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o registro pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente_analise = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }
     }
 
-    public int deleteByIdIngrediente(int id) throws SQLException {
+    // Deleta todos os registros do ingrediente escolhido.
+    public int deletarPorIdIngrediente(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_ingrediente= ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }
     }
 
-    public int deleteByIdAnalise(int id) throws SQLException {
+    // Deleta todos os ingredientes ligados à análise escolhida.
+    public int deletarPorIdAnalise(int id) throws SQLException {
         String sql = "delete from ingrediente_analise where id_analise = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1,id);
             return pstmt.executeUpdate();
 
         }

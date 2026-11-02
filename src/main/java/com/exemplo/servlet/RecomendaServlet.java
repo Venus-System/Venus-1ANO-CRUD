@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
+// Servlet das recomendações de produtos para os usuários.
 @WebServlet("/recomendas")
 public class RecomendaServlet extends HttpServlet {
 
@@ -25,20 +26,22 @@ public class RecomendaServlet extends HttpServlet {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final ProdutoDAO produtoDAO = new ProdutoDAO();
 
+    // Carrega os usuários e os produtos para os selects e abre o formulário de cadastro.
     private void abrirCadastro(HttpServletRequest request, HttpServletResponse response, String erro)
             throws ServletException, IOException {
         try {
             if (erro != null) {
                 request.setAttribute("erro", erro);
             }
-            request.setAttribute("usuarios", usuarioDAO.read());
-            request.setAttribute("produtos", produtoDAO.read());
+            request.setAttribute("usuarios", usuarioDAO.listar());
+            request.setAttribute("produtos", produtoDAO.listar());
             request.getRequestDispatcher("/WEB-INF/views/cadastro_recomenda.jsp").forward(request, response);
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao carregar usuários e produtos.", sqle);
         }
     }
 
+    // Confere se o usuário e o produto existem e cadastra a recomendação.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -53,21 +56,23 @@ public class RecomendaServlet extends HttpServlet {
             return;
         }
 
+        // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
         int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
         int idProduto = Integer.parseInt(idProdutoTexto.trim());
 
         try {
-            if (usuarioDAO.readById(idUsuario) == null || produtoDAO.readById(idProduto) == null) {
+            if (usuarioDAO.listarPorId(idUsuario) == null || produtoDAO.listarPorId(idProduto) == null) {
                 abrirCadastro(request, response, "O usuário ou o produto não existe.");
                 return;
             }
-            recomendaDAO.cadastrarRecomenda(new Recomenda(idProduto, idUsuario));
+            recomendaDAO.cadastrar(new Recomenda(idProduto, idUsuario));
             if ("1".equals(request.getParameter("fixo"))) {
                 response.sendRedirect(request.getContextPath() + "/usuarioDetalhe?id=" + idUsuario + "#recomendacoes");
                 return;
             }
             response.sendRedirect(request.getContextPath() + "/recomendas?idUsuario=" + idUsuario);
         } catch (SQLException sqle) {
+            // 23505 é o código do banco para registro repetido.
             if ("23505".equals(sqle.getSQLState())) {
                 abrirCadastro(request, response, "Esse produto já foi recomendado para este usuário.");
             } else {
@@ -76,6 +81,7 @@ public class RecomendaServlet extends HttpServlet {
         }
     }
 
+    // Abre as telas: cadastro, alteração ou lista (de todas ou só as de um usuário).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -90,22 +96,22 @@ public class RecomendaServlet extends HttpServlet {
             }
 
             if (Validador.idValido(idUsuarioTexto) && Validador.idValido(idProdutoTexto)) {
-                Recomenda recomenda = recomendaDAO.readByChave(
+                Recomenda recomenda = recomendaDAO.listarPorChave(
                         Integer.parseInt(idUsuarioTexto.trim()), Integer.parseInt(idProdutoTexto.trim()));
                 if (recomenda == null) {
                     response.sendRedirect(request.getContextPath() + "/recomendas");
                     return;
                 }
                 request.setAttribute("recomenda", recomenda);
-                request.setAttribute("produtos", produtoDAO.read());
+                request.setAttribute("produtos", produtoDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/editar_recomenda.jsp").forward(request, response);
                 return;
             }
 
             if (Validador.idValido(idUsuarioTexto)) {
-                request.setAttribute("recomendas", recomendaDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto.trim())));
+                request.setAttribute("recomendas", recomendaDAO.listarPorIdUsuario(Integer.parseInt(idUsuarioTexto.trim())));
             } else {
-                request.setAttribute("recomendas", recomendaDAO.read());
+                request.setAttribute("recomendas", recomendaDAO.listar());
             }
             request.getRequestDispatcher("/WEB-INF/views/lista_recomenda.jsp").forward(request, response);
 
@@ -114,6 +120,7 @@ public class RecomendaServlet extends HttpServlet {
         }
     }
 
+    // Troca o produto recomendado com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -122,9 +129,11 @@ public class RecomendaServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idUsuario") || !json.has("idProdutoAntigo") || !json.has("idProduto")) {
@@ -144,13 +153,13 @@ public class RecomendaServlet extends HttpServlet {
             }
 
             int idNovo = Integer.parseInt(idNovoTexto.trim());
-            if (produtoDAO.readById(idNovo) == null) {
+            if (produtoDAO.listarPorId(idNovo) == null) {
                 response.setStatus(400);
                 response.getWriter().write("O produto não existe.");
                 return;
             }
 
-            int linhas = recomendaDAO.update(Integer.parseInt(idUsuarioTexto.trim()),
+            int linhas = recomendaDAO.alterar(Integer.parseInt(idUsuarioTexto.trim()),
                     Integer.parseInt(idAntigoTexto.trim()), idNovo);
 
             if (linhas > 0) {
@@ -172,6 +181,7 @@ public class RecomendaServlet extends HttpServlet {
         }
     }
 
+    // Deleta uma recomendação ou todas as recomendações de um usuário.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -186,9 +196,9 @@ public class RecomendaServlet extends HttpServlet {
             int linhas;
 
             if (Validador.idValido(idUsuarioTexto) && Validador.idValido(idProdutoTexto)) {
-                linhas = recomendaDAO.delete(Integer.parseInt(idUsuarioTexto.trim()), Integer.parseInt(idProdutoTexto.trim()));
+                linhas = recomendaDAO.deletar(Integer.parseInt(idUsuarioTexto.trim()), Integer.parseInt(idProdutoTexto.trim()));
             } else if (Validador.idValido(idUsuarioTexto)) {
-                linhas = recomendaDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto.trim()));
+                linhas = recomendaDAO.deletarPorIdUsuario(Integer.parseInt(idUsuarioTexto.trim()));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado ou inválido.");

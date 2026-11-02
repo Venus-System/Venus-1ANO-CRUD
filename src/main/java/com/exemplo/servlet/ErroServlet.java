@@ -9,9 +9,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
+// Servlet de erro: mostra uma página amigável quando algo dá errado.
 @WebServlet("/erro")
 public class ErroServlet extends HttpServlet {
 
+    // Recebe qualquer erro do sistema, escolhe a mensagem (senha do banco errada ou falha de conexão) e abre a página de erro.
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -19,7 +21,6 @@ public class ErroServlet extends HttpServlet {
         Throwable erro = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
         String mensagem = "Algo deu errado ao abrir esta página. Tente de novo.";
 
-        // Percorre as causas para reconhecer falhas de autenticação ou conexão com o banco.
         while (erro != null) {
             if (erro instanceof SQLException) {
                 String estado = ((SQLException) erro).getSQLState();

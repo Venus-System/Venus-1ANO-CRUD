@@ -10,20 +10,20 @@ import jakarta.servlet.annotation.WebFilter;
 import java.io.IOException;
 
 @WebFilter("/*")
-// Aplica a codificação UTF-8 às requisições e respostas de todas as URLs da aplicação.
+//aqui ele registra o filtro no Tomcat e diz que ele vale para todas as URLs. O /* que configura todos de um avez.
 public class EncodingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        // Define a codificação antes da leitura dos parâmetros para preservar os acentos.
+        // Como o navegador envia os dados do formulário (acentos)
         request.setCharacterEncoding("UTF-8");
 
-        // Define a codificação do texto enviado ao navegador.
+        // Como a resposta volta para o navegador
         response.setCharacterEncoding("UTF-8");
 
-        // Continua a cadeia de filtros até o recurso solicitado.
+        // Passa a requisição adiante: sem essa linha o servlet nunca é chamado
         chain.doFilter(request, response);
     }
 }

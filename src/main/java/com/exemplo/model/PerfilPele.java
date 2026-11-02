@@ -1,13 +1,16 @@
 package com.exemplo.model;
 
+// Model da tabela perfil_pele: cada objeto desta classe representa o perfil de pele do usuário (tipo, oleosidade e sensibilidade).
 public class PerfilPele {
 
+    // Atributos: cada um guarda o valor de uma coluna da tabela.
     private int idPerfilPele;
     private int sensibilidade;
     private String tipoPele;
     private int nivelOleosidade;
     private int idUsuario;
 
+    // Construtor completo: usado quando os dados são lidos do banco.
     public PerfilPele(int sensibilidade, String tipoPele, int nivelOleosidade, int idUsuario, int idPerfilPele) {
         this.sensibilidade = sensibilidade;
         this.tipoPele = tipoPele;
@@ -16,6 +19,7 @@ public class PerfilPele {
         this.idPerfilPele = idPerfilPele;
     }
 
+    // Construtor sem o id: usado no cadastro, porque o banco cria o id sozinho.
     public PerfilPele(int sensibilidade, String tipoPele, int nivelOleosidade, int idUsuario) {
         this.sensibilidade = sensibilidade;
         this.tipoPele = tipoPele;
@@ -23,6 +27,7 @@ public class PerfilPele {
         this.idUsuario = idUsuario;
     }
 
+    // Construtor com o id e os campos que podem mudar: usado na alteração.
     public PerfilPele(int idPerfilPele, int sensibilidade, String tipoPele, int nivelOleosidade) {
         this.idPerfilPele = idPerfilPele;
         this.sensibilidade = sensibilidade;
@@ -30,6 +35,7 @@ public class PerfilPele {
         this.nivelOleosidade = nivelOleosidade;
     }
 
+    // Getters e setters: leem e alteram os atributos, que são privados.
     public int getSensibilidade() {
         return sensibilidade;
     }
@@ -70,6 +76,7 @@ public class PerfilPele {
         this.idPerfilPele = idPerfilPele;
     }
 
+    // toString: mostra os dados do objeto em texto, útil para testes.
     @Override
     public String toString() {
         return "Id Perfil Pele: " + getIdPerfilPele() + "\n" +

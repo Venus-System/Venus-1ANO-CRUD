@@ -2,16 +2,17 @@ package com.exemplo.dao;
 
 import com.exemplo.util.ConexaoBanco;
 import com.exemplo.model.PerfilPele;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela perfil_pele: faz o CRUD do perfil de pele dos usuários.
 public class PerfilPeleDAO {
 
-    public boolean cadastrarPerfilPele(PerfilPele perfilPele) throws SQLException {
+    // Cadastra o perfil de pele de um usuário.
+    public boolean cadastrar(PerfilPele perfilPele) throws SQLException {
         String sql = "insert into perfil_pele(sensibilidade, tipo_pele, nivel_oleosidade, id_usuario) values (?, ?, ?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -24,7 +25,8 @@ public class PerfilPeleDAO {
         }
     }
 
-    public ArrayList<PerfilPele> read() throws SQLException {
+    // Lista todos os perfis de pele, em ordem de id.
+    public ArrayList<PerfilPele> listar() throws SQLException {
         String sql = "select * from perfil_pele order by id_perfil_pele";
         ArrayList<PerfilPele> perfis = new ArrayList<>();
 
@@ -45,15 +47,18 @@ public class PerfilPeleDAO {
         return perfis;
     }
 
-    public PerfilPele readById(int id) throws SQLException {
+    // Busca um perfil de pele pelo id. Usado para preencher o formulário de alteração.
+    public PerfilPele listarPorId(int id) throws SQLException {
         String sql = "select * from perfil_pele where id_perfil_pele = ?";
         PerfilPele perfil = null;
+        //ainda sem objeto
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
 
             try (ResultSet rset = pstmt.executeQuery()) {
+                //que permite a visualização das tabelas
                 if (rset.next()) {
                     perfil = new PerfilPele(
                             rset.getInt("sensibilidade"),
@@ -69,7 +74,8 @@ public class PerfilPeleDAO {
         return perfil;
     }
 
-    public PerfilPele readByIdUsuario(int idUsuario) throws SQLException {
+    // Busca o perfil de pele do usuário escolhido.
+    public PerfilPele listarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "select * from perfil_pele where id_usuario = ?";
         PerfilPele perfil = null;
 
@@ -94,7 +100,8 @@ public class PerfilPeleDAO {
         return perfil;
     }
 
-    public int alterarValores(PerfilPele perfilPele) throws SQLException {
+    // Altera a sensibilidade, o tipo de pele e a oleosidade do perfil.
+    public int alterar(PerfilPele perfilPele) throws SQLException {
         String sql = "update perfil_pele set sensibilidade = ?, tipo_pele = ?, nivel_oleosidade = ? where id_perfil_pele = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -108,7 +115,8 @@ public class PerfilPeleDAO {
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o perfil de pele pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from perfil_pele where id_perfil_pele = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -119,7 +127,8 @@ public class PerfilPeleDAO {
         }
     }
 
-    public int deleteByIdUsuario(int idUsuario) throws SQLException {
+    // Deleta o perfil de pele do usuário escolhido.
+    public int deletarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from perfil_pele where id_usuario= ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -131,16 +140,17 @@ public class PerfilPeleDAO {
     }
 
 
+    // Confere se o usuário já tem perfil de pele, porque cada usuário só pode ter um.
     public boolean existePerfilParaUsuario(int idUsuario) throws SQLException {
         String sql = "SELECT 1 FROM perfil_pele WHERE id_usuario = ?";
 
 
         try (Connection conexao = ConexaoBanco.conectar();
-             PreparedStatement comando = conexao.prepareStatement(sql)) {
+        PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setInt(1, idUsuario);
 
-            try (ResultSet resultado = comando.executeQuery()) {
+            try (ResultSet resultado = comando.executeQuery()){
 
                 boolean existe = resultado.next();
 

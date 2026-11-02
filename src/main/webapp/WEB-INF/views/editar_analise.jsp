@@ -14,8 +14,6 @@
     <title><c:out value="${tituloPagina}"/> | Venus</title>
     <link rel="icon" href="${ctx}/assets/img/favicon.svg" type="image/svg+xml">
 
-    <link rel="stylesheet" href="${ctx}/assets/fonts.css">
-
     <link rel="stylesheet" href="${ctx}/assets/css/global.css">
     <link rel="stylesheet" href="${ctx}/assets/css/painel.css">
     <link rel="stylesheet" href="${ctx}/assets/css/paginas/crud.css">
@@ -140,7 +138,7 @@
     <form id="form-editar">
         <label class="form-field">
             Resumo do resultado
-            <textarea id="resumoResultado" maxlength="255" required><c:out value="${analise.resumoResultado}"/></textarea>
+            <textarea id="resumoResultado" maxlength="500" required><c:out value="${analise.resumoResultado}"/></textarea>
         </label>
 
         <label class="form-field">

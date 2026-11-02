@@ -5,7 +5,6 @@ import com.exemplo.dao.ProdutoDAO;
 import com.exemplo.dao.ProdutoUsuarioDAO;
 import com.exemplo.dao.UsuarioDAO;
 import com.exemplo.model.ProdutoUsuario;
-import com.exemplo.util.Validador;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// Servlet que liga os usuários aos produtos.
 @WebServlet("/produtoUsuarios")
 public class ProdutoUsuarioServlet extends HttpServlet {
     private final ProdutoUsuarioDAO produtoUsuarioDAO = new ProdutoUsuarioDAO();
@@ -26,18 +26,20 @@ public class ProdutoUsuarioServlet extends HttpServlet {
     //os selects de produto e usuário precisam de listas: todos os produtos e todos os usário do banco.
     //sem o abrir cadastro, as listas só chegam ao jsp se o servlet buscar no banco e guradar na requisição com o setAtribute.
     //sem isso o jsp guarda algo que não existe, e os selects aparecem vazios.
+    // Carrega os produtos e os usuários para os selects e abre o formulário de cadastro.
     private void abrirCadastro(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            request.setAttribute("produtos", produtoDAO.read());
-            request.setAttribute("usuarios", usuarioDAO.read());
+            request.setAttribute("produtos", produtoDAO.listar());
+            request.setAttribute("usuarios", usuarioDAO.listar());
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao carregar produtos e usuários para o formulário.", sqle);
         }
         request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_usuario.jsp").forward(request, response);
     }
 
-    // Cadastro
+    //cadastrar
+    // Cadastra o vínculo, mas antes confere se ele já existe para não repetir.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -56,13 +58,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             return;
         }
 
-        if (!Validador.idValido(idProdutoTexto) || !Validador.idValido(idUsuarioTexto)) {
-            request.setAttribute("erro", "Selecione um produto e um usuário válidos.");
-            abrirCadastro(request, response);
-            return;
-        }
-
         try {
+            // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
             int idProduto = Integer.parseInt(idProdutoTexto);
             int idUsuario = Integer.parseInt(idUsuarioTexto);
 
@@ -74,7 +71,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
 
             ProdutoUsuario produtoUsuario = new ProdutoUsuario(idProduto, idUsuario);
 
-            if (produtoUsuarioDAO.inserirProdutoUsuario(produtoUsuario)) {
+            if (produtoUsuarioDAO.cadastrar(produtoUsuario)) {
                 if ("1".equals(request.getParameter("fixo"))) {
                     response.sendRedirect(request.getContextPath() + "/usuarioDetalhe?id=" + idUsuario + "#produtos");
                     return;
@@ -90,6 +87,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             request.setAttribute("erro", "Dados inválidos. Selecione o produto e o usuário e tente novamente.");
             abrirCadastro(request, response);
         } catch (SQLException sqle) {
+            // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
             if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                 request.setAttribute("erro", "Produto ou usuário não existe, ou o registro já está cadastrado.");
                 abrirCadastro(request, response);
@@ -101,7 +99,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         }
     }
 
-    // Consulta
+    //listar
+    // Abre o cadastro ou mostra a lista (de todos ou só os produtos de um usuário).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -116,12 +115,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
 
         try {
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                if (!Validador.idValido(idUsuarioTexto)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de usuário inválido.");
-                    return;
-                }
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
-                ArrayList<ProdutoUsuario> listaDoUsuario = produtoUsuarioDAO.readByIdUsuario(idUsuario);
+                ArrayList<ProdutoUsuario> listaDoUsuario = produtoUsuarioDAO.listarPorIdUsuario(idUsuario);
 
                 request.setAttribute("produtosUsuarios", listaDoUsuario);
                 request.getRequestDispatcher("/WEB-INF/views/lista_produto_usuario.jsp").forward(request, response);
@@ -129,7 +124,7 @@ public class ProdutoUsuarioServlet extends HttpServlet {
                 //Return serve para o código não continuar executando as linhas seguintes.
             }
 
-            ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.read();
+            ArrayList<ProdutoUsuario> listaProdutoUsuarios = produtoUsuarioDAO.listar();
             //Guarda todos os registros de produto_usuario em uma lista.
             request.setAttribute("produtosUsuarios", listaProdutoUsuarios);
             request.getRequestDispatcher("/WEB-INF/views/lista_produto_usuario.jsp").forward(request, response);
@@ -141,8 +136,8 @@ public class ProdutoUsuarioServlet extends HttpServlet {
         }
     }
 
-    // Exclusão
-    // Prioriza o ID do vínculo; sem ele, exclui todos os vínculos do produto ou do usuário.
+    //deletar
+    // Deleta um vínculo pelo id, ou todos de um produto, ou todos de um usuário.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -158,26 +153,14 @@ public class ProdutoUsuarioServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                if (!Validador.idValido(idTexto)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id inválido.");
-                    return;
-                }
                 int id = Integer.parseInt(idTexto);
-                linhas = produtoUsuarioDAO.deleteById(id);
+                linhas = produtoUsuarioDAO.deletarPorId(id);
             } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
-                if (!Validador.idValido(idProdutoTexto)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de produto inválido.");
-                    return;
-                }
                 int idProduto = Integer.parseInt(idProdutoTexto);
-                linhas = produtoUsuarioDAO.deleteByIdProduto(idProduto);
+                linhas = produtoUsuarioDAO.deletarPorIdProduto(idProduto);
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                if (!Validador.idValido(idUsuarioTexto)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de usuário inválido.");
-                    return;
-                }
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
-                linhas = produtoUsuarioDAO.deleteByIdUsuario(idUsuario);
+                linhas = produtoUsuarioDAO.deletarPorIdUsuario(idUsuario);
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");
