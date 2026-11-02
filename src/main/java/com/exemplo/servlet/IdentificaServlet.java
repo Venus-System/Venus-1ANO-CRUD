@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
+// Servlet da tabela identifica: liga as análises aos ingredientes identificados.
 @WebServlet("/identificas")
 public class IdentificaServlet extends HttpServlet {
 
@@ -25,20 +26,22 @@ public class IdentificaServlet extends HttpServlet {
     private final AnaliseDAO analiseDAO = new AnaliseDAO();
     private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
 
+    // Carrega as análises e os ingredientes para os selects e abre o formulário de cadastro.
     private void abrirCadastro(HttpServletRequest request, HttpServletResponse response, String erro)
             throws ServletException, IOException {
         try {
             if (erro != null) {
                 request.setAttribute("erro", erro);
             }
-            request.setAttribute("analises", analiseDAO.read());
-            request.setAttribute("ingredientes", ingredientesDAO.read());
+            request.setAttribute("analises", analiseDAO.listar());
+            request.setAttribute("ingredientes", ingredientesDAO.listar());
             request.getRequestDispatcher("/WEB-INF/views/cadastro_identifica.jsp").forward(request, response);
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao carregar análises e ingredientes.", sqle);
         }
     }
 
+    // Confere se a análise e o ingrediente existem e cadastra a ligação entre eles.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -53,17 +56,19 @@ public class IdentificaServlet extends HttpServlet {
             return;
         }
 
+        // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
         int idAnalise = Integer.parseInt(idAnaliseTexto.trim());
         int idIngrediente = Integer.parseInt(idIngredienteTexto.trim());
 
         try {
-            if (analiseDAO.readById(idAnalise) == null || ingredientesDAO.readById(idIngrediente) == null) {
+            if (analiseDAO.listarPorId(idAnalise) == null || ingredientesDAO.listarPorId(idIngrediente) == null) {
                 abrirCadastro(request, response, "A análise ou o ingrediente não existe.");
                 return;
             }
-            identificaDAO.cadastrarIdentifica(new Identifica(idIngrediente, idAnalise));
+            identificaDAO.cadastrar(new Identifica(idIngrediente, idAnalise));
             response.sendRedirect(request.getContextPath() + "/identificas?idAnalise=" + idAnalise);
         } catch (SQLException sqle) {
+            // 23505 é o código do banco para registro repetido.
             if ("23505".equals(sqle.getSQLState())) {
                 abrirCadastro(request, response, "Esse ingrediente já foi identificado nesta análise.");
             } else {
@@ -72,6 +77,7 @@ public class IdentificaServlet extends HttpServlet {
         }
     }
 
+    // Abre as telas: cadastro, alteração ou lista (de todas ou só de uma análise).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -86,22 +92,22 @@ public class IdentificaServlet extends HttpServlet {
             }
 
             if (Validador.idValido(idAnaliseTexto) && Validador.idValido(idIngredienteTexto)) {
-                Identifica identifica = identificaDAO.readByChave(
+                Identifica identifica = identificaDAO.listarPorChave(
                         Integer.parseInt(idAnaliseTexto.trim()), Integer.parseInt(idIngredienteTexto.trim()));
                 if (identifica == null) {
                     response.sendRedirect(request.getContextPath() + "/identificas");
                     return;
                 }
                 request.setAttribute("identifica", identifica);
-                request.setAttribute("ingredientes", ingredientesDAO.read());
+                request.setAttribute("ingredientes", ingredientesDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/editar_identifica.jsp").forward(request, response);
                 return;
             }
 
             if (Validador.idValido(idAnaliseTexto)) {
-                request.setAttribute("identificas", identificaDAO.readByIdAnalise(Integer.parseInt(idAnaliseTexto.trim())));
+                request.setAttribute("identificas", identificaDAO.listarPorIdAnalise(Integer.parseInt(idAnaliseTexto.trim())));
             } else {
-                request.setAttribute("identificas", identificaDAO.read());
+                request.setAttribute("identificas", identificaDAO.listar());
             }
             request.getRequestDispatcher("/WEB-INF/views/lista_identifica.jsp").forward(request, response);
 
@@ -110,6 +116,7 @@ public class IdentificaServlet extends HttpServlet {
         }
     }
 
+    // Troca o ingrediente ligado a uma análise com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -118,9 +125,11 @@ public class IdentificaServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idAnalise") || !json.has("idIngredienteAntigo") || !json.has("idIngrediente")) {
@@ -140,13 +149,13 @@ public class IdentificaServlet extends HttpServlet {
             }
 
             int idNovo = Integer.parseInt(idNovoTexto.trim());
-            if (ingredientesDAO.readById(idNovo) == null) {
+            if (ingredientesDAO.listarPorId(idNovo) == null) {
                 response.setStatus(400);
                 response.getWriter().write("O ingrediente não existe.");
                 return;
             }
 
-            int linhas = identificaDAO.update(Integer.parseInt(idAnaliseTexto.trim()),
+            int linhas = identificaDAO.alterar(Integer.parseInt(idAnaliseTexto.trim()),
                     Integer.parseInt(idAntigoTexto.trim()), idNovo);
 
             if (linhas > 0) {
@@ -168,6 +177,7 @@ public class IdentificaServlet extends HttpServlet {
         }
     }
 
+    // Deleta uma ligação ou todas as ligações de uma análise.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -182,9 +192,9 @@ public class IdentificaServlet extends HttpServlet {
             int linhas;
 
             if (Validador.idValido(idAnaliseTexto) && Validador.idValido(idIngredienteTexto)) {
-                linhas = identificaDAO.delete(Integer.parseInt(idAnaliseTexto.trim()), Integer.parseInt(idIngredienteTexto.trim()));
+                linhas = identificaDAO.deletar(Integer.parseInt(idAnaliseTexto.trim()), Integer.parseInt(idIngredienteTexto.trim()));
             } else if (Validador.idValido(idAnaliseTexto)) {
-                linhas = identificaDAO.deleteByIdAnalise(Integer.parseInt(idAnaliseTexto.trim()));
+                linhas = identificaDAO.deletarPorIdAnalise(Integer.parseInt(idAnaliseTexto.trim()));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado ou inválido.");

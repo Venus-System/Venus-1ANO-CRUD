@@ -8,9 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela nome_ingrediente: guarda os nomes de cada ingrediente.
 public class NomeIngredienteDAO {
 
-    public boolean cadastrarNomeIngrediente(NomeIngrediente nomeIngrediente) throws SQLException {
+    // Cadastra um novo nome para um ingrediente.
+    public boolean cadastrar(NomeIngrediente nomeIngrediente) throws SQLException {
         String sql = "insert into nome_ingrediente(nome_ingrediente, id_ingrediente) values (?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -21,7 +23,8 @@ public class NomeIngredienteDAO {
         }
     }
 
-    public ArrayList<NomeIngrediente> read() throws SQLException {
+    // Lista todos os nomes de ingredientes, em ordem de id.
+    public ArrayList<NomeIngrediente> listar() throws SQLException {
         String sql = "select * from nome_ingrediente order by id_nome";
         ArrayList<NomeIngrediente> nomeIngrediente = new ArrayList<>();
 
@@ -40,7 +43,8 @@ public class NomeIngredienteDAO {
 
     }
 
-    public NomeIngrediente readById(int id) throws SQLException {
+    // Busca um nome pelo id. Usado para preencher o formulário de alteração.
+    public NomeIngrediente listarPorId(int id) throws SQLException {
         String sql = "select * from nome_ingrediente where id_nome =?";
         NomeIngrediente nomeIngrediente = null;
 
@@ -62,7 +66,8 @@ public class NomeIngredienteDAO {
         } return nomeIngrediente;
     }
 
-    public ArrayList<NomeIngrediente> readByIdIngrediente (int id) throws SQLException {
+    // Lista todos os nomes do ingrediente escolhido.
+    public ArrayList<NomeIngrediente> listarPorIdIngrediente(int id) throws SQLException {
         String sql = "select * from nome_ingrediente where id_ingrediente =?";
         ArrayList<NomeIngrediente> listaNomeIngredientes = new ArrayList<>();
 
@@ -86,7 +91,8 @@ public class NomeIngredienteDAO {
     }
 
 
-    public int alterarValores(NomeIngrediente nomeIngrediente) throws SQLException {
+    // Altera o texto do nome escolhido.
+    public int alterar(NomeIngrediente nomeIngrediente) throws SQLException {
         String sql = "update nome_ingrediente set nome_ingrediente = ? where id_nome = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -98,7 +104,8 @@ public class NomeIngredienteDAO {
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o nome pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from nome_ingrediente where id_nome = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -109,7 +116,8 @@ public class NomeIngredienteDAO {
         }
     }
 
-    public int deleteByIdIngrediente(int id) throws SQLException {
+    // Deleta todos os nomes do ingrediente escolhido.
+    public int deletarPorIdIngrediente(int id) throws SQLException {
         String sql = "delete from nome_ingrediente where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {

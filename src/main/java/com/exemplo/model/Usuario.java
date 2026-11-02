@@ -2,8 +2,10 @@ package com.exemplo.model;
 
 import java.time.LocalDate;
 
+// Model da tabela usuario: cada objeto desta classe representa um usuário do sistema (cliente ou administrador).
 public class Usuario {
 
+    // Atributos: cada um guarda o valor de uma coluna da tabela.
     private int idUsuario;
     private String nomeCompleto;
     private String genero;
@@ -14,6 +16,7 @@ public class Usuario {
     private LocalDate dtCadastro;
     private String nivel;
 
+    // Construtor completo: usado quando os dados são lidos do banco.
     public Usuario(int idUsuario, String nomeCompleto, String genero, String email, String senha, String telefone, LocalDate dtNascimento, LocalDate dtCadastro) {
         this.idUsuario = idUsuario;
         this.nomeCompleto = nomeCompleto;
@@ -25,6 +28,7 @@ public class Usuario {
         this.dtCadastro = dtCadastro;
     }
 
+    // Construtor sem o id: usado no cadastro, porque o banco cria o id sozinho.
     public Usuario(String nomeCompleto, String genero, String email, String senha, String telefone, LocalDate dtNascimento, LocalDate dtCadastro) {
         this.nomeCompleto = nomeCompleto;
         this.genero = genero;
@@ -35,6 +39,7 @@ public class Usuario {
         this.dtCadastro = dtCadastro;
     }
 
+    // Getters e setters: leem e alteram os atributos, que são privados.
     public int getIdUsuario() {
         return idUsuario;
     }
@@ -107,6 +112,7 @@ public class Usuario {
         this.nivel = nivel;
     }
 
+    // toString: mostra os dados do objeto em texto, útil para testes.
     @Override
     public String toString() {
         return "Id Usuário: " + getIdUsuario() + "\n" +

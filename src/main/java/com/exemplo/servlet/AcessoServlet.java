@@ -19,23 +19,29 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Servlet do acesso: cuida de sair do sistema e de redefinir a senha por e-mail.
 @WebServlet({"/sair", "/esqueceu-a-senha", "/nova-senha", "/senha-alterada"})
 public class AcessoServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    // Guardam, por e-mail, o código enviado, até quando ele vale e quantas tentativas já foram feitas.
     private static final Map<String, String> CODIGOS = new ConcurrentHashMap<>();
     private static final Map<String, Long> VALIDADE = new ConcurrentHashMap<>();
     private static final Map<String, Integer> TENTATIVAS = new ConcurrentHashMap<>();
+    // Tempo que o código enviado por e-mail continua válido.
     private static final long QUINZE_MINUTOS = 15 * 60 * 1000;
+    // Gerador de números aleatórios seguro, usado para sortear o código.
     private static final SecureRandom SORTEIO = new SecureRandom();
 
+    // Abre as telas pelo endereço: /sair encerra a sessão, e as outras abrem as telas de redefinir a senha.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         switch (request.getServletPath()) {
             case "/sair":
+                // false: só pega a sessão se ela já existir, sem criar uma nova.
                 HttpSession sessao = request.getSession(false);
                 if (sessao != null) {
                     sessao.invalidate();
@@ -58,6 +64,7 @@ public class AcessoServlet extends HttpServlet {
         }
     }
 
+    // Recebe os formulários: decide se é para enviar o código ou para salvar a nova senha.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -73,6 +80,7 @@ public class AcessoServlet extends HttpServlet {
         }
     }
 
+    // Confere se o e-mail existe, sorteia um código e manda para o e-mail do usuário.
     private void enviarCodigo(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -94,7 +102,7 @@ public class AcessoServlet extends HttpServlet {
         }
 
         try {
-            Usuario usuario = usuarioDAO.readByEmail(email);
+            Usuario usuario = usuarioDAO.listarPorEmail(email);
 
             if (usuario == null) {
                 request.setAttribute("erro", "Não existe conta com esse e-mail. Confira se digitou certo.");
@@ -123,6 +131,7 @@ public class AcessoServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/nova-senha");
     }
 
+    // Confere o código e as senhas digitadas e, se estiver tudo certo, grava a nova senha em hash.
     private void salvarNovaSenha(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -168,7 +177,7 @@ public class AcessoServlet extends HttpServlet {
         }
 
         try {
-            Usuario usuario = usuarioDAO.readByEmail(email);
+            Usuario usuario = usuarioDAO.listarPorEmail(email);
             usuarioDAO.trocarSenha(usuario.getIdUsuario(), SenhaUtil.gerarHash(senha));
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao trocar a senha.", sqle);
@@ -180,6 +189,7 @@ public class AcessoServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/senha-alterada");
     }
 
+    // Apaga o código, a validade e as tentativas do e-mail, para o código não servir de novo.
     private void apagarCodigo(String email) {
         CODIGOS.remove(email);
         VALIDADE.remove(email);

@@ -8,9 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela perfil_cabelo: faz o CRUD do perfil de cabelo dos usuários.
 public class PerfilCabeloDAO {
 
-    public boolean cadastrarPerfilCabelo(PerfilCabelo perfilCabelo) throws SQLException {
+    // Cadastra o perfil de cabelo de um usuário.
+    public boolean cadastrar(PerfilCabelo perfilCabelo) throws SQLException {
         String sql = "insert into perfil_cabelo(curvatura, oleosidade, espessura, id_usuario) values (?, ?, ?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -23,7 +25,8 @@ public class PerfilCabeloDAO {
         }
     }
 
-    public ArrayList<PerfilCabelo> read() throws SQLException {
+    // Lista todos os perfis de cabelo, em ordem de id.
+    public ArrayList<PerfilCabelo> listar() throws SQLException {
         String sql = "select * from perfil_cabelo order by id_perfil_cabelo";
         ArrayList<PerfilCabelo> perfis = new ArrayList<>();
 
@@ -44,7 +47,8 @@ public class PerfilCabeloDAO {
         return perfis;
     }
 
-    public PerfilCabelo readById(int id) throws SQLException {
+    // Busca um perfil de cabelo pelo id. Usado para preencher o formulário de alteração.
+    public PerfilCabelo listarPorId(int id) throws SQLException {
         String sql = "select * from perfil_cabelo where id_perfil_cabelo = ?";
         PerfilCabelo perfil = null;
 
@@ -69,7 +73,8 @@ public class PerfilCabeloDAO {
         return perfil;
     }
 
-    public PerfilCabelo readByIdUsuario(int idUsuario) throws SQLException {
+    // Busca o perfil de cabelo do usuário escolhido.
+    public PerfilCabelo listarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "select * from perfil_cabelo where id_usuario = ?";
         PerfilCabelo perfil = null;
 
@@ -94,7 +99,8 @@ public class PerfilCabeloDAO {
         return perfil;
     }
 
-    public int alterarValores(PerfilCabelo perfilCabelo) throws SQLException {
+    // Altera a curvatura, a oleosidade e a espessura do perfil.
+    public int alterar(PerfilCabelo perfilCabelo) throws SQLException {
         String sql = "update perfil_cabelo set curvatura = ?, oleosidade = ?, espessura = ? where id_perfil_cabelo = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -108,7 +114,8 @@ public class PerfilCabeloDAO {
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o perfil de cabelo pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from perfil_cabelo where id_perfil_cabelo = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -119,7 +126,8 @@ public class PerfilCabeloDAO {
         }
     }
 
-    public int deleteByIdUsuario(int idUsuario) throws SQLException {
+    // Deleta o perfil de cabelo do usuário escolhido.
+    public int deletarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from perfil_cabelo where id_usuario = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -130,6 +138,7 @@ public class PerfilCabeloDAO {
         }
     }
 
+    // Confere se o usuário já tem perfil de cabelo, porque cada usuário só pode ter um.
     public boolean existePerfilParaUsuario(int idUsuario) throws SQLException {
         String sql = "SELECT 1 FROM perfil_cabelo WHERE id_usuario = ?";
 

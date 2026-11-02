@@ -9,8 +9,10 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+// DAO da tabela analise: faz o CRUD das análises feitas para os usuários.
 public class AnaliseDAO {
-    public boolean cadastrarAnalise(Analise analise) throws SQLException {
+    // Cadastra uma nova análise para um usuário.
+    public boolean cadastrar(Analise analise) throws SQLException {
         String sql = "insert into analise (dt_hr_analise, resumo_resultado, pontuacao, id_usuario) values (?, ?, ?, ?)";
 
         try (Connection cnn= ConexaoBanco.conectar();
@@ -25,7 +27,8 @@ public class AnaliseDAO {
         }
     }
 
-    public ArrayList<Analise> read() throws SQLException {
+    // Lista todas as análises, em ordem de id.
+    public ArrayList<Analise> listar() throws SQLException {
         String sql = "select * from analise order by id_analise";
         ArrayList<Analise> analise = new ArrayList<>();
 
@@ -47,7 +50,8 @@ public class AnaliseDAO {
 
     }
 
-    public Analise readById(int id) throws SQLException{
+    // Busca uma análise pelo id. Usado para preencher o formulário de alteração.
+    public Analise listarPorId(int id) throws SQLException{
         String sql = "select * from analise where id_analise = ?";
         Analise analise = null;
         //ainda sem objeto
@@ -74,7 +78,8 @@ public class AnaliseDAO {
         } return analise;
     }
 
-    public ArrayList<Analise> readByIdUsuario(int idUsuario) throws SQLException {
+    // Lista as análises do usuário escolhido, para mostrar o histórico dele.
+    public ArrayList<Analise> listarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "select * from analise where id_usuario = ? order by id_analise";
         ArrayList<Analise> lista = new ArrayList<>();
 
@@ -98,7 +103,8 @@ public class AnaliseDAO {
         return lista;
     }
 
-    public int update (Analise analise) throws SQLException {
+    // Altera a data, o resumo e a pontuação da análise. Devolve quantas linhas mudaram.
+    public int alterar(Analise analise) throws SQLException {
         String sql = "update analise set dt_hr_analise = ?, resumo_resultado = ?, pontuacao =?  where id_analise = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
@@ -112,7 +118,8 @@ public class AnaliseDAO {
         }
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta a análise pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from analise where id_analise = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -123,7 +130,8 @@ public class AnaliseDAO {
         }
     }
 
-    public int deleteByIdUsuario(int idUsuario) throws SQLException {
+    // Deleta todas as análises do usuário escolhido.
+    public int deletarPorIdUsuario(int idUsuario) throws SQLException {
         String sql = "delete from analise where id_usuario = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {

@@ -18,18 +18,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet das alergias de cada usuário.
 @WebServlet("/usuarioAlergias")
 public class UsuarioAlergiaServlet extends HttpServlet {
 
     private final UsuarioAlergiaDAO usuarioAlergiaDAO = new UsuarioAlergiaDAO();
     private final AlergiaDAO alergiaDAO = new AlergiaDAO();
-    //create
+    //cadastrar
 
-    //O SQLException do read() é tratado dentro do auxiliar.
+    //O SQLException do listar() é tratado dentro do auxiliar.
+    // Carrega as alergias para o select e abre o formulário de cadastro.
     private void mostrarFormulario(HttpServletRequest request, HttpServletResponse response, String erro)
             throws ServletException, IOException {
         try {
-            request.setAttribute("alergias", alergiaDAO.read());
+            request.setAttribute("alergias", alergiaDAO.listar());
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar alergias", sqle);
         }
@@ -37,6 +39,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario_alergia.jsp").forward(request, response);
     }
 
+    // Cadastra uma alergia para o usuário, com o grau, e volta para a lista dele.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -57,13 +60,14 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         //a validação dos campos vazios ficou antes do try, que trata o SQLException.
 
         try {
+            // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
             int grau = Integer.parseInt(grauTexto);
             int idUsuario = Integer.parseInt(idUsuarioTexto);
             int idAlergia = Integer.parseInt(idAlergiaTexto);
 
             UsuarioAlergia usuarioAlergia = new UsuarioAlergia(grau, idUsuario, idAlergia);
 
-            if (usuarioAlergiaDAO.inserirUsuarioAlergia(usuarioAlergia)) {
+            if (usuarioAlergiaDAO.cadastrar(usuarioAlergia)) {
                 //a interrogação serve para o endereço dos parâmetros. Com o getParameter o servlet lê toda a informação extra.
                 //Depois de cadastrar, a pessoa volta para a lista do usuário em que estava.
                 response.sendRedirect(request.getContextPath() + "/usuarioAlergias?idUsuario=" + idUsuario);
@@ -89,7 +93,8 @@ public class UsuarioAlergiaServlet extends HttpServlet {
     }
 
 
-    //read
+    //listar
+    // Abre as telas: cadastro, alteração ou lista (de todas ou só as de um usuário).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -100,14 +105,14 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
         try {
             if ("novo".equals(acao)) {
-                request.setAttribute("alergias", alergiaDAO.read());
+                request.setAttribute("alergias", alergiaDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_usuario_alergia.jsp").forward(request, response);
                 return;
             }
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                UsuarioAlergia usuarioAlergia = usuarioAlergiaDAO.readById(id);
+                UsuarioAlergia usuarioAlergia = usuarioAlergiaDAO.listarPorId(id);
 
                 if (usuarioAlergia == null) {
                     response.sendRedirect(request.getContextPath() + "/usuarioAlergias");
@@ -121,14 +126,14 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
-                ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.readByIdUsuario(idUsuario);
+                ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.listarPorIdUsuario(idUsuario);
 
                 request.setAttribute("usuariosAlergias", listaUsuarioAlergia);
                 request.getRequestDispatcher("/WEB-INF/views/lista_usuario_alergias.jsp").forward(request, response);
                 return;
             }
 
-            ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.read();
+            ArrayList<UsuarioAlergia> listaUsuarioAlergia = usuarioAlergiaDAO.listar();
             request.setAttribute("usuariosAlergias", listaUsuarioAlergia);
             request.getRequestDispatcher("/WEB-INF/views/lista_usuario_alergias.jsp").forward(request, response);
 
@@ -139,7 +144,8 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera o grau da alergia com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -148,9 +154,11 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idUsuarioAlergia") || !json.has("grau")) {
@@ -164,7 +172,7 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
             UsuarioAlergia usuarioAlergia = new UsuarioAlergia(id, grau);
 
-            int linhas = usuarioAlergiaDAO.update(usuarioAlergia);
+            int linhas = usuarioAlergiaDAO.alterar(usuarioAlergia);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -180,7 +188,8 @@ public class UsuarioAlergiaServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta um registro pelo id, ou todos de um usuário, ou todos de uma alergia.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -198,13 +207,13 @@ public class UsuarioAlergiaServlet extends HttpServlet {
 
             //aqui será observado qual parâmetro veio na URL, pois dependendo do parâmetro outro mehtodo será chamado.
             if (idTexto != null && !idTexto.isBlank()) {
-                linha = usuarioAlergiaDAO.deleteById(Integer.parseInt(idTexto));
+                linha = usuarioAlergiaDAO.deletarPorId(Integer.parseInt(idTexto));
 
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                linha = usuarioAlergiaDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                linha = usuarioAlergiaDAO.deletarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
 
             } else if (idAlergiaTexto != null && !idAlergiaTexto.isBlank()) {
-                linha = usuarioAlergiaDAO.deleteByIdAlergia(Integer.parseInt(idAlergiaTexto));
+                linha = usuarioAlergiaDAO.deletarPorIdAlergia(Integer.parseInt(idAlergiaTexto));
 
                 //se nenhum
             } else {

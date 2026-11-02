@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet do perfil de cabelo: chama o PerfilCabeloDAO.
 @WebServlet("/perfisCabelo")
 public class PerfilCabeloServlet extends HttpServlet {
 
@@ -27,7 +28,8 @@ public class PerfilCabeloServlet extends HttpServlet {
     private static final String MSG_ESCALA_INVALIDA =
             "Curvatura deve ficar entre 1 e 4. Oleosidade e espessura devem ficar entre 1 e 10.";
 
-    //create
+    //cadastrar
+    // Cadastra o perfil de cabelo, mas antes confere se o usuário já não tem um.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,6 +51,7 @@ public class PerfilCabeloServlet extends HttpServlet {
             erro = "Preencha todos os campos obrigatórios.";
         } else {
             try {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int curvatura = Integer.parseInt(curvaturaTexto.trim());
                 int oleosidade = Integer.parseInt(oleosidadeTexto.trim());
                 int espessura = Integer.parseInt(espessuraTexto.trim());
@@ -63,7 +66,7 @@ public class PerfilCabeloServlet extends HttpServlet {
                 } else {
                     PerfilCabelo perfilCabelo = new PerfilCabelo(curvatura, oleosidade, espessura, idUsuario, 0);
 
-                    if (perfilCabeloDAO.cadastrarPerfilCabelo(perfilCabelo)) {
+                    if (perfilCabeloDAO.cadastrar(perfilCabelo)) {
                         response.sendRedirect(request.getContextPath() + "/perfisCabelo?idUsuario=" + idUsuario);
                         return;
                     }
@@ -75,6 +78,7 @@ public class PerfilCabeloServlet extends HttpServlet {
                 String estado = sqle.getSQLState();
                 if ("23503".equals(estado)) {
                     erro = "Usuário não existe.";
+                // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
                 } else if (estado != null && estado.startsWith("23")) {
                     erro = "Algum dado não foi aceito pelo banco.";
                 } else {
@@ -85,7 +89,7 @@ public class PerfilCabeloServlet extends HttpServlet {
 
         // único forward: só chega aqui quando houve erro
         try {
-            request.setAttribute("usuarios", usuarioDAO.read());
+            request.setAttribute("usuarios", usuarioDAO.listar());
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar usuários.", sqle);
         }
@@ -93,7 +97,8 @@ public class PerfilCabeloServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_cabelo.jsp").forward(request, response);
     }
 
-    //read
+    //listar
+    // Abre as telas: cadastro, alteração ou lista (de todos ou só o perfil de um usuário).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -104,14 +109,14 @@ public class PerfilCabeloServlet extends HttpServlet {
 
         try {
             if ("novo".equals(acao)) {
-                request.setAttribute("usuarios", usuarioDAO.read());
+                request.setAttribute("usuarios", usuarioDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_perfil_cabelo.jsp").forward(request, response);
                 return;
             }
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                PerfilCabelo perfilCabelo = perfilCabeloDAO.readById(id);
+                PerfilCabelo perfilCabelo = perfilCabeloDAO.listarPorId(id);
 
                 if (perfilCabelo == null) {
                     response.sendRedirect(request.getContextPath() + "/perfisCabelo");
@@ -126,12 +131,12 @@ public class PerfilCabeloServlet extends HttpServlet {
             ArrayList<PerfilCabelo> lista = new ArrayList<>();
 
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                PerfilCabelo perfilUsuario = perfilCabeloDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                PerfilCabelo perfilUsuario = perfilCabeloDAO.listarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
                 if (perfilUsuario != null) {
                     lista.add(perfilUsuario);
                 }
             } else {
-                lista = perfilCabeloDAO.read();
+                lista = perfilCabeloDAO.listar();
             }
 
             request.setAttribute("perfisCabelo", lista);
@@ -144,7 +149,8 @@ public class PerfilCabeloServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera o perfil de cabelo com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -153,9 +159,11 @@ public class PerfilCabeloServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idPerfilCabelo") || !json.has("curvatura")
@@ -179,7 +187,7 @@ public class PerfilCabeloServlet extends HttpServlet {
             }
 
             PerfilCabelo perfilCabelo = new PerfilCabelo(id, curvatura, oleosidade, espessura);
-            int linhas = perfilCabeloDAO.alterarValores(perfilCabelo);
+            int linhas = perfilCabeloDAO.alterar(perfilCabelo);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -200,7 +208,8 @@ public class PerfilCabeloServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta um perfil pelo id ou o perfil de um usuário.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -215,9 +224,9 @@ public class PerfilCabeloServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                linhas = perfilCabeloDAO.deleteById(Integer.parseInt(idTexto));
+                linhas = perfilCabeloDAO.deletarPorId(Integer.parseInt(idTexto));
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                linhas = perfilCabeloDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                linhas = perfilCabeloDAO.deletarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");

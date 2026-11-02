@@ -9,9 +9,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela produto_ingrediente: liga cada produto aos ingredientes que ele tem.
 public class ProdutoIngredienteDAO {
 
-    public boolean cadastrarProdutoIngrediente(ProdutoIngrediente produtoIngrediente) throws SQLException {
+    // Cadastra um ingrediente em um produto.
+    public boolean cadastrar(ProdutoIngrediente produtoIngrediente) throws SQLException {
         String sql = "insert into produto_ingrediente(id_ingrediente, id_produto) values (?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -22,7 +24,8 @@ public class ProdutoIngredienteDAO {
         }
     }
 
-    public ArrayList<ProdutoIngrediente> read() throws SQLException {
+    // Lista os ingredientes de todos os produtos. Os JOINs trazem o tipo, o nível de perigo e os nomes do ingrediente, juntados em um texto só pelo string_agg.
+    public ArrayList<ProdutoIngrediente> listar() throws SQLException {
         String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
                 + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "
                 + "       i.nivel_perigo, i.tipo "
@@ -51,7 +54,8 @@ public class ProdutoIngredienteDAO {
 
     }
 
-    public ArrayList<ProdutoIngrediente> readByIdProduto(int id) throws SQLException {
+    // Lista os ingredientes do produto escolhido, com os nomes, o tipo e o nível de perigo.
+    public ArrayList<ProdutoIngrediente> listarPorIdProduto(int id) throws SQLException {
         String sql = "SELECT pi.id_produto_ingrediente, pi.id_produto, pi.id_ingrediente, "
                 + "       COALESCE(string_agg(ni.nome_ingrediente, ', '), '(sem nome)') AS nome_ingrediente, "
                 + "       i.nivel_perigo, i.tipo "
@@ -85,8 +89,9 @@ public class ProdutoIngredienteDAO {
         return listaProdutosIngredientes;
     }
 
-    public ProdutoIngrediente readById(int id) throws SQLException {
-        String sql = "select * from produto_ingrediente where id_ingrediente =?";
+    // Busca um vínculo entre produto e ingrediente pelo id.
+    public ProdutoIngrediente listarPorId(int id) throws SQLException {
+        String sql = "select * from produto_ingrediente where id_produto_ingrediente = ?";
         ProdutoIngrediente produtoIngrediente = null;
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -108,7 +113,8 @@ public class ProdutoIngredienteDAO {
         return produtoIngrediente;
     }
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o vínculo pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from produto_ingrediente where id_produto_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -119,7 +125,8 @@ public class ProdutoIngredienteDAO {
         }
     }
 
-    public int deleteByIdIngrediente(int id) throws SQLException {
+    // Deleta o ingrediente escolhido de todos os produtos.
+    public int deletarPorIdIngrediente(int id) throws SQLException {
         String sql = "delete from produto_ingrediente where id_ingrediente = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -130,7 +137,8 @@ public class ProdutoIngredienteDAO {
         }
     }
 
-    public int deleteByIdProduto(int id) throws SQLException {
+    // Deleta todos os ingredientes ligados ao produto escolhido.
+    public int deletarPorIdProduto(int id) throws SQLException {
         String sql = "delete from produto_ingrediente where id_produto = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {

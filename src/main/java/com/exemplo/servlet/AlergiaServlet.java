@@ -18,12 +18,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet das alergias: recebe as requisições da tela e chama o AlergiaDAO.
 @WebServlet("/alergias")
 public class AlergiaServlet extends HttpServlet {
 
     private final AlergiaDAO alergiaDAO = new AlergiaDAO();
 
-    //create
+    //cadastrar
+    // Cadastra uma alergia com o nome vindo do formulário e volta para a lista.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,7 +51,7 @@ public class AlergiaServlet extends HttpServlet {
         try {
             Alergia alergia = new Alergia(nome.trim());
 
-            if (alergiaDAO.inserirAlergia(alergia)) {
+            if (alergiaDAO.cadastrar(alergia)) {
                 response.sendRedirect(request.getContextPath() + "/alergias");
             } else {
                 request.setAttribute("erro", "Não foi possível cadastrar a alergia.");
@@ -68,7 +70,8 @@ public class AlergiaServlet extends HttpServlet {
         }
     }
 
-    //read
+    //listar
+    // Abre as telas: com acao=novo abre o cadastro, com id abre a alteração e sem nada mostra a lista.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -83,8 +86,9 @@ public class AlergiaServlet extends HttpServlet {
 
         try {
             if (idTexto != null && !idTexto.isBlank()) {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int id = Integer.parseInt(idTexto);
-                Alergia alergia = alergiaDAO.readById(id);
+                Alergia alergia = alergiaDAO.listarPorId(id);
 
                 if (alergia == null) {
                     response.sendRedirect(request.getContextPath() + "/alergias");
@@ -96,7 +100,7 @@ public class AlergiaServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<Alergia> listaAlergias = alergiaDAO.read();
+            ArrayList<Alergia> listaAlergias = alergiaDAO.listar();
             request.setAttribute("alergias", listaAlergias);
             request.getRequestDispatcher("/WEB-INF/views/lista_alergias.jsp").forward(request, response);
         } catch (NumberFormatException nfe) {
@@ -106,7 +110,8 @@ public class AlergiaServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera uma alergia com os dados que chegam em JSON pelo JavaScript da tela.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -114,9 +119,11 @@ public class AlergiaServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idAlergia") || !json.has("nome")) {
@@ -141,7 +148,7 @@ public class AlergiaServlet extends HttpServlet {
             }
 
             Alergia alergia = new Alergia(id, nome.trim());
-            int linhas = alergiaDAO.update(alergia);
+            int linhas = alergiaDAO.alterar(alergia);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -165,7 +172,8 @@ public class AlergiaServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta a alergia pelo id e responde com o status do resultado.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -184,7 +192,7 @@ public class AlergiaServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idTexto);
-            int linhas = alergiaDAO.deleteById(id);
+            int linhas = alergiaDAO.deletarPorId(id);
 
             if (linhas>0){
                 response.setStatus(200);

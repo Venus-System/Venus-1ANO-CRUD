@@ -19,12 +19,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet dos nomes dos ingredientes: chama o NomeIngredienteDAO.
 @WebServlet("/nomeIngredientes")
 public class NomeIngredienteServlet extends HttpServlet {
 
     private final NomeIngredienteDAO nomeIngredienteDAO = new NomeIngredienteDAO();
 
-    //create
+    //cadastrar
+    // Cadastra um nome para o ingrediente escolhido e volta para a lista dele.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,11 +45,12 @@ public class NomeIngredienteServlet extends HttpServlet {
         } else {
 
             try {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
 
                 NomeIngrediente nomeIngrediente = new NomeIngrediente(nome.trim(), idIngrediente);
 
-                if (nomeIngredienteDAO.cadastrarNomeIngrediente(nomeIngrediente)) {
+                if (nomeIngredienteDAO.cadastrar(nomeIngrediente)) {
                     response.sendRedirect(request.getContextPath() + "/nomeIngredientes?idIngrediente=" + idIngrediente);
                     //sendRedirect --> O navegador faz uma nova requsição para a URL. É usado o doPost depois de cadastrar para o usuário não reenviar o formulário ao atualizar a página.
                     // request.getContextPath --> Devolve o PREFIXO da URL (/Venus2). é necessário no sendRedirect porque o redirect é feito pelo navegador. que interpreta /usuarios como URL sem o nome Venus (app). Com o ContextPath, fica correto.
@@ -59,6 +62,7 @@ public class NomeIngredienteServlet extends HttpServlet {
             } catch (NumberFormatException nfe) {
                 erro = "Id do igrediente inválido.";
             } catch (SQLException sqle) {
+                // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
                 if (sqle.getSQLState() != null && sqle.getSQLState().startsWith("23")) {
                     erro = "Ingrediente informado não existe ou o registro já está cadastrado.";
                 } else {
@@ -72,7 +76,8 @@ public class NomeIngredienteServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_nome_ingrediente.jsp").forward(request, response);
     }
 
-    //read
+    //listar
+    // Abre as telas: cadastro, alteração ou lista (de todos ou só os nomes de um ingrediente).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -89,7 +94,7 @@ public class NomeIngredienteServlet extends HttpServlet {
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                NomeIngrediente nomeIngrediente = nomeIngredienteDAO.readById(id);
+                NomeIngrediente nomeIngrediente = nomeIngredienteDAO.listarPorId(id);
 
                 if (nomeIngrediente == null) {
                     response.sendRedirect(request.getContextPath() + "/nomeIngredientes");
@@ -101,11 +106,11 @@ public class NomeIngredienteServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<NomeIngrediente> listaIngredientes = nomeIngredienteDAO.read();
+            ArrayList<NomeIngrediente> listaIngredientes = nomeIngredienteDAO.listar();
             if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
-                listaIngredientes = nomeIngredienteDAO.readByIdIngrediente(Integer.parseInt(idIngredienteTexto));
+                listaIngredientes = nomeIngredienteDAO.listarPorIdIngrediente(Integer.parseInt(idIngredienteTexto));
             } else {
-                listaIngredientes = nomeIngredienteDAO.read();
+                listaIngredientes = nomeIngredienteDAO.listar();
             }
 
             request.setAttribute("nomesIngredientes", listaIngredientes); // mesmo nome nos dois casos
@@ -119,7 +124,8 @@ public class NomeIngredienteServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera o nome com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -130,6 +136,7 @@ public class NomeIngredienteServlet extends HttpServlet {
 
         //define decodificação de caracteres.
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
         /*
             - Abre um leitor de texto sobre o corpo.
@@ -138,6 +145,7 @@ public class NomeIngredienteServlet extends HttpServlet {
          */
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
             // Converte o texto JSON em um objeto Java Navegável. Interpreta a String como JSON.
 
@@ -165,7 +173,7 @@ public class NomeIngredienteServlet extends HttpServlet {
 
             NomeIngrediente nomeIngrediente = new NomeIngrediente(id, nome.trim());
 
-            int linhas = nomeIngredienteDAO.alterarValores(nomeIngrediente);
+            int linhas = nomeIngredienteDAO.alterar(nomeIngrediente);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -189,7 +197,8 @@ public class NomeIngredienteServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta um nome pelo id ou todos os nomes de um ingrediente.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -203,10 +212,10 @@ public class NomeIngredienteServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                linhas = nomeIngredienteDAO.deleteById(Integer.parseInt(idTexto));
+                linhas = nomeIngredienteDAO.deletarPorId(Integer.parseInt(idTexto));
                 //aqui exclui, pela chave da tabela IDNOME!
             } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
-                linhas = nomeIngredienteDAO.deleteByIdIngrediente(Integer.parseInt(idIngredienteTexto));
+                linhas = nomeIngredienteDAO.deletarPorIdIngrediente(Integer.parseInt(idIngredienteTexto));
                 //aqui exclui TODOS os NOMES de um ingrediente
 
             } else {

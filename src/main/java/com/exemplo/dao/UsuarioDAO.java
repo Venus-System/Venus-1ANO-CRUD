@@ -10,9 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela usuario: faz o CRUD dos usuários e as consultas usadas no login.
 public class UsuarioDAO {
 
-    public boolean cadastrarUsuario(Usuario usuario) throws SQLException {
+    // Cadastra um novo usuário.
+    public boolean cadastrar(Usuario usuario) throws SQLException {
         String sql = "insert into usuario(nome_completo, genero, email, senha ,telefone,  dt_nascimento ,dt_cadastro) values (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -31,7 +33,8 @@ public class UsuarioDAO {
     }
 
 
-    public ArrayList<Usuario> read() throws SQLException {
+    // Lista todos os usuários, em ordem de id.
+    public ArrayList<Usuario> listar() throws SQLException {
         String sql = "select * from usuario order by id_usuario";
         ArrayList<Usuario> usuario = new ArrayList<>();
 
@@ -56,7 +59,8 @@ public class UsuarioDAO {
 
     }
 
-    public Usuario readById(int id) throws SQLException {
+    // Busca um usuário pelo id. Usado para preencher o formulário de alteração e a tela de detalhes.
+    public Usuario listarPorId(int id) throws SQLException {
         String sql = "select * from usuario where id_usuario =?";
         Usuario usuario = null; //ainda sem objeto
 
@@ -87,6 +91,7 @@ public class UsuarioDAO {
         return usuario;
     }
 
+    // Confere se o usuário tem nível admin. Usado para liberar as telas de administrador.
     public boolean ehAdmin(int id) throws SQLException {
         String sql = "select 1 from usuario where id_usuario = ? and nivel = 'admin'";
 
@@ -101,7 +106,8 @@ public class UsuarioDAO {
         }
     }
 
-    public Usuario readByEmail(String email) throws SQLException {
+    // Busca o usuário pelo e-mail. Usado no login e na troca de senha.
+    public Usuario listarPorEmail(String email) throws SQLException {
         String sql = "select * from usuario where email =? order by id_usuario limit 1";
         Usuario usuario = null;
         //ainda sem objeto
@@ -133,7 +139,8 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public ArrayList<Usuario> readByName(String nomeCompleto) throws SQLException {
+    // Lista os usuários cujo nome contém o texto pesquisado (filtro da tela).
+    public ArrayList<Usuario> listarPorNome(String nomeCompleto) throws SQLException {
         String sql = "select * from usuario where nome_completo like ? ";
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
 
@@ -167,7 +174,8 @@ public class UsuarioDAO {
         return listaUsuarios;
     }
 
-    public int update(Usuario usuario) throws SQLException {
+    // Altera os dados do usuário, menos a senha, que tem um método só para ela.
+    public int alterar(Usuario usuario) throws SQLException {
         String sql = "update usuario set nome_completo = ?, genero = ?, email = ?, telefone = ?, dt_nascimento = ? where id_usuario = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -183,6 +191,7 @@ public class UsuarioDAO {
         }
     }
 
+    // Troca a senha do usuário.
     public boolean trocarSenha(int idUsuario, String novaSenha) throws SQLException {
         String sql = "update usuario set senha = ? where id_usuario = ?";
 
@@ -200,7 +209,8 @@ public class UsuarioDAO {
     }
 
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o usuário pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from usuario where id_usuario = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -210,7 +220,8 @@ public class UsuarioDAO {
         }
     }
 
-    public int deleteByEmail(String email) throws SQLException {
+    // Deleta o usuário pelo e-mail.
+    public int deletarPorEmail(String email) throws SQLException {
         String sql = "delete from usuario where email=?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {
@@ -219,6 +230,7 @@ public class UsuarioDAO {
         }
     }
 
+    // Confere se o e-mail já está cadastrado, para não deixar dois usuários com o mesmo e-mail.
     public boolean existeEmail(String email) throws SQLException {
         String sql = "select 1 FROM usuario WHERE email = ?";
 

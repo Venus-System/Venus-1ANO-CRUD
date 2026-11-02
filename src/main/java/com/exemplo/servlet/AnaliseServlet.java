@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet das análises: recebe as requisições da tela e chama o AnaliseDAO.
 @WebServlet("/analises")
 public class AnaliseServlet extends HttpServlet {
 
@@ -27,7 +28,8 @@ public class AnaliseServlet extends HttpServlet {
     private static final String MSG_RESUMO_INVALIDO = "O resumo deve ter no máximo 500 caracteres.";
     private static final String MSG_PONTUACAO_INVALIDA = "A pontuação deve ficar entre 0 e 100.";
 
-    //create
+    //cadastrar
+    // Cadastra uma análise para o usuário escolhido e volta para a lista dele.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,6 +51,7 @@ public class AnaliseServlet extends HttpServlet {
             erro = MSG_RESUMO_INVALIDO;
         } else {
             try {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int pontuacao = Integer.parseInt(pontuacaoTexto.trim());
                 int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
 
@@ -57,7 +60,7 @@ public class AnaliseServlet extends HttpServlet {
                 } else {
                     Analise analise = new Analise(resumoResultado.trim(), pontuacao, idUsuario);
 
-                    if (analiseDAO.cadastrarAnalise(analise)) {
+                    if (analiseDAO.cadastrar(analise)) {
                         response.sendRedirect(request.getContextPath() + "/analises?idUsuario=" + idUsuario);
                         return;
                     }
@@ -69,6 +72,7 @@ public class AnaliseServlet extends HttpServlet {
                 String estado = sqle.getSQLState();
                 if ("23503".equals(estado)) {
                     erro = "Usuário não existe.";
+                // Códigos que começam com 23 são erros de regra do banco (chave estrangeira, UNIQUE ou CHECK).
                 } else if (estado != null && estado.startsWith("23")) {
                     erro = "Algum dado não foi aceito pelo banco.";
                 } else {
@@ -79,7 +83,7 @@ public class AnaliseServlet extends HttpServlet {
 
         // único forward: só chega aqui quando houve erro
         try {
-            request.setAttribute("usuarios", usuarioDAO.read());
+            request.setAttribute("usuarios", usuarioDAO.listar());
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar usuários.", sqle);
         }
@@ -87,7 +91,8 @@ public class AnaliseServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_analise.jsp").forward(request, response);
     }
 
-    //read
+    //listar
+    // Abre as telas: cadastro, alteração ou lista (de todas as análises ou só as de um usuário).
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -98,14 +103,14 @@ public class AnaliseServlet extends HttpServlet {
 
         try {
             if ("novo".equals(acao)) {
-                request.setAttribute("usuarios", usuarioDAO.read());
+                request.setAttribute("usuarios", usuarioDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_analise.jsp").forward(request, response);
                 return;
             }
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                Analise analise = analiseDAO.readById(id);
+                Analise analise = analiseDAO.listarPorId(id);
 
                 if (analise == null) {
                     response.sendRedirect(request.getContextPath() + "/analises");
@@ -119,9 +124,9 @@ public class AnaliseServlet extends HttpServlet {
 
             ArrayList<Analise> lista;
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                lista = analiseDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                lista = analiseDAO.listarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else {
-                lista = analiseDAO.read();
+                lista = analiseDAO.listar();
             }
 
             request.setAttribute("analises", lista);
@@ -134,7 +139,8 @@ public class AnaliseServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera o resumo e a pontuação da análise com os dados em JSON.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -143,9 +149,11 @@ public class AnaliseServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
 
             if (!json.has("idAnalise") || !json.has("resumoResultado") || !json.has("pontuacao")) {
@@ -177,7 +185,7 @@ public class AnaliseServlet extends HttpServlet {
             }
 
             Analise analise = new Analise(id, resumoResultado.trim(), pontuacao);
-            int linhas = analiseDAO.update(analise);
+            int linhas = analiseDAO.alterar(analise);
 
             if (linhas > 0) {
                 response.setStatus(200);
@@ -198,7 +206,8 @@ public class AnaliseServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta uma análise pelo id ou todas as análises de um usuário.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -213,9 +222,9 @@ public class AnaliseServlet extends HttpServlet {
             int linhas;
 
             if (idTexto != null && !idTexto.isBlank()) {
-                linhas = analiseDAO.deleteById(Integer.parseInt(idTexto));
+                linhas = analiseDAO.deletarPorId(Integer.parseInt(idTexto));
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                linhas = analiseDAO.deleteByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                linhas = analiseDAO.deletarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else {
                 response.setStatus(400);
                 response.getWriter().write("Id não informado.");

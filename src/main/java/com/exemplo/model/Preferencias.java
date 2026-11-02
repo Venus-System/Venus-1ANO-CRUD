@@ -1,7 +1,9 @@
 package com.exemplo.model;
 
+// Model da tabela preferencias: cada objeto desta classe representa as preferências do usuário, como faixa de preço, marcas e categoria.
 public class Preferencias {
 
+    // Atributos: cada um guarda o valor de uma coluna da tabela.
     private int idPreferencias;
     private String faixaPreco;
     private Boolean prefereVegano;
@@ -10,6 +12,7 @@ public class Preferencias {
     private String marcasFav;
     private int idUsuario;
 
+    // Construtor completo: usado quando os dados são lidos do banco.
     public Preferencias(int idPreferencias, String faixaPreco, Boolean prefereVegano, String restricoesDieta, String categoriaPref, String marcasFav, int idUsuario) {
         this.idPreferencias = idPreferencias;
         this.faixaPreco = faixaPreco;
@@ -20,6 +23,7 @@ public class Preferencias {
         this.idUsuario = idUsuario;
     }
 
+    // Construtor sem o id: usado no cadastro, porque o banco cria o id sozinho.
     public Preferencias(String faixaPreco, Boolean prefereVegano, String restricoesDieta, String categoriaPref, String marcasFav, int idUsuario) {
         this.faixaPreco = faixaPreco;
         this.prefereVegano = prefereVegano;
@@ -29,6 +33,7 @@ public class Preferencias {
         this.idUsuario = idUsuario;
     }
 
+    // Construtor com o id e os campos que podem mudar: usado na alteração.
     public Preferencias(int idPreferencias, String faixaPreco, Boolean prefereVegano, String restricoesDieta, String categoriaPref, String marcasFav) {
         this.idPreferencias = idPreferencias;
         this.faixaPreco = faixaPreco;
@@ -38,6 +43,7 @@ public class Preferencias {
         this.marcasFav = marcasFav;
     }
 
+    // Getters e setters: leem e alteram os atributos, que são privados.
     public int getIdPreferencias() {
         return idPreferencias;
     }
@@ -94,6 +100,7 @@ public class Preferencias {
         this.idUsuario = idUsuario;
     }
 
+    // toString: mostra os dados do objeto em texto, útil para testes.
     @Override
     public String toString() {
         return "Id Preferências: " + getIdPreferencias() + "\n" +

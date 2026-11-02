@@ -14,13 +14,15 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// Servlet que liga os produtos aos ingredientes.
 @WebServlet("/produtoIngredientes")
 public class ProdutoIngredienteServlet extends HttpServlet {
 
     private final ProdutoIngredienteDAO produtoIngredienteDAO = new ProdutoIngredienteDAO();
     private final IngredientesDAO ingredientesDAO = new IngredientesDAO();
 
-    //create
+    //cadastrar
+    // Cadastra um ingrediente no produto e volta para a lista desse produto.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -40,12 +42,13 @@ public class ProdutoIngredienteServlet extends HttpServlet {
         } else {
 
             try {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int idIngrediente = Integer.parseInt(idIngredienteTexto);
                 int idProduto = Integer.parseInt(idProdutoTexto);
 
                 ProdutoIngrediente produtoIngrediente = new ProdutoIngrediente(idIngrediente, idProduto);
 
-                if (produtoIngredienteDAO.cadastrarProdutoIngrediente(produtoIngrediente)) {
+                if (produtoIngredienteDAO.cadastrar(produtoIngrediente)) {
                     response.sendRedirect(request.getContextPath() + "/produtoIngredientes?idProduto=" + idProduto);
                     return;
                 }
@@ -55,6 +58,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
                 erro = "Dados inválidos. Selecione o produto e o ingrediente e tente novamente.";
             } catch (SQLException sqle) {
                 String estado = sqle.getSQLState();
+                // 23505 é o código do banco para registro repetido.
                 if ("23505".equals(estado)) {
                     erro = "Este produto já possui esse ingrediente.";
                 } else if ("23503".equals(estado)) {
@@ -66,7 +70,7 @@ public class ProdutoIngredienteServlet extends HttpServlet {
         }
 
         try {
-            request.setAttribute("ingredientes", ingredientesDAO.read());
+            request.setAttribute("ingredientes", ingredientesDAO.listar());
         } catch (SQLException sqle) {
             throw new ServletException("Erro ao buscar ingredientes", sqle);
         }
@@ -75,7 +79,8 @@ public class ProdutoIngredienteServlet extends HttpServlet {
     }
 
 
-        //read
+        //listar
+        // Abre o cadastro ou mostra a lista (de todos ou só os ingredientes de um produto).
         @Override
         protected void doGet (HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -84,21 +89,21 @@ public class ProdutoIngredienteServlet extends HttpServlet {
             String acao = request.getParameter("acao");
             try {
                 if ("novo".equals(acao)) {
-                    request.setAttribute("ingredientes", ingredientesDAO.read());
+                    request.setAttribute("ingredientes", ingredientesDAO.listar());
                     request.getRequestDispatcher("/WEB-INF/views/cadastro_produto_ingrediente.jsp").forward(request, response);
                     return;
                 }
 
                 if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
                     int idProduto = Integer.parseInt(idProdutoTexto);
-                    ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.readByIdProduto(idProduto);
+                    ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.listarPorIdProduto(idProduto);
 
                     request.setAttribute("produtosIngredientes", listaProduto);
                     request.getRequestDispatcher("/WEB-INF/views/lista_produto_ingrediente.jsp").forward(request, response);
                     return;
                 }
 
-                ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.read();
+                ArrayList<ProdutoIngrediente> listaProduto = produtoIngredienteDAO.listar();
                 request.setAttribute("produtosIngredientes", listaProduto);
                 request.getRequestDispatcher("/WEB-INF/views/lista_produto_ingrediente.jsp").forward(request, response);
             } catch (NumberFormatException nfe) {
@@ -108,9 +113,10 @@ public class ProdutoIngredienteServlet extends HttpServlet {
             }
         }
 
-        //delete
+        //deletar
         @Override
 
+        // Deleta um vínculo pelo id, ou todos de um ingrediente, ou todos de um produto.
         protected void doDelete (HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -126,13 +132,13 @@ public class ProdutoIngredienteServlet extends HttpServlet {
 
                 if (idTexto != null && !idTexto.isBlank()) {
                     int id = Integer.parseInt(idTexto);
-                    linhas = produtoIngredienteDAO.deleteById(id);
+                    linhas = produtoIngredienteDAO.deletarPorId(id);
                 } else if (idIngredienteTexto != null && !idIngredienteTexto.isBlank()) {
                     int idIngrediente = Integer.parseInt(idIngredienteTexto);
-                    linhas = produtoIngredienteDAO.deleteByIdIngrediente(idIngrediente);
+                    linhas = produtoIngredienteDAO.deletarPorIdIngrediente(idIngrediente);
                 } else if (idProdutoTexto != null && !idProdutoTexto.isBlank()) {
                     int idProduto = Integer.parseInt(idProdutoTexto);
-                    linhas = produtoIngredienteDAO.deleteByIdProduto(idProduto);
+                    linhas = produtoIngredienteDAO.deletarPorIdProduto(idProduto);
                 } else {
                     response.setStatus(400);
                     response.getWriter().write("Id não informado.");

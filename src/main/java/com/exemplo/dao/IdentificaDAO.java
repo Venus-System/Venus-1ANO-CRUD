@@ -9,14 +9,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela identifica: liga cada análise aos ingredientes identificados nela.
 public class IdentificaDAO {
 
+    // SELECT usado nas listagens. O LEFT JOIN traz o tipo e o nível de perigo do ingrediente e mantém a linha mesmo se o ingrediente não existir mais.
     private static final String SELECT_COM_INGREDIENTE =
             "select ide.id_ingrediente, ide.id_analise, i.tipo, i.nivel_perigo " +
             "from identifica ide " +
             "left join ingredientes i on i.id_ingrediente = ide.id_ingrediente ";
 
-    public boolean cadastrarIdentifica(Identifica identifica) throws SQLException {
+    // Cadastra um ingrediente identificado em uma análise.
+    public boolean cadastrar(Identifica identifica) throws SQLException {
         String sql = "insert into identifica (id_ingrediente, id_analise) values (?, ?)";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -27,7 +30,8 @@ public class IdentificaDAO {
         }
     }
 
-    public ArrayList<Identifica> read() throws SQLException {
+    // Lista todos os ingredientes identificados, junto com o tipo e o nível de perigo.
+    public ArrayList<Identifica> listar() throws SQLException {
         String sql = SELECT_COM_INGREDIENTE + "order by ide.id_analise, ide.id_ingrediente";
         ArrayList<Identifica> lista = new ArrayList<>();
 
@@ -41,7 +45,8 @@ public class IdentificaDAO {
         return lista;
     }
 
-    public Identifica readByChave(int idAnalise, int idIngrediente) throws SQLException {
+    // Busca uma ligação pela chave dupla (id da análise + id do ingrediente).
+    public Identifica listarPorChave(int idAnalise, int idIngrediente) throws SQLException {
         String sql = SELECT_COM_INGREDIENTE + "where ide.id_analise = ? and ide.id_ingrediente = ?";
         Identifica identifica = null;
 
@@ -59,7 +64,8 @@ public class IdentificaDAO {
         return identifica;
     }
 
-    public ArrayList<Identifica> readByIdAnalise(int idAnalise) throws SQLException {
+    // Lista os ingredientes identificados na análise escolhida.
+    public ArrayList<Identifica> listarPorIdAnalise(int idAnalise) throws SQLException {
         String sql = SELECT_COM_INGREDIENTE + "where ide.id_analise = ? order by ide.id_ingrediente";
         ArrayList<Identifica> lista = new ArrayList<>();
 
@@ -76,7 +82,8 @@ public class IdentificaDAO {
         return lista;
     }
 
-    public int update(int idAnalise, int idIngredienteAntigo, int idIngredienteNovo) throws SQLException {
+    // Troca o ingrediente ligado a uma análise: o antigo sai e o novo entra no lugar.
+    public int alterar(int idAnalise, int idIngredienteAntigo, int idIngredienteNovo) throws SQLException {
         String sql = "update identifica set id_ingrediente = ? where id_analise = ? and id_ingrediente = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -88,7 +95,8 @@ public class IdentificaDAO {
         }
     }
 
-    public int delete(int idAnalise, int idIngrediente) throws SQLException {
+    // Deleta a ligação entre a análise e o ingrediente escolhidos.
+    public int deletar(int idAnalise, int idIngrediente) throws SQLException {
         String sql = "delete from identifica where id_analise = ? and id_ingrediente = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -99,7 +107,8 @@ public class IdentificaDAO {
         }
     }
 
-    public int deleteByIdAnalise(int idAnalise) throws SQLException {
+    // Deleta todos os ingredientes ligados à análise escolhida.
+    public int deletarPorIdAnalise(int idAnalise) throws SQLException {
         String sql = "delete from identifica where id_analise = ?";
 
         try (Connection cnn = ConexaoBanco.conectar();
@@ -109,6 +118,7 @@ public class IdentificaDAO {
         }
     }
 
+    // Monta o objeto Identifica a partir da linha do banco, para não repetir esse código nas listagens.
     private Identifica montar(ResultSet rset) throws SQLException {
         Identifica identifica = new Identifica(rset.getInt("id_ingrediente"), rset.getInt("id_analise"));
         identifica.setTipoIngrediente(rset.getString("tipo"));

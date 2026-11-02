@@ -9,8 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// DAO da tabela produto: faz o CRUD dos produtos.
 public class ProdutoDAO {
-    public boolean cadastrarProduto(Produto produto) throws SQLException{
+    // Cadastra um novo produto.
+    public boolean cadastrar(Produto produto) throws SQLException{
         String sql = "insert into produto (nome, marca, categoria, descricao, eh_vegano, eh_cruelty_free, pontuacao, lista_ingredientes) values (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection cnn= ConexaoBanco.conectar();
@@ -29,7 +31,8 @@ public class ProdutoDAO {
         }
     }
 
-    public ArrayList<Produto> read() throws SQLException {
+    // Lista todos os produtos, em ordem de id.
+    public ArrayList<Produto> listar() throws SQLException {
         String sql = "select * from produto order by id_produto";
         ArrayList<Produto> produtos = new ArrayList<>();
 
@@ -55,7 +58,8 @@ public class ProdutoDAO {
 
     }
 
-    public Produto readById(int id) throws SQLException{
+    // Busca um produto pelo id. Usado para preencher o formulário de alteração.
+    public Produto listarPorId(int id) throws SQLException{
         String sql = "select * from produto where id_produto = ?";
         Produto produto = null;
         //ainda sem objeto
@@ -85,7 +89,8 @@ public class ProdutoDAO {
         } return produto;
     }
 
-    public ArrayList<Produto> readByName(String nome) throws SQLException{
+    // Lista os produtos cujo nome contém o texto pesquisado (filtro da tela).
+    public ArrayList<Produto> listarPorNome(String nome) throws SQLException{
         String sql = "select * from produto where nome like ?";
         ArrayList<Produto> listaProdutos =  new ArrayList<>();
 
@@ -117,7 +122,8 @@ public class ProdutoDAO {
         } return listaProdutos;
     }
 
-    public ArrayList<Produto> readByBrand(String marca) throws SQLException{
+    // Lista os produtos da marca pesquisada (filtro da tela).
+    public ArrayList<Produto> listarPorMarca(String marca) throws SQLException{
         String sql = "select * from produto where marca like ?";
         ArrayList<Produto> listaProdutosMarca = new ArrayList<>();
 
@@ -147,7 +153,8 @@ public class ProdutoDAO {
         } return listaProdutosMarca;
     }
 
-    public int update (Produto produto) throws SQLException {
+    // Altera todos os dados do produto escolhido.
+    public int alterar(Produto produto) throws SQLException {
         String sql = "update produto set nome =? , marca =?, categoria =?, descricao =?, eh_vegano =?, eh_cruelty_free =?, pontuacao =?, lista_ingredientes= ? where id_produto = ? ";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)){
@@ -167,7 +174,8 @@ public class ProdutoDAO {
     }
 
 
-    public int deleteById(int id) throws SQLException {
+    // Deleta o produto pelo id.
+    public int deletarPorId(int id) throws SQLException {
         String sql = "delete from produto where id_produto = ?";
         try (Connection cnn = ConexaoBanco.conectar();
              PreparedStatement pstmt = cnn.prepareStatement(sql)) {

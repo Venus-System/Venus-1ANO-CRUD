@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+// Servlet das preferências: chama o PreferenciasDAO e atualiza as recomendações.
 @WebServlet("/preferencias")
 public class PreferenciasServlet extends HttpServlet {
 
@@ -26,11 +27,13 @@ public class PreferenciasServlet extends HttpServlet {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final RecomendaDAO recomendaDAO = new RecomendaDAO();
 
+    // Devolve o texto sem espaços nas pontas, ou texto vazio quando vier null.
     private String valor(String texto) {
         return texto == null ? "" : texto.trim();
     }
 
-    //create
+    //cadastrar
+    // Cadastra as preferências e já refaz as recomendações do usuário com base nelas.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -58,11 +61,12 @@ public class PreferenciasServlet extends HttpServlet {
         } else {
 
             try {
+                // Converte o texto recebido em número. Se não for número, cai no NumberFormatException.
                 int idUsuario = Integer.parseInt(idUsuarioTexto.trim());
 
                 Preferencias preferencias = new Preferencias(faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav, idUsuario);
 
-                if (preferenciasDAO.cadastrarPreferencias(preferencias)) {
+                if (preferenciasDAO.cadastrar(preferencias)) {
                     recomendaDAO.recomendarPelasPreferencias(idUsuario);
                     response.sendRedirect(request.getContextPath() + "/preferencias");
                     return;
@@ -75,6 +79,7 @@ public class PreferenciasServlet extends HttpServlet {
                 String estado = sqle.getSQLState();
                 if ("23503".equals(estado)) {
                     erro = "Usuário não existe.";
+                // 23505 é o código do banco para registro repetido.
                 } else if ("23505".equals(estado)) {
                     erro = "Esta preferência já está cadastrada para o usuário.";
                 } else {
@@ -83,7 +88,7 @@ public class PreferenciasServlet extends HttpServlet {
             }
 
             try {
-                request.setAttribute("usuarios", usuarioDAO.read());
+                request.setAttribute("usuarios", usuarioDAO.listar());
             } catch (SQLException sqle) {
                 throw new ServletException("Erro ao buscar usuários.", sqle);
             }
@@ -93,7 +98,8 @@ public class PreferenciasServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cadastro_preferencias.jsp").forward(request, response);
     }
 
-    //read
+    //listar
+    // Abre as telas e mostra a lista com filtros: por usuário, por faixa de preço ou por marca.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -106,14 +112,14 @@ public class PreferenciasServlet extends HttpServlet {
 
         try {
             if ("novo".equals(acao)) {
-                request.setAttribute("usuarios", usuarioDAO.read());
+                request.setAttribute("usuarios", usuarioDAO.listar());
                 request.getRequestDispatcher("/WEB-INF/views/cadastro_preferencias.jsp").forward(request, response);
                 return;
             }
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                Preferencias preferencias = preferenciasDAO.readById(id);
+                Preferencias preferencias = preferenciasDAO.listarPorId(id);
 
                 if (preferencias == null) {
                     response.sendRedirect(request.getContextPath() + "/preferencias");
@@ -125,15 +131,15 @@ public class PreferenciasServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<Preferencias> listaPreferencias = preferenciasDAO.read();
+            ArrayList<Preferencias> listaPreferencias = preferenciasDAO.listar();
             if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
-                listaPreferencias = preferenciasDAO.readByIdUsuario(Integer.parseInt(idUsuarioTexto));
+                listaPreferencias = preferenciasDAO.listarPorIdUsuario(Integer.parseInt(idUsuarioTexto));
             } else if (faixaPrecoBusca != null && !faixaPrecoBusca.isBlank()) {
-                listaPreferencias = preferenciasDAO.readByPreco(faixaPrecoBusca.trim());
+                listaPreferencias = preferenciasDAO.listarPorPreco(faixaPrecoBusca.trim());
             } else if (marcaBusca != null && !marcaBusca.isBlank()) {
-                listaPreferencias = preferenciasDAO.readByBrand(marcaBusca.trim());
+                listaPreferencias = preferenciasDAO.listarPorMarca(marcaBusca.trim());
             } else {
-                listaPreferencias = preferenciasDAO.read();
+                listaPreferencias = preferenciasDAO.listar();
             }
 
             request.setAttribute("listaPreferencias", listaPreferencias);
@@ -146,7 +152,8 @@ public class PreferenciasServlet extends HttpServlet {
         }
     }
 
-    //update
+    //alterar
+    // Altera as preferências com os dados em JSON e refaz as recomendações do usuário.
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -155,9 +162,11 @@ public class PreferenciasServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
 
+        // Lê o corpo da requisição: no PUT os dados chegam em JSON, e não pelo getParameter.
         String corpo = request.getReader().lines().collect(Collectors.joining());
 
         try {
+            // Transforma o texto JSON em um objeto, para ler cada campo pelo nome.
             JsonObject json = JsonParser.parseString(corpo).getAsJsonObject();
             //formato de texto para representar dados. É escolhido o formato do corpo da requisição. Json é simples, legível e funciona em qualquer linguagem.
             if (!json.has("idPreferencias") || !json.has("faixaPreco")
@@ -187,10 +196,10 @@ public class PreferenciasServlet extends HttpServlet {
 
             Preferencias preferencias = new Preferencias(id, faixaPreco, prefereVegano, restricoesDieta, categoriaPref, marcasFav);
 
-            int linhas = preferenciasDAO.update(preferencias);
+            int linhas = preferenciasDAO.alterar(preferencias);
 
             if (linhas > 0) {
-                recomendaDAO.recomendarPelasPreferencias(preferenciasDAO.readById(id).getIdUsuario());
+                recomendaDAO.recomendarPelasPreferencias(preferenciasDAO.listarPorId(id).getIdUsuario());
                 response.setStatus(200);
             } else {
                 response.setStatus(404);
@@ -209,7 +218,8 @@ public class PreferenciasServlet extends HttpServlet {
         }
     }
 
-    //delete
+    //deletar
+    // Deleta uma preferência ou todas de um usuário e refaz as recomendações.
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -225,14 +235,14 @@ public class PreferenciasServlet extends HttpServlet {
 
             if (idTexto != null && !idTexto.isBlank()) {
                 int id = Integer.parseInt(idTexto);
-                Preferencias preferencias = preferenciasDAO.readById(id);
-                linhas = preferenciasDAO.deleteById(id);
+                Preferencias preferencias = preferenciasDAO.listarPorId(id);
+                linhas = preferenciasDAO.deletarPorId(id);
                 if (preferencias != null) {
                     recomendaDAO.recomendarPelasPreferencias(preferencias.getIdUsuario());
                 }
             } else if (idUsuarioTexto != null && !idUsuarioTexto.isBlank()) {
                 int idUsuario = Integer.parseInt(idUsuarioTexto);
-                linhas = preferenciasDAO.deleteByIdUsuario(idUsuario);
+                linhas = preferenciasDAO.deletarPorIdUsuario(idUsuario);
                 recomendaDAO.recomendarPelasPreferencias(idUsuario);
             } else {
                 response.setStatus(400);
